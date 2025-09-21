@@ -11,50 +11,56 @@ st.set_page_config(
 )
 
 # ---------------------------
-# Custom CSS for Dark Theme
+# Custom CSS for Light Theme
 # ---------------------------
 st.markdown("""
     <style>
         /* Background */
         .stApp {
-            background-color: #0d1117;
-            color: #e6edf3;
+            background-color: #f9fafb;
+            color: #1f2937;
         }
 
         /* Sidebar */
         section[data-testid="stSidebar"] {
-            background-color: #161b22;
-            border-right: 1px solid #30363d;
+            background-color: #ffffff;
+            border-right: 1px solid #e5e7eb;
         }
 
         /* Titles */
         h1, h2, h3, h4 {
-            color: #58a6ff !important;
+            color: #1f2937 !important;
         }
 
         /* Tool cards */
         .tool-card {
-            background-color: #161b22;
+            background-color: #ffffff;
             padding: 1.2rem;
             border-radius: 12px;
-            box-shadow: 0px 2px 8px rgba(0,0,0,0.3);
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
             margin-bottom: 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.12);
         }
 
         .tool-card h3 {
             margin: 0;
-            color: #f0f6fc;
+            color: #111827;
         }
 
         .tool-card p {
             font-size: 0.9rem;
-            color: #8b949e;
+            color: #4b5563;
         }
 
+        /* Tags */
         .tag {
             display: inline-block;
-            background-color: #21262d;
-            color: #58a6ff;
+            background-color: #e5f0ff;
+            color: #1d4ed8;
             padding: 2px 8px;
             border-radius: 6px;
             margin-right: 5px;
@@ -63,24 +69,24 @@ st.markdown("""
 
         /* Buttons */
         .stLinkButton button {
-            background-color: #238636 !important;
+            background-color: #2563eb !important;
             color: white !important;
-            border-radius: 10px;
+            border-radius: 8px;
             border: none;
             padding: 6px 10px;
+            font-weight: 500;
         }
 
         .stLinkButton button:hover {
-            background-color: #2ea043 !important;
+            background-color: #1d4ed8 !important;
         }
 
         /* Expander */
         [data-testid="stExpander"] {
-            background-color: #0d1117;
-            border: 1px solid #30363d;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
             border-radius: 8px;
         }
-
     </style>
 """, unsafe_allow_html=True)
 
@@ -88,7 +94,7 @@ st.markdown("""
 # Header
 # ---------------------------
 st.title("🤖 AI Tool Hub")
-st.caption("⚡ A fast, beautiful directory of AI tools")
+st.caption("⚡ A clean, modern directory of AI tools")
 
 # ---------------------------
 # Sidebar Filters
@@ -195,4 +201,4 @@ else:
 # Footer
 # ---------------------------
 st.divider()
-st.caption("🌙 Made with ❤️ using Streamlit • Explore the best AI tools in style")
+st.caption("✨ Made with ❤️ using Streamlit • Find the perfect AI tool for your needs")
