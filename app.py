@@ -106,7 +106,7 @@ st.markdown("""
             background-color: #1d4ed8 !important;
         }
     </style>
-""", unsafe_allow_html=True) [web:29]
+""", unsafe_allow_html=True)
 
 # ---------------------------
 # Fake top-right navigation (static)
@@ -117,46 +117,46 @@ st.markdown("""
     <span class="nav-item">🗂 Preview</span>
     <span class="nav-item">⚙️ Options</span>
 </div>
-""", unsafe_allow_html=True) [web:29]
+""", unsafe_allow_html=True)
 
 # ---------------------------
 # Header
 # ---------------------------
-st.title("🤖 AI Tool Hub") [web:31]
-st.caption("⚡ A clean, modern directory of AI tools") [web:31]
+st.title("🤖 AI Tool Hub")
+st.caption("⚡ A clean, modern directory of AI tools")
 
 # ---------------------------
 # Sidebar Filters
 # ---------------------------
 with st.sidebar:
-    st.header("🔍 Filters") [web:31]
-
+    st.header("🔍 Filters")
+    
     selected_category = st.selectbox(
         "Category",
         options=["All"] + CATEGORIES,
         index=0
-    ) [web:31]
-
+    )
+    
     selected_plan = st.radio(
         "Pricing Plan",
         options=["All", "Free", "Free + Paid", "Paid", "Credits + Paid"],
         index=0
-    ) [web:31]
-
+    )
+    
     search_query = st.text_input(
         "Search tools",
         placeholder="Type to search..."
-    ).lower() [web:31]
-
-    st.divider() [web:31]
-
+    ).lower()
+    
+    st.divider()
+    
     per_page = st.slider(
         "Tools per page",
         min_value=6,
         max_value=24,
         value=12,
         step=6
-    ) [web:31]
+    )
 
 # ---------------------------
 # Tool Filtering Function
@@ -170,46 +170,46 @@ def filter_tools(tools, category, plan, query):
             continue
         if query:
             searchable_text = (
-                tool["name"].lower() + " " +
+                tool["name"].lower() + " " + 
                 tool.get("blurb", "").lower() + " " +
                 " ".join(tool.get("tags", [])).lower()
             )
             if query not in searchable_text:
                 continue
         filtered.append(tool)
-    return filtered  [web:31]
+    return filtered
 
 # ---------------------------
 # Filter + Paginate Tools
 # ---------------------------
-filtered_tools = filter_tools(TOOLS, selected_category, selected_plan, search_query) [web:31]
-total_tools = len(filtered_tools) [web:31]
+filtered_tools = filter_tools(TOOLS, selected_category, selected_plan, search_query)
+total_tools = len(filtered_tools)
 if total_tools > 0:
-    total_pages = (total_tools - 1) // per_page + 1  [web:31]
-    col1, col2, col3 = st.columns([2, 1, 2])  [web:31]
+    total_pages = (total_tools - 1) // per_page + 1
+    col1, col2, col3 = st.columns([2, 1, 2])
     with col2:
         current_page = st.number_input(
             f"Page (1-{total_pages})",
             min_value=1,
             max_value=total_pages,
             value=1
-        )  [web:31]
-
-    start_idx = (current_page - 1) * per_page  [web:31]
-    end_idx = min(start_idx + per_page, total_tools)  [web:31]
-    page_tools = filtered_tools[start_idx:end_idx]  [web:31]
-
-    st.write(f"**Showing {len(page_tools)} of {total_tools} tools**") [web:31]
-
+        )
+    
+    start_idx = (current_page - 1) * per_page
+    end_idx = min(start_idx + per_page, total_tools)
+    page_tools = filtered_tools[start_idx:end_idx]
+    
+    st.write(f"**Showing {len(page_tools)} of {total_tools} tools**")
+    
     # Grid Display
     for i in range(0, len(page_tools), 3):
-        cols = st.columns(3)  [web:31]
+        cols = st.columns(3)
         for j, col in enumerate(cols):
             tool_idx = i + j
             if tool_idx < len(page_tools):
                 tool = page_tools[tool_idx]
                 with col:
-                    # Card with logo + name row
+                    # Card with logo + name
                     logo_src = tool.get("logo", "")
                     st.markdown(f"""
                         <div class="tool-card">
@@ -221,17 +221,17 @@ if total_tools > 0:
                             <p>{tool.get('blurb', '')}</p>
                             {"".join([f'<span class="tag">#{tag}</span>' for tag in tool.get('tags', [])[:3]])}
                         </div>
-                    """, unsafe_allow_html=True)  [web:29][web:16]
-
-                    st.link_button("🚀 Launch Tool", tool["link"], use_container_width=True)  [web:31]
-
+                    """, unsafe_allow_html=True)
+                    
+                    st.link_button("🚀 Launch Tool", tool["link"], use_container_width=True)
+                    
                     with st.expander("🔗 URL"):
-                        st.code(tool["link"], language="text")  [web:29]
+                        st.code(tool["link"], language="text")
 else:
-    st.info("No tools found matching your filters. Try adjusting your search criteria.") [web:31]
+    st.info("No tools found matching your filters. Try adjusting your search criteria.")
 
 # ---------------------------
 # Footer
 # ---------------------------
-st.divider() [web:31]
-st.caption("✨ Made with ❤️ using Streamlit • Find the perfect AI tool for your needs") [web:31]
+st.divider()
+st.caption("✨ Made with ❤️ using Streamlit • Find the perfect AI tool for your needs")
