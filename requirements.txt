@@ -1,7 +1,8 @@
-streamlit>=1.36
+streamlit
 
 numpy<2
 
 pyarrow<17
 
 requests>=2.32
+
