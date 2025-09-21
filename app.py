@@ -7,11 +7,12 @@ from tools import TOOLS, CATEGORIES
 st.set_page_config(
     page_title="AI Tool Hub",
     page_icon="🤖",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"  # optional: start collapsed
 )
 
 # ---------------------------
-# Custom CSS
+# Custom CSS (core)
 # ---------------------------
 st.markdown("""
     <style>
@@ -52,7 +53,7 @@ st.markdown("""
             gap: 12px;
             align-items: center;
             font-size: 0.9rem;
-            z-index: 9999;
+            z-index: 50; /* keep below Streamlit header */
         }
         .nav-item {
             cursor: pointer;
@@ -105,8 +106,34 @@ st.markdown("""
         .stLinkButton button:hover {
             background-color: #1d4ed8 !important;
         }
+        /* Push content below fixed nav height (safety) */
+        .block-container { padding-top: 3.2rem; }
+        /* Sidebar toggle helper label */
+        .sidebar-hint {
+            position: fixed;
+            top: 0.6rem;      /* aligns with header */
+            left: 3.2rem;     /* right of the toggle icon */
+            background: #111827;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1;
+            padding: 6px 8px;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            z-index: 40;       /* below header/tooltips */
+            opacity: 0.92;
+            pointer-events: none; /* do not block clicks */
+        }
+        @media (max-width: 420px) {
+            .sidebar-hint { display: none; }
+        }
     </style>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True)  # [style guidance refs]
+
+# ---------------------------
+# Fixed hint near sidebar toggle
+# ---------------------------
+st.markdown('<div class="sidebar-hint">Open filters</div>', unsafe_allow_html=True)  # shows near top-left
 
 # ---------------------------
 # Fake top-right navigation (static)
@@ -170,7 +197,7 @@ def filter_tools(tools, category, plan, query):
             continue
         if query:
             searchable_text = (
-                tool["name"].lower() + " " + 
+                tool["name"].lower() + " " +
                 tool.get("blurb", "").lower() + " " +
                 " ".join(tool.get("tags", [])).lower()
             )
@@ -209,7 +236,6 @@ if total_tools > 0:
             if tool_idx < len(page_tools):
                 tool = page_tools[tool_idx]
                 with col:
-                    # Card with logo + name
                     logo_src = tool.get("logo", "")
                     st.markdown(f"""
                         <div class="tool-card">
