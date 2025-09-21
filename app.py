@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from tools import TOOLS, CATEGORIES
 
 # ---------------------------
@@ -140,12 +141,12 @@ st.markdown("""
     .sidebar-hint { display: none; }
   }
 </style>
-""", unsafe_allow_html=True)  # Layout spacing and stacking fixes [web:111][web:127][web:120]
+""", unsafe_allow_html=True)
 
 # ---------------------------
 # Fixed hint near sidebar toggle
 # ---------------------------
-st.markdown('<div class="sidebar-hint">Open filters</div>', unsafe_allow_html=True)  # Non-blocking label [web:129][web:115]
+st.markdown('<div class="sidebar-hint">Open filters</div>', unsafe_allow_html=True)
 
 # ---------------------------
 # Fake top-right navigation (static)
@@ -156,7 +157,7 @@ st.markdown("""
     <span class="nav-item">🗂 Preview</span>
     <span class="nav-item">⚙️ Options</span>
 </div>
-""", unsafe_allow_html=True)  # Fixed toolbar below hint [web:111]
+""", unsafe_allow_html=True)
 
 # ---------------------------
 # Header
@@ -262,6 +263,17 @@ if total_tools > 0:
                     """, unsafe_allow_html=True)
 
                     st.link_button("🚀 Launch Tool", tool["link"], use_container_width=True)
+
+                    # Live preview gated by 'embeddable'
+                    with st.expander("👀 Live preview", expanded=False):
+                        if tool.get("embeddable", False):
+                            try:
+                                components.iframe(tool["link"], height=520)
+                                st.caption("If the frame is blank, the site blocks embedding; use Launch to open it.")
+                            except Exception:
+                                st.warning("Preview failed to load here. Click Launch to open the site.")
+                        else:
+                            st.info("This provider does not allow in-app previews. Click Launch to open it.")
 
                     with st.expander("🔗 URL"):
                         st.code(tool["link"], language="text")
