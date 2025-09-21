@@ -8,132 +8,144 @@ st.set_page_config(
     page_title="AI Tool Hub",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="collapsed"  # optional: start collapsed
+    initial_sidebar_state="collapsed"  # optional
 )
 
 # ---------------------------
-# Custom CSS (core)
+# CSS: layout, cards, hint
 # ---------------------------
 st.markdown("""
-    <style>
-        /* Background */
-        .stApp {
-            background-color: #f9fafb;
-            color: #1f2937;
-        }
-        /* Sidebar styling */
-        section[data-testid="stSidebar"] {
-            background-color: #ffffff;
-            border-right: 1px solid #e5e7eb;
-            padding-top: 1rem;
-        }
-        /* Sidebar toggle (top-left button) */
-        button[kind="header"] {
-            background-color: #2563eb !important;
-            color: white !important;
-            border-radius: 6px !important;
-            padding: 6px 12px !important;
-            border: none !important;
-            font-weight: 500;
-        }
-        button[kind="header"]:hover {
-            background-color: #1d4ed8 !important;
-        }
-        /* Top-right custom nav */
-        .top-nav {
-            position: fixed;
-            top: 0.6rem;
-            right: 1rem;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
-            padding: 6px 12px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            font-size: 0.9rem;
-            z-index: 50; /* keep below Streamlit header */
-        }
-        .nav-item {
-            cursor: pointer;
-            color: #2563eb;
-            font-weight: 500;
-        }
-        .nav-item:hover {
-            text-decoration: underline;
-        }
-        /* Tool cards */
-        .tool-card {
-            background-color: #ffffff;
-            padding: 1.2rem;
-            border-radius: 12px;
-            box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
-            margin-bottom: 1rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .tool-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0px 4px 12px rgba(0,0,0,0.12);
-        }
-        .tool-card h3 {
-            margin: 0;
-            color: #111827;
-        }
-        .tool-card p {
-            font-size: 0.9rem;
-            color: #4b5563;
-        }
-        /* Tags */
-        .tag {
-            display: inline-block;
-            background-color: #e5f0ff;
-            color: #1d4ed8;
-            padding: 2px 8px;
-            border-radius: 6px;
-            margin-right: 5px;
-            font-size: 0.8rem;
-        }
-        /* Buttons */
-        .stLinkButton button {
-            background-color: #2563eb !important;
-            color: white !important;
-            border-radius: 8px;
-            border: none;
-            padding: 6px 10px;
-            font-weight: 500;
-        }
-        .stLinkButton button:hover {
-            background-color: #1d4ed8 !important;
-        }
-        /* Push content below fixed nav height (safety) */
-        .block-container { padding-top: 3.2rem; }
-        /* Sidebar toggle helper label */
-        .sidebar-hint {
-            position: fixed;
-            top: 0.6rem;      /* aligns with header */
-            left: 3.2rem;     /* right of the toggle icon */
-            background: #111827;
-            color: #fff;
-            font-size: 12px;
-            line-height: 1;
-            padding: 6px 8px;
-            border-radius: 6px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            z-index: 40;       /* below header/tooltips */
-            opacity: 0.92;
-            pointer-events: none; /* do not block clicks */
-        }
-        @media (max-width: 420px) {
-            .sidebar-hint { display: none; }
-        }
-    </style>
-""", unsafe_allow_html=True)  # [style guidance refs]
+<style>
+  /* Ensure content starts below fixed elements */
+  section.stMain .block-container {
+    padding-top: 4rem;
+  }
+
+  /* Sidebar styling */
+  section[data-testid="stSidebar"] {
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    padding-top: 1rem;
+  }
+
+  /* Background + text color */
+  .stApp {
+    background-color: #f9fafb;
+    color: #1f2937;
+  }
+
+  /* Header button (Streamlit native toggle) */
+  button[kind="header"] {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+    border: none !important;
+    font-weight: 500;
+  }
+  button[kind="header"]:hover {
+    background-color: #1d4ed8 !important;
+  }
+
+  /* Top-right custom nav */
+  .top-nav {
+    position: fixed;
+    top: 0.6rem;
+    right: 1rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+    padding: 6px 12px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 0.9rem;
+    z-index: 80; /* below hint, above content */
+  }
+  .nav-item {
+    cursor: pointer;
+    color: #2563eb;
+    font-weight: 500;
+  }
+  .nav-item:hover {
+    text-decoration: underline;
+  }
+
+  /* Tool cards */
+  .tool-card {
+    background-color: #ffffff;
+    padding: 1.2rem;
+    border-radius: 12px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .tool-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.12);
+  }
+  .tool-card h3 {
+    margin: 0;
+    color: #111827;
+  }
+  .tool-card p {
+    font-size: 0.9rem;
+    color: #4b5563;
+  }
+
+  /* Tags */
+  .tag {
+    display: inline-block;
+    background-color: #e5f0ff;
+    color: #1d4ed8;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-right: 5px;
+    font-size: 0.8rem;
+  }
+
+  /* Buttons */
+  .stLinkButton button {
+    background-color: #2563eb !important;
+    color: white !important;
+    border-radius: 8px;
+    border: none;
+    padding: 6px 10px;
+    font-weight: 500;
+  }
+  .stLinkButton button:hover {
+    background-color: #1d4ed8 !important;
+  }
+
+  /* Sidebar toggle helper label: visible and non-blocking */
+  .sidebar-hint {
+    position: fixed;
+    top: 0.9rem;      /* slightly lower for better visibility */
+    left: 3.8rem;     /* safely to the right of the hamburger */
+    background: #111827;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1;
+    padding: 6px 8px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    z-index: 120;     /* above header/toolbars */
+    opacity: 0.95;
+    pointer-events: none;  /* do not block clicks */
+    white-space: nowrap;
+  }
+
+  @media (max-width: 420px) {
+    .sidebar-hint { display: none; }
+  }
+</style>
+""", unsafe_allow_html=True)  # Layout spacing and stacking fixes [web:111][web:127][web:120]
 
 # ---------------------------
 # Fixed hint near sidebar toggle
 # ---------------------------
-st.markdown('<div class="sidebar-hint">Open filters</div>', unsafe_allow_html=True)  # shows near top-left
+st.markdown('<div class="sidebar-hint">Open filters</div>', unsafe_allow_html=True)  # Non-blocking label [web:129][web:115]
 
 # ---------------------------
 # Fake top-right navigation (static)
@@ -144,7 +156,7 @@ st.markdown("""
     <span class="nav-item">🗂 Preview</span>
     <span class="nav-item">⚙️ Options</span>
 </div>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True)  # Fixed toolbar below hint [web:111]
 
 # ---------------------------
 # Header
@@ -157,26 +169,26 @@ st.caption("⚡ A clean, modern directory of AI tools")
 # ---------------------------
 with st.sidebar:
     st.header("🔍 Filters")
-    
+
     selected_category = st.selectbox(
         "Category",
         options=["All"] + CATEGORIES,
         index=0
     )
-    
+
     selected_plan = st.radio(
         "Pricing Plan",
         options=["All", "Free", "Free + Paid", "Paid", "Credits + Paid"],
         index=0
     )
-    
+
     search_query = st.text_input(
         "Search tools",
         placeholder="Type to search..."
     ).lower()
-    
+
     st.divider()
-    
+
     per_page = st.slider(
         "Tools per page",
         min_value=6,
@@ -221,13 +233,13 @@ if total_tools > 0:
             max_value=total_pages,
             value=1
         )
-    
+
     start_idx = (current_page - 1) * per_page
     end_idx = min(start_idx + per_page, total_tools)
     page_tools = filtered_tools[start_idx:end_idx]
-    
+
     st.write(f"**Showing {len(page_tools)} of {total_tools} tools**")
-    
+
     # Grid Display
     for i in range(0, len(page_tools), 3):
         cols = st.columns(3)
@@ -248,9 +260,9 @@ if total_tools > 0:
                             {"".join([f'<span class="tag">#{tag}</span>' for tag in tool.get('tags', [])[:3]])}
                         </div>
                     """, unsafe_allow_html=True)
-                    
+
                     st.link_button("🚀 Launch Tool", tool["link"], use_container_width=True)
-                    
+
                     with st.expander("🔗 URL"):
                         st.code(tool["link"], language="text")
 else:
