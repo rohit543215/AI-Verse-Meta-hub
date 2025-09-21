@@ -11,7 +11,7 @@ st.set_page_config(
 )
 
 # ---------------------------
-# Custom CSS for Light Theme
+# Custom CSS
 # ---------------------------
 st.markdown("""
     <style>
@@ -21,15 +21,49 @@ st.markdown("""
             color: #1f2937;
         }
 
-        /* Sidebar */
+        /* Sidebar styling */
         section[data-testid="stSidebar"] {
             background-color: #ffffff;
             border-right: 1px solid #e5e7eb;
+            padding-top: 1rem;
         }
 
-        /* Titles */
-        h1, h2, h3, h4 {
-            color: #1f2937 !important;
+        /* Sidebar toggle (top-left button) */
+        button[kind="header"] {
+            background-color: #2563eb !important;
+            color: white !important;
+            border-radius: 6px !important;
+            padding: 6px 12px !important;
+            border: none !important;
+            font-weight: 500;
+        }
+        button[kind="header"]:hover {
+            background-color: #1d4ed8 !important;
+        }
+
+        /* Top-right custom nav */
+        .top-nav {
+            position: fixed;
+            top: 0.6rem;
+            right: 1rem;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+            padding: 6px 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-size: 0.9rem;
+            z-index: 9999;
+        }
+        .nav-item {
+            cursor: pointer;
+            color: #2563eb;
+            font-weight: 500;
+        }
+        .nav-item:hover {
+            text-decoration: underline;
         }
 
         /* Tool cards */
@@ -76,18 +110,21 @@ st.markdown("""
             padding: 6px 10px;
             font-weight: 500;
         }
-
         .stLinkButton button:hover {
             background-color: #1d4ed8 !important;
         }
-
-        /* Expander */
-        [data-testid="stExpander"] {
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-        }
     </style>
+""", unsafe_allow_html=True)
+
+# ---------------------------
+# Fake top-right navigation (static)
+# ---------------------------
+st.markdown("""
+<div class="top-nav">
+    <span class="nav-item">🔄 Refresh</span>
+    <span class="nav-item">🗂 Preview</span>
+    <span class="nav-item">⚙️ Options</span>
+</div>
 """, unsafe_allow_html=True)
 
 # ---------------------------
