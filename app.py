@@ -1,101 +1,142 @@
-import os
 import streamlit as st
 from tools import TOOLS, CATEGORIES
 
-st.set_page_config(page_title="AI Tool Hub", page_icon="🤖", layout="wide")
-st.title("AI Tool Hub — fast directory of AI tools")
+# Page config
+st.set_page_config(
+    page_title="AI Tool Hub", 
+    page_icon="🤖", 
+    layout="wide"
+)
 
-# --------- Safe logo without file dependency ---------
-def safe_logo(src: str | None, width: int = 60):
-    """
-    Try to show a logo from a local path or URL.
-    If anything fails, render a lightweight HTML placeholder (no file needed).
-    """
-    try:
-        if not src:
-            raise FileNotFoundError("no src")
-        if src.startswith(("http://", "https://")):
-            import requests
-            from io import BytesIO
-            r = requests.get(src, timeout=4)
-            r.raise_for_status()
-            st.image(BytesIO(r.content), width=width)
-        else:
-            path = src if os.path.isabs(src) else os.path.join("", src)
-            if os.path.exists(path):
-                st.image(path, width=width)
-            else:
-                raise FileNotFoundError(path)
-    except Exception:
-        st.markdown(
-            f"<div style='width:{width}px;height:{width}px;border-radius:8px;"
-            "background:#eef;display:flex;align-items:center;justify-content:center;"
-            "font-size:26px;border:1px solid #dde;'>🧩</div>",
-            unsafe_allow_html=True,
-        )
+# Title
+st.title("🤖 AI Tool Hub")
+st.caption("Fast directory of AI tools")
 
-# --------- Matching and card UI ----------
-def matches(t, cat, plan, q):
-    if cat != "All" and t["category"] != cat:
-        return False
-    if plan != "All" and not t["plan"].lower().startswith(plan.lower()):
-        return False
-    if q.strip():
-        qq = q.lower()
-        if qq not in t["name"].lower() and all(qq not in tag for tag in t.get("tags", [])):
-            return False
-    return True
-
-def tool_card(tool, allow_preview=False):
-    with st.container(border=True):
-        cols = st.columns([1,3,2])
-        with cols[0]:
-            safe_logo(tool.get("logo"), width=60)
-        with cols[1]:
-            st.subheader(tool["name"])
-            st.caption(f'{tool["category"]} • {tool["plan"]}')
-            if tool.get("blurb"):
-                st.write(tool["blurb"])
-        with cols[2]:
-            st.link_button("Launch in new tab", tool["link"], use_container_width=True)
-            st.code(tool["link"], language="text")
-        if allow_preview and tool.get("embeddable", False):
-            with st.expander("Open preview (may be blocked)"):
-                st.components.v1.iframe(src=tool["link"], height=600)
-
-# --------- Sidebar filters ----------
+# Filters in sidebar
 with st.sidebar:
-    st.header("Filters")
-    cat = st.selectbox("Category", options=["All"] + CATEGORIES)
-    plan = st.radio("Plan", options=["All", "Free", "Free + Paid", "Paid", "Credits + Paid"])
-    q = st.text_input("Search (name or tags)")
-    allow_preview = st.toggle("Enable in-app previews", value=False, help="Off by default for speed.")
+    st.header("🔍 Filters")
+    
+    # Category filter
+    selected_category = st.selectbox(
+        "Category", 
+        options=["All"] + CATEGORIES,
+        index=0
+    )
+    
+    # Plan filter
+    selected_plan = st.radio(
+        "Pricing Plan", 
+        options=["All", "Free", "Free + Paid", "Paid", "Credits + Paid"],
+        index=0
+    )
+    
+    # Search filter
+    search_query = st.text_input(
+        "Search tools", 
+        placeholder="Type to search..."
+    ).lower()
+    
     st.divider()
-    PAGE_SIZE = st.slider("Cards per page", min_value=6, max_value=24, value=12, step=3)
+    
+    # Results per page
+    per_page = st.slider(
+        "Tools per page", 
+        min_value=6, 
+        max_value=24, 
+        value=12, 
+        step=6
+    )
 
-# --------- Filter + paginate ----------
-results = [t for t in TOOLS if matches(t, cat, plan, q)]
-total = len(results)
-page_count = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
+# Filter tools function
+def filter_tools(tools, category, plan, query):
+    filtered = []
+    
+    for tool in tools:
+        # Category filter
+        if category != "All" and tool["category"] != category:
+            continue
+            
+        # Plan filter
+        if plan != "All" and tool["plan"] != plan:
+            continue
+            
+        # Search filter
+        if query:
+            searchable_text = (
+                tool["name"].lower() + " " + 
+                tool.get("blurb", "").lower() + " " +
+                " ".join(tool.get("tags", [])).lower()
+            )
+            if query not in searchable_text:
+                continue
+                
+        filtered.append(tool)
+    
+    return filtered
 
-col_a, col_b, col_c = st.columns([2,2,6])
-with col_a:
-    page = st.number_input("Page", min_value=1, max_value=page_count, value=1, step=1)
-with col_b:
-    st.write(f"Total tools: {total}")
+# Get filtered results
+filtered_tools = filter_tools(TOOLS, selected_category, selected_plan, search_query)
+total_tools = len(filtered_tools)
 
-start = (page - 1) * PAGE_SIZE
-end = min(start + PAGE_SIZE, total)
-page_results = results[start:end]
-
-st.write(f"Showing {len(page_results)} of {total} tool(s)")
-
-if not page_results:
-    st.info("No tools match the current filters.")
+# Pagination
+if total_tools > 0:
+    total_pages = (total_tools - 1) // per_page + 1
+    
+    # Page selector
+    col1, col2, col3 = st.columns([2, 1, 2])
+    with col2:
+        current_page = st.number_input(
+            f"Page (1-{total_pages})", 
+            min_value=1, 
+            max_value=total_pages, 
+            value=1
+        )
+    
+    # Calculate slice indices
+    start_idx = (current_page - 1) * per_page
+    end_idx = min(start_idx + per_page, total_tools)
+    page_tools = filtered_tools[start_idx:end_idx]
+    
+    # Results info
+    st.write(f"**Showing {len(page_tools)} of {total_tools} tools**")
+    
+    # Display tools in grid
+    for i in range(0, len(page_tools), 3):
+        cols = st.columns(3)
+        
+        for j, col in enumerate(cols):
+            tool_idx = i + j
+            if tool_idx < len(page_tools):
+                tool = page_tools[tool_idx]
+                
+                with col:
+                    with st.container(border=True):
+                        # Tool header
+                        st.subheader(tool["name"])
+                        st.caption(f"{tool['category']} • {tool['plan']}")
+                        
+                        # Description
+                        if tool.get("blurb"):
+                            st.write(tool["blurb"])
+                        
+                        # Tags
+                        if tool.get("tags"):
+                            tag_text = " ".join([f"#{tag}" for tag in tool["tags"][:3]])
+                            st.caption(tag_text)
+                        
+                        # Launch button
+                        st.link_button(
+                            "🚀 Launch Tool", 
+                            tool["link"], 
+                            use_container_width=True
+                        )
+                        
+                        # URL display
+                        with st.expander("🔗 URL"):
+                            st.code(tool["link"], language="text")
 else:
-    grid_cols = st.columns(3)
-    for idx, t in enumerate(page_results):
-        with grid_cols[idx % 3]:
-            tool_card(t, allow_preview=allow_preview)
+    st.info("No tools found matching your filters. Try adjusting your search criteria.")
 
-st.caption("Logos render instantly if stored locally in assets/; remote URLs fall back to a built‑in placeholder.")
+# Footer
+st.divider()
+st.caption("Made with ❤️ using Streamlit • Find the perfect AI tool for your needs")
