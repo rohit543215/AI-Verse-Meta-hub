@@ -226,8 +226,8 @@ filtered_tools = filter_tools(TOOLS, selected_category, selected_plan, search_qu
 total_tools = len(filtered_tools)
 if total_tools > 0:
     total_pages = (total_tools - 1) // per_page + 1
-    col1, col2, col3 = st.columns([2, 1, 2])
-    with col2:
+    _, pager, _ = st.columns([2, 1, 2])
+    with pager:
         current_page = st.number_input(
             f"Page (1-{total_pages})",
             min_value=1,
@@ -249,6 +249,7 @@ if total_tools > 0:
             if tool_idx < len(page_tools):
                 tool = page_tools[tool_idx]
                 with col:
+                    # Card with logo + name
                     logo_src = tool.get("logo", "")
                     st.markdown(f"""
                         <div class="tool-card">
@@ -262,21 +263,16 @@ if total_tools > 0:
                         </div>
                     """, unsafe_allow_html=True)
 
+                    # Launch button
                     st.link_button("🚀 Launch Tool", tool["link"], use_container_width=True)
 
-                    # Live preview gated by 'embeddable'
-                    with st.expander("👀 Live preview", expanded=False):
-                        if tool.get("embeddable", False):
-                            try:
-                                components.iframe(tool["link"], height=520)
-                                st.caption("If the frame is blank, the site blocks embedding; use Launch to open it.")
-                            except Exception:
-                                st.warning("Preview failed to load here. Click Launch to open the site.")
-                        else:
-                            st.info("This provider does not allow in-app previews. Click Launch to open it.")
+                    # Inline preview (no expander): only if embeddable=True
+                    if tool.get("embeddable", False):
+                        # Set a consistent preview height; many sites need ~500+ px
+                        components.iframe(tool["link"], height=520)
 
-                    with st.expander("🔗 URL"):
-                        st.code(tool["link"], language="text")
+                    # Optional URL block
+                    # st.code(tool["link"], language="text")
 else:
     st.info("No tools found matching your filters. Try adjusting your search criteria.")
 
