@@ -29,7 +29,9 @@ TOOLS = [
     {"name":"Claude","link":"https://claude.ai/","plan":"Free + Paid","logo":"https://upload.wikimedia.org/wikipedia/commons/b/b0/Claude_AI_symbol.svg","category":"AI Chatbots","tags":["anthropic","reasoning"],"embeddable":False,"blurb":"Helpful assistant by Anthropic with strong reasoning."},  # [web:29]
     {"name":"DeepSeek","link":"https://chat.deepseek.com/","plan":"Free + Paid","logo":"https://upload.wikimedia.org/wikipedia/commons/e/ec/DeepSeek_logo.svg","category":"AI Chatbots","tags":["deepseek","r1","coder"],"embeddable":False,"blurb":"Efficient, competitive large language models."},  # [web:35]
     {"name":"Gemini","link":"https://gemini.google.com/","plan":"Free + Paid","logo":"https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg","category":"AI Chatbots","tags":["google","multimodal"],"embeddable":False,"blurb":"Google’s multimodal AI chat."},  # [web:23]
-    {"name":"Grok","link":"https://x.ai/","plan":"Paid","logo":"https://ai-logos-svg.vercel.app/logos/grok.svg","category":"AI Chatbots","tags":["xai","realtime"],"embeddable":False,"blurb":"xAI chatbot with real‑time knowledge."},  # [web:32]
+    {"name":"Grok","link":"https://x.ai/","plan":"Paid","logo":"<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 48 48">
+<path d="M18.542 30.532l15.956-11.776c.783-.576 1.902-.354 2.274.545 1.962 4.728 1.084 10.411-2.819 14.315-3.903 3.901-9.333 4.756-14.299 2.808l-5.423 2.511c7.778 5.315 17.224 4 23.125-1.903 4.682-4.679 6.131-11.058 4.775-16.812l.011.011c-1.966-8.452.482-11.829 5.501-18.735C47.759 1.332 47.88 1.166 48 1l-6.602 6.599V7.577l-22.86 22.958M15.248 33.392c-5.582-5.329-4.619-13.579.142-18.339 3.521-3.522 9.294-4.958 14.331-2.847l5.412-2.497c-.974-.704-2.224-1.46-3.659-1.994-6.478-2.666-14.238-1.34-19.505 3.922C6.904 16.701 5.31 24.488 8.045 31.133c2.044 4.965-1.307 8.48-4.682 12.023C2.164 44.411.967 45.67 0 47l15.241-13.608"></path>
+</svg>","category":"AI Chatbots","tags":["xai","realtime"],"embeddable":False,"blurb":"xAI chatbot with real‑time knowledge."},  # [web:32]
     {"name":"Meta AI","link":"https://www.meta.ai/","plan":"Free","logo":"https://ai-logos-svg.vercel.app/logos/meta-ai.svg","category":"AI Chatbots","tags":["meta","facebook"],"embeddable":False,"blurb":"Conversational assistant by Meta."},  # [web:35]
     {"name":"MS Copilot","link":"https://copilot.microsoft.com/","plan":"Free + Paid","logo":"https://upload.wikimedia.org/wikipedia/commons/4/4f/Microsoft_Copilot_Icon.svg","category":"AI Chatbots","tags":["microsoft","bing"],"embeddable":False,"blurb":"Assistant across Bing and Microsoft apps."},  # [web:35]
     {"name":"Perplexity","link":"https://www.perplexity.ai/","plan":"Free + Paid","logo":"https://upload.wikimedia.org/wikipedia/commons/3/3b/Perplexity_AI_logo.svg","category":"AI Chatbots","tags":["search","answers"],"embeddable":False,"blurb":"Answer engine with citations."},  # [web:22]
@@ -143,5 +145,6 @@ TOOLS = [
     {"name":"Visme","link":"https://www.visme.co/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/visme.svg","category":"AI Data Visualization","tags":["infographics"],"embeddable":True,"blurb":"Infographics, presentations, charts."},  # [web:35]
     {"name":"Zing Data","link":"https://www.zingdata.com/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/zing.svg","category":"AI Data Visualization","tags":["bi","mobile"],"embeddable":True,"blurb":"Mobile‑first BI with AI."},  # [web:35]
 ]
+
 
 
