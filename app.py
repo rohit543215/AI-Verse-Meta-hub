@@ -23,11 +23,11 @@ defaults = {
     "current_page": 1,
     "clear_flag": False,
     "show_previews": False,  # toggle to render iframes
-    "sort_by": "Relevance",  # new: sorting
+    "sort_by": "Relevance",  # sorting
 }
 for k, v in defaults.items():
     if k not in st.session_state:
-        st.session_state[k] = v  # [web:13][web:16]
+        st.session_state[k] = v  # persist across reruns [web:55]
 
 # If a clear was requested, reset BEFORE widgets are created, then rerun
 if st.session_state.clear_flag:
@@ -39,13 +39,13 @@ if st.session_state.clear_flag:
     st.session_state.sort_by = "Relevance"
     st.session_state.show_previews = False
     st.session_state.clear_flag = False
-    st.rerun()  # safe before widgets mount [web:13][web:10]
+    st.rerun()  # safe pre-widget rerun [web:55]
 
 # ---------------------------
 # Helpers
 # ---------------------------
 def reset_page():
-    st.session_state.current_page = 1  # [web:13]
+    st.session_state.current_page = 1  # reset pagination when filters change [web:55]
 
 def safe_str(x):
     return x if isinstance(x, str) else ""
@@ -58,7 +58,7 @@ def sort_tools(tools, by):
     if by == "Plan (Free first)":
         order = {"Free": 0, "Free + Paid": 1, "Credits + Paid": 2, "Paid": 3}
         return sorted(tools, key=lambda t: order.get(t.get("plan", "Paid"), 99))
-    return tools  # Relevance: leave order as given (e.g., curated)  # [web:13]
+    return tools  # Relevance: preserve curated order [web:55]
 
 # ---------------------------
 # CSS (modern visuals)
@@ -81,31 +81,56 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 .app-header h1 { margin: 6px 0; font-size: 2rem; letter-spacing: 0.2px; }
 .app-header p { margin: 0; color: var(--muted); font-size: 0.98rem; }
 .glow { text-shadow: 0 0 12px rgba(99,102,241,0.35); }
-.filters-card { position: sticky; top: 0; z-index: 5; background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85)); border: 1px solid var(--border); padding: 14px; border-radius: 14px; box-shadow: 0 10px 30px rgba(2,6,23,0.35); margin-bottom: 18px; backdrop-filter: blur(6px); }
-.row-compact .stSelectbox, .row-compact .stTextInput, .row-compact .stSlider { margin-bottom: 0 !important; }
-.tool-card { background: linear-gradient(180deg, rgba(17,24,39,0.75), rgba(15,23,42,0.75)); padding: 16px; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(2,6,23,0.45); transition: transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease; margin-bottom: 26px; }
+
+.filters-card { position: sticky; top: 0; z-index: 5;
+  background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+  border: 1px solid var(--border); padding: 14px; border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.35); margin-bottom: 18px; backdrop-filter: blur(6px); }
+
+.tool-card { background: linear-gradient(180deg, rgba(17,24,39,0.75), rgba(15,23,42,0.75));
+  padding: 16px; border-radius: 14px; border: 1px solid var(--border);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.45);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease;
+  margin-bottom: 26px; }
 .tool-card:hover { transform: translateY(-4px); box-shadow: 0 14px 26px rgba(2,6,23,0.6); border-color: var(--ring); }
 .tool-card h3 { margin: 0; font-size: 1.05rem; color: #e5e7eb; }
 .tool-card p { margin: 8px 0 6px 0; color: #cbd5e1; font-size: 0.92rem; }
 .tool-meta { color: var(--muted); font-size: 0.83rem; margin-top: 2px; }
-.badge { display: inline-flex; align-items:center; gap:6px; background: rgba(99,102,241,0.12); color: #c7d2fe; padding: 4px 10px; border: 1px solid rgba(99,102,241,0.35); border-radius: 999px; font-size: 0.74rem; font-weight: 700; }
+
+.badge { display: inline-flex; align-items:center; gap:6px;
+  background: rgba(99,102,241,0.12); color: #c7d2fe; padding: 4px 10px;
+  border: 1px solid rgba(99,102,241,0.35); border-radius: 999px;
+  font-size: 0.74rem; font-weight: 700; }
 .badge.plan { background: rgba(34,197,94,0.10); color: #bbf7d0; border-color: rgba(34,197,94,0.35); }
-.tag { display: inline-block; background: rgba(99,102,241,0.10); color: #c7d2fe; padding: 5px 10px; border-radius: 999px; margin-right: 6px; margin-top: 6px; font-size: 0.76rem; font-weight: 700; border: 1px solid rgba(99,102,241,0.3); }
-.link-btn { display: inline-block; background: linear-gradient(180deg, #6366f1, #4f46e5); color: #fff !important; padding: 9px 12px; border-radius: 10px; text-decoration: none; font-weight: 700; border: 0; box-shadow: 0 8px 20px rgba(79,70,229,0.35); }
+
+.tag { display: inline-block; background: rgba(99,102,241,0.10); color: #c7d2fe;
+  padding: 5px 10px; border-radius: 999px; margin-right: 6px; margin-top: 6px;
+  font-size: 0.76rem; font-weight: 700; border: 1px solid rgba(99,102,241,0.3); }
+
+.link-btn { display: inline-block; background: linear-gradient(180deg, #6366f1, #4f46e5);
+  color: #fff !important; padding: 9px 12px; border-radius: 10px; text-decoration: none;
+  font-weight: 700; border: 0; box-shadow: 0 8px 20px rgba(79,70,229,0.35); }
 .link-btn:hover { filter: brightness(1.07); }
-.soft-btn { display:inline-block; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(2,6,23,0.4); color: var(--text); font-weight: 700; }
+
+.soft-btn { display:inline-block; padding: 8px 12px; border-radius: 10px;
+  border: 1px solid var(--border); background: rgba(2,6,23,0.4);
+  color: var(--text); font-weight: 700; }
 .soft-btn:hover { border-color: var(--ring); }
-.pagination { position: sticky; bottom: 12px; background: rgba(15,23,42,0.7); backdrop-filter: blur(6px); border: 1px solid var(--border); border-radius: 12px; padding: 8px; text-align: center; margin: 18px 0; }
+
+.pagination { position: sticky; bottom: 12px; background: rgba(15,23,42,0.7);
+  backdrop-filter: blur(6px); border: 1px solid var(--border); border-radius: 12px;
+  padding: 8px; text-align: center; margin: 18px 0; }
 .pagination .page-info { display: inline-block; margin: 0 12px; color: var(--text); font-weight: 700; }
-.empty-card { height: 0.1px; margin-bottom: 26px; }
-.kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.78rem; padding: 2px 6px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 6px; background: rgba(2,6,23,0.4); color: #cbd5e1;}
+
+.kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.78rem; padding: 2px 6px; border: 1px solid var(--border);
+  border-bottom-width: 2px; border-radius: 6px; background: rgba(2,6,23,0.4); color: #cbd5e1;}
+
 .meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px;}
-.skeleton { background: linear-gradient(90deg, rgba(148,163,184,0.08), rgba(148,163,184,0.18), rgba(148,163,184,0.08)); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 10px; }
-@keyframes shimmer { 0%{ background-position: 200% 0; } 100%{ background-position: -200% 0; } }
 </style>
 """,
     unsafe_allow_html=True,
-)  # [web:1][web:11]
+)  # styling via Streamlit layout and CSS [web:55]
 
 # ---------------------------
 # Header
@@ -118,7 +143,7 @@ st.markdown(
 </div>
 """,
     unsafe_allow_html=True,
-)  # [web:1]
+)  # simple header [web:55]
 
 # ---------------------------
 # Filters
@@ -132,18 +157,18 @@ with fcol1:
         options=["All"] + CATEGORIES,
         index=(["All"] + CATEGORIES).index(st.session_state.filter_category),
         key="filter_category",
-        on_change=reset_page,
+        on_change=lambda: reset_page(),
         label_visibility="collapsed",
-    )  # [web:1]
+    )  # selectbox with session_state [web:74]
 with fcol2:
     st.markdown("Search")
     st.text_input(
         "",
         placeholder="Search by name, tags, or description  ⌘/Ctrl+K",
         key="filter_search",
-        on_change=reset_page,
+        on_change=lambda: reset_page(),
         label_visibility="collapsed",
-    )  # [web:13]
+    )  # text input search [web:74]
 with fcol3:
     st.markdown("Pricing")
     plans = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
@@ -152,38 +177,36 @@ with fcol3:
         options=plans,
         index=plans.index(st.session_state.filter_plan) if st.session_state.filter_plan in plans else 0,
         key="filter_plan",
-        on_change=reset_page,
+        on_change=lambda: reset_page(),
         label_visibility="collapsed",
-    )  # [web:1]
+    )  # pricing filter [web:74]
 with fcol4:
     st.markdown("Sort")
     st.selectbox(
         "",
         options=["Relevance", "Name A→Z", "Name Z→A", "Plan (Free first)"],
         key="sort_by",
-        on_change=reset_page,
+        on_change=lambda: reset_page(),
         label_visibility="collapsed",
-    )  # [web:13]
+    )  # sorting options [web:74]
 with fcol5:
     st.markdown("Per page")
-    st.slider("", 6, 24, step=3, key="filter_per_page", on_change=reset_page, label_visibility="collapsed")  # [web:13]
+    st.slider("", 6, 24, step=3, key="filter_per_page", on_change=lambda: reset_page(), label_visibility="collapsed")  # page size [web:74]
 
 tcol1, tcol2, tcol3 = st.columns([2, 5, 3], gap="large")
 with tcol1:
-    if st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews"):
-        pass  # state is kept  # [web:15]
+    st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")  # preview gate [web:15]
 with tcol2:
     st.write("")
 with tcol3:
     c1, c2 = st.columns([1, 1])
     with c1:
         st.caption("Tip: Press")
-        st.markdown('<span class="kbd">Ctrl</span> + <span class="kbd">K</span> to focus search', unsafe_allow_html=True)  # [web:1]
+        st.markdown('<span class="kbd">Ctrl</span> + <span class="kbd">K</span> to focus search', unsafe_allow_html=True)  # small UX hint [web:74]
     with c2:
         if st.button("Clear filters"):
             st.session_state.clear_flag = True
-            st.rerun()  # [web:13]
-
+            st.rerun()  # atomic reset then rerun [web:74]
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
@@ -208,15 +231,14 @@ def filter_tools(tools):
             if query not in searchable:
                 continue
         filtered.append(tool)
-    return filtered  # [web:13]
+    return filtered  # standard stateful filtering [web:74]
 
-filtered_tools = filter_tools(TOOLS)
-filtered_tools = sort_tools(filtered_tools, st.session_state.sort_by)
+filtered_tools = sort_tools(filter_tools(TOOLS), st.session_state.sort_by)
 total_tools = len(filtered_tools)
 per_page = st.session_state.filter_per_page
 total_pages = (total_tools - 1) // per_page + 1 if total_tools > 0 else 1
 if st.session_state.current_page > total_pages:
-    st.session_state.current_page = total_pages  # [web:13]
+    st.session_state.current_page = total_pages  # guard invalid page [web:74]
 
 # ---------------------------
 # Top pagination
@@ -229,7 +251,7 @@ else:
     with pcol1:
         if st.button("⬅ Prev", key="prev_top") and st.session_state.current_page > 1:
             st.session_state.current_page -= 1
-            st.rerun()  # [web:10][web:13]
+            st.rerun()  # immediate page change [web:72]
     with pcol2:
         st.markdown(
             f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>',
@@ -238,7 +260,7 @@ else:
     with pcol3:
         if st.button("Next ➡", key="next_top") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
-            st.rerun()  # [web:10][web:13]
+            st.rerun()  # immediate page change [web:72]
     st.markdown("</div>", unsafe_allow_html=True)
 
     # ---------------------------
@@ -248,17 +270,11 @@ else:
     end = min(start + per_page, total_tools)
     page_tools = filtered_tools[start:end]
 
-    # Skeleton when search is non-empty and result is big
-    show_skeletons = st.session_state.filter_search.strip() and len(page_tools) == 0
-
-    # 3 columns grid
     for i in range(0, max(len(page_tools), 3), 3):
         row_tools = page_tools[i: i + 3]
-        cols = st.columns(3, gap="large")  # [web:17][web:1]
-        # fill to 3 for consistent height
+        cols = st.columns(3, gap="large")
         while len(row_tools) < 3:
             row_tools.append(None)
-
         for col, tool in zip(cols, row_tools):
             with col:
                 if tool is None:
@@ -299,9 +315,9 @@ else:
                     unsafe_allow_html=True,
                 )
 
-                # Optional embeddable preview toggle
+                # Embeddable preview (toggleable)
                 if emb and st.session_state.show_previews:
-                    # Use explicit height and allow scrolling for safer UX in components iframe [web:15][web:20]
+                    # Explicit height and scrolling are recommended for iframes in Streamlit [web:15]
                     components.iframe(link, height=520, scrolling=True)
 
     # ---------------------------
@@ -312,7 +328,7 @@ else:
     with b1:
         if st.button("⬅ Prev (bottom)", key="prev_bottom") and st.session_state.current_page > 1:
             st.session_state.current_page -= 1
-            st.rerun()  # [web:10][web:13]
+            st.rerun()  # update page [web:72]
     with b2:
         st.markdown(
             f'<div class="page-info">Page {st.session_state.current_page} of {total_pages}</div>',
@@ -321,11 +337,18 @@ else:
     with b3:
         if st.button("Next ➡ (bottom)", key="next_bottom") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
-            st.rerun()  # [web:10][web:13]
+            st.rerun()  # update page [web:72]
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# Empty state + footer
+# Footer CTA + footer
 # ---------------------------
 st.divider()
+st.link_button(
+    "🎓 more tools for student",
+    "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/",
+    type="primary",
+    icon="🧰",
+    use_container_width=True,
+)  # opens external URL in a new tab [web:55]
 st.caption("✨ Made with ❤️ using Streamlit • Find the perfect AI tool for every use case")
