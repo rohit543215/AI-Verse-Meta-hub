@@ -211,7 +211,7 @@ with col_plan:
 # small control row: per_page + clear button
 c1, c2, c3 = st.columns([2, 6, 2])
 with c1:
-    per_page = st.slider("Tools / page", 6, 24, st.session_state["per_page"], step=3, key="per_page")
+     per_page = st.slider("Tools / page", 6, 24, step=3, key="per_page")
 with c2:
     # center area we provide an inline control
     st.write("")  # spacer
@@ -339,3 +339,4 @@ else:
 # Footer
 st.divider()
 st.caption("✨ Made with ❤️ using Streamlit • Find the perfect AI tool for your needs")
+
