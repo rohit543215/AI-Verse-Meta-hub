@@ -1,273 +1,341 @@
+# app.py
 import streamlit as st
 import streamlit.components.v1 as components
 from tools import TOOLS, CATEGORIES
 
-# ---------------------------
-# Page Config
-# ---------------------------
 st.set_page_config(
     page_title="Deep Store: For AI Tools",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collapsed",
 )
 
 # ---------------------------
-# CSS
+# Helpers / Callbacks
 # ---------------------------
-st.markdown("""
+def reset_page():
+    st.session_state["current_page"] = 1
+
+def clear_filters():
+    st.session_state["category"] = "All"
+    st.session_state["plan"] = "All"
+    st.session_state["search"] = ""
+    st.session_state["per_page"] = 9
+    st.session_state["current_page"] = 1
+
+# initialize session state defaults
+if "category" not in st.session_state:
+    st.session_state["category"] = "All"
+if "plan" not in st.session_state:
+    st.session_state["plan"] = "All"
+if "search" not in st.session_state:
+    st.session_state["search"] = ""
+if "per_page" not in st.session_state:
+    st.session_state["per_page"] = 9
+if "current_page" not in st.session_state:
+    st.session_state["current_page"] = 1
+
+# ---------------------------
+# CSS (clean + minimal)
+# ---------------------------
+st.markdown(
+    """
 <style>
-  body {
-    font-family: 'Inter', sans-serif;
-  }
+/* Basic app background & font */
+.stApp {
+  background-color: #f7fafc;
+  color: #111827;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
 
-  .stApp {
-    background-color: #f8fafc;
-    color: #1f2937;
-  }
+/* Header area */
+.app-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+.app-header h1 {
+  margin: 4px 0;
+  font-size: 1.9rem;
+  color: #0f172a;
+}
+.app-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
 
-  /* Header */
-  .app-header {
-    text-align: center;
-    margin-top: -30px;
-    margin-bottom: 20px;
-  }
-  .app-header h1 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #111827;
-  }
-  .app-header p {
-    font-size: 1rem;
-    color: #6b7280;
-  }
+/* Filters container */
+.filters-card {
+  background: #fff;
+  border: 1px solid #e6edf3;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(17,24,39,0.04);
+  margin-bottom: 18px;
+}
 
-  /* Filters box */
-  .filters-box {
-    background: white;
-    border: 1px solid #e5e7eb;
-    padding: 1rem;
-    border-radius: 12px;
-    margin-bottom: 1.5rem;
-    box-shadow: 0px 2px 6px rgba(0,0,0,0.05);
-  }
+/* Make the native widgets integrate better visually */
+.stSelectbox, .stTextInput, .stSlider, .stNumberInput {
+  border-radius: 10px;
+}
 
-  .filter-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #374151;
-  }
+/* Tool cards */
+.tool-card {
+  background-color: #ffffff;
+  padding: 14px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.tool-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 26px rgba(2,6,23,0.10);
+}
+.tool-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #0f172a;
+}
+.tool-card p {
+  margin: 6px 0;
+  color: #475569;
+  font-size: 0.9rem;
+}
+.tool-meta {
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
 
-  /* Plan pills */
-  .plan-pill {
-    display: inline-block;
-    padding: 6px 12px;
-    margin-right: 6px;
-    margin-bottom: 6px;
-    border-radius: 20px;
-    border: 1px solid #d1d5db;
-    background: #f9fafb;
-    color: #374151;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .plan-pill.active {
-    background: #2563eb;
-    color: white;
-    border-color: #2563eb;
-  }
-  .plan-pill:hover {
-    background: #2563eb;
-    color: white;
-  }
+/* tags */
+.tag {
+  display: inline-block;
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 4px 8px;
+  border-radius: 999px;
+  margin-right: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
 
-  /* Tool cards */
-  .tool-card {
-    background-color: #ffffff;
-    padding: 1.4rem;
-    border-radius: 14px;
-    box-shadow: 0px 3px 8px rgba(0,0,0,0.06);
-    margin-bottom: 1.2rem;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .tool-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0px 6px 14px rgba(0,0,0,0.12);
-  }
-  .tool-card h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: #111827;
-    font-weight: 600;
-  }
-  .tool-card p {
-    font-size: 0.9rem;
-    color: #4b5563;
-    margin: 6px 0;
-  }
+/* Link-button (styled anchor) */
+.link-btn {
+  display: inline-block;
+  background: #2563eb;
+  color: #fff !important;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  border: none;
+}
+.link-btn:hover {
+  background: #1f4ed8;
+  color: #fff !important;
+}
 
-  .tag {
-    display: inline-block;
-    background-color: #eff6ff;
-    color: #2563eb;
-    padding: 3px 8px;
-    border-radius: 6px;
-    margin-right: 4px;
-    font-size: 0.75rem;
-    font-weight: 500;
-  }
+/* Pagination */
+.pagination {
+  text-align: center;
+  margin: 18px 0;
+}
+.pagination .page-info {
+  display: inline-block;
+  margin: 0 12px;
+  color: #374151;
+  font-weight: 600;
+}
 
-  /* Pagination */
-  .pagination {
-    text-align: center;
-    margin: 20px 0;
-  }
-  .pagination button {
-    background: #2563eb !important;
-    color: white !important;
-    border-radius: 6px;
-    border: none;
-    padding: 6px 14px;
-    margin: 0 5px;
-    font-size: 0.9rem;
-  }
-  .pagination button:hover {
-    background: #1d4ed8 !important;
-  }
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .tool-card { padding: 12px; }
+}
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # ---------------------------
 # Header
 # ---------------------------
-st.markdown("""
+st.markdown(
+    """
 <div class="app-header">
   <h1>🤖 Deep Store</h1>
-  <p>Discover the best AI tools, organized and easy to explore</p>
+  <p>Discover the best AI tools — filter, preview, and launch quickly.</p>
 </div>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # ---------------------------
-# Filters
+# Filters area (single row; responsive)
 # ---------------------------
-st.markdown('<div class="filters-box">', unsafe_allow_html=True)
+st.markdown('<div class="filters-card">', unsafe_allow_html=True)
+col_cat, col_search, col_plan = st.columns([2, 6, 2], gap="large")
 
-col1, col2 = st.columns([2, 3])
-
-with col1:
-    st.markdown('<div class="filter-label">Category</div>', unsafe_allow_html=True)
-    selected_category = st.selectbox(
+with col_cat:
+    st.markdown("**Category**")
+    # uses session_state key so we can reset with clear_filters
+    st.selectbox(
         "",
         options=["All"] + CATEGORIES,
-        index=0,
-        label_visibility="collapsed"
+        index=0 if st.session_state["category"] == "All" else (["All"] + CATEGORIES).index(st.session_state["category"]),
+        key="category",
+        on_change=reset_page,
+        label_visibility="collapsed",
     )
 
-with col2:
-    st.markdown('<div class="filter-label">Search</div>', unsafe_allow_html=True)
-    search_query = st.text_input(
+with col_search:
+    st.markdown("**Search**")
+    st.text_input(
         "",
-        placeholder="Search tools by name, tags, or description"
-    ).lower()
+        placeholder="Search tools by name, tags, or description",
+        key="search",
+        on_change=reset_page,
+        label_visibility="collapsed",
+    )
 
-# Pricing plan pills
-st.markdown('<div class="filter-label">Pricing Plan</div>', unsafe_allow_html=True)
-plan_options = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
-plan_cols = st.columns(len(plan_options))
-selected_plan = "All"
+with col_plan:
+    st.markdown("**Pricing**")
+    st.selectbox(
+        "",
+        options=["All", "Free", "Free + Paid", "Paid", "Credits + Paid"],
+        index=["All", "Free", "Free + Paid", "Paid", "Credits + Paid"].index(st.session_state["plan"]) if st.session_state["plan"] in ["All","Free","Free + Paid","Paid","Credits + Paid"] else 0,
+        key="plan",
+        on_change=reset_page,
+        label_visibility="collapsed",
+    )
 
-for i, plan in enumerate(plan_options):
-    if plan_cols[i].button(plan, key=f"plan_{plan}"):
-        selected_plan = plan
+# small control row: per_page + clear button
+c1, c2, c3 = st.columns([2, 6, 2])
+with c1:
+    per_page = st.slider("Tools / page", 6, 24, st.session_state["per_page"], step=3, key="per_page")
+with c2:
+    # center area we provide an inline control
+    st.write("")  # spacer
+with c3:
+    if st.button("Clear filters"):
+        clear_filters()
 
-# Default selection if none pressed
-if "selected_plan" not in st.session_state:
-    st.session_state["selected_plan"] = "All"
-if selected_plan != "All":
-    st.session_state["selected_plan"] = selected_plan
-
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# Tool Filtering Function
+# Filtering logic
 # ---------------------------
-def filter_tools(tools, category, plan, query):
+def filter_tools(tools):
+    category = st.session_state["category"]
+    plan = st.session_state["plan"]
+    query = st.session_state["search"].strip().lower()
     filtered = []
     for tool in tools:
-        if category != "All" and tool["category"] != category:
+        if category != "All" and tool.get("category", "") != category:
             continue
-        if st.session_state["selected_plan"] != "All" and tool["plan"] != st.session_state["selected_plan"]:
+        if plan != "All" and tool.get("plan", "") != plan:
             continue
         if query:
-            searchable_text = (
-                tool["name"].lower() + " " +
-                tool.get("blurb", "").lower() + " " +
-                " ".join(tool.get("tags", [])).lower()
-            )
-            if query not in searchable_text:
+            searchable = " ".join(
+                [
+                    tool.get("name", ""),
+                    tool.get("blurb", ""),
+                    " ".join(tool.get("tags", [])),
+                ]
+            ).lower()
+            if query not in searchable:
                 continue
         filtered.append(tool)
     return filtered
 
-# ---------------------------
-# Filter + Paginate
-# ---------------------------
-per_page = 9
-filtered_tools = filter_tools(TOOLS, selected_category, selected_plan, search_query)
+filtered_tools = filter_tools(TOOLS)
 total_tools = len(filtered_tools)
 
-if total_tools > 0:
-    total_pages = (total_tools - 1) // per_page + 1
-    if "current_page" not in st.session_state:
-        st.session_state["current_page"] = 1
+# reset current page if total_pages changed lower than current
+total_pages = (total_tools - 1) // st.session_state["per_page"] + 1 if total_tools > 0 else 1
+if st.session_state["current_page"] > total_pages:
+    st.session_state["current_page"] = total_pages
 
-    # Pagination controls
-    st.markdown('<div class="pagination">', unsafe_allow_html=True)
-    prev, next = st.columns([1,1])
-    with prev:
-        if st.button("⬅ Prev") and st.session_state["current_page"] > 1:
-            st.session_state["current_page"] -= 1
-    with next:
-        if st.button("Next ➡") and st.session_state["current_page"] < total_pages:
-            st.session_state["current_page"] += 1
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    start_idx = (st.session_state["current_page"] - 1) * per_page
-    end_idx = min(start_idx + per_page, total_tools)
-    page_tools = filtered_tools[start_idx:end_idx]
-
-    # Grid Display
-    for i in range(0, len(page_tools), 3):
-        cols = st.columns(3)
-        for j, col in enumerate(cols):
-            tool_idx = i + j
-            if tool_idx < len(page_tools):
-                tool = page_tools[tool_idx]
-                with col:
-                    logo_src = tool.get("logo", "")
-                    st.markdown(f"""
-                        <div class="tool-card">
-                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-                                <img src="{logo_src}" alt="logo" style="width:36px; height:36px; object-fit:cover; border-radius:8px;" />
-                                <h3>{tool['name']}</h3>
-                            </div>
-                            <p><b>{tool['category']} • {tool['plan']}</b></p>
-                            <p>{tool.get('blurb', '')}</p>
-                            {"".join([f'<span class="tag">#{tag}</span>' for tag in tool.get('tags', [])[:4]])}
-                        </div>
-                    """, unsafe_allow_html=True)
-
-                    st.link_button("🚀 Launch Tool", tool["link"], use_container_width=True)
-
-                    if tool.get("embeddable", False):
-                        components.iframe(tool["link"], height=520)
+# ---------------------------
+# Display results / pagination
+# ---------------------------
+if total_tools == 0:
+    st.info("No tools found matching your filters. Try broadening your search or clearing filters.")
 else:
-    st.info("No tools found matching your filters. Try adjusting your search criteria.")
+    # pagination controls top
+    st.markdown('<div class="pagination">', unsafe_allow_html=True)
+    pcol1, pcol2, pcol3 = st.columns([1, 1, 1])
+    with pcol1:
+        if st.button("⬅ Prev"):
+            if st.session_state["current_page"] > 1:
+                st.session_state["current_page"] -= 1
+    with pcol2:
+        st.markdown(f'<div class="page-info">Page {st.session_state["current_page"]} of {total_pages} — {total_tools} tools</div>', unsafe_allow_html=True)
+    with pcol3:
+        if st.button("Next ➡"):
+            if st.session_state["current_page"] < total_pages:
+                st.session_state["current_page"] += 1
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------------------------
+    # compute page subset
+    start = (st.session_state["current_page"] - 1) * st.session_state["per_page"]
+    end = min(start + st.session_state["per_page"], total_tools)
+    page_tools = filtered_tools[start:end]
+
+    # show grid: 3 columns. If less than 3 in a row, blank columns are fine.
+    for i in range(0, len(page_tools), 3):
+        row_tools = page_tools[i : i + 3]
+        cols = st.columns(3, gap="large")
+        for col, tool in zip(cols, row_tools):
+            with col:
+                logo = tool.get("logo", "")
+                name = tool.get("name", "Unknown")
+                blurb = tool.get("blurb", "")
+                meta = f"{tool.get('category','')} • {tool.get('plan','')}"
+                tags = tool.get("tags", [])[:4]
+
+                # card
+                html = f"""
+                <div class="tool-card">
+                  <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
+                    <img src="{logo}" alt="logo" style="width:44px; height:44px; object-fit:cover; border-radius:10px; border:1px solid #eef2ff;" onerror="this.style.display='none'"/>
+                    <div style="flex:1;">
+                      <h3>{name}</h3>
+                      <div class="tool-meta">{meta}</div>
+                    </div>
+                  </div>
+                  <p>{blurb}</p>
+                  <div style="margin-top:8px;">{"".join([f'<span class="tag">#{t}</span>' for t in tags])}</div>
+                  <div style="margin-top:12px;">
+                    <a class="link-btn" href="{tool.get('link')}" target="_blank" rel="noreferrer">🚀 Launch</a>
+                    {"<span style='margin-left:10px; color:#6b7280; font-weight:600;'>Embeddable</span>" if tool.get("embeddable", False) else ""}
+                  </div>
+                </div>
+                """
+                st.markdown(html, unsafe_allow_html=True)
+
+                # optional iframe preview (only if embeddable)
+                if tool.get("embeddable", False):
+                    try:
+                        components.iframe(tool.get("link"), height=420)
+                    except Exception:
+                        # some sites block embedding — ignore silently
+                        pass
+
+    # bottom pagination (same as top)
+    st.markdown('<div class="pagination">', unsafe_allow_html=True)
+    b1, b2, b3 = st.columns([1, 1, 1])
+    with b1:
+        if st.button("⬅ Prev (bottom)"):
+            if st.session_state["current_page"] > 1:
+                st.session_state["current_page"] -= 1
+    with b2:
+        st.markdown(f'<div class="page-info">Page {st.session_state["current_page"]} of {total_pages}</div>', unsafe_allow_html=True)
+    with b3:
+        if st.button("Next ➡ (bottom)"):
+            if st.session_state["current_page"] < total_pages:
+                st.session_state["current_page"] += 1
+    st.markdown("</div>", unsafe_allow_html=True)
+
 # Footer
-# ---------------------------
 st.divider()
 st.caption("✨ Made with ❤️ using Streamlit • Find the perfect AI tool for your needs")
