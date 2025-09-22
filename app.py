@@ -347,4 +347,5 @@ st.link_button(
     icon="🧰",
     use_container_width=True,
 )  # opens external URL in a new tab [web:55]
-st.caption("✨ Made with ❤️ using Streamlit • Find the perfect AI tool for every use case")
+st.caption("✨ Made with ❤️ By Girish Joshi • Find the perfect AI tool for every use case")
+
