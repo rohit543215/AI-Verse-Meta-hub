@@ -6,7 +6,7 @@ from tools import TOOLS, CATEGORIES
 # Page Config
 # ---------------------------
 st.set_page_config(
-    page_title="AI Tool Hub",
+    page_title="Deep Store: For AI ChatBots  ",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="collapsed"  # optional
@@ -281,3 +281,4 @@ else:
 # ---------------------------
 st.divider()
 st.caption("✨ Made with ❤️ using Streamlit • Find the perfect AI tool for your needs")
+
