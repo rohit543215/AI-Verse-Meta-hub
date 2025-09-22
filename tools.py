@@ -26,7 +26,7 @@ CATEGORIES = [
 TOOLS = [
     # -------------------- AI Chatbots --------------------
     {"name":"ChatGPT","link":"https://chat.openai.com/","plan":"Free + Paid","logo":"https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg","category":"AI Chatbots","tags":["openai","gpt","chat"],"embeddable":False,"blurb":"General-purpose assistant with GPT models."},  # [web:24]
-    {"name":"Claude","link":"https://claude.ai/","plan":"Free + Paid","logo":"https://upload.wikimedia.org/wikipedia/commons/3/36/Claude_AI_symbol.svg","category":"AI Chatbots","tags":["anthropic","reasoning"],"embeddable":False,"blurb":"Helpful assistant by Anthropic with strong reasoning."},  # [web:29]
+    {"name":"Claude","link":"https://claude.ai/","plan":"Free + Paid","logo":"https://upload.wikimedia.org/wikipedia/commons/b/b0/Claude_AI_symbol.svg","category":"AI Chatbots","tags":["anthropic","reasoning"],"embeddable":False,"blurb":"Helpful assistant by Anthropic with strong reasoning."},  # [web:29]
     {"name":"DeepSeek","link":"https://chat.deepseek.com/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/deepseek.svg","category":"AI Chatbots","tags":["deepseek","r1","coder"],"embeddable":False,"blurb":"Efficient, competitive large language models."},  # [web:35]
     {"name":"Gemini","link":"https://gemini.google.com/","plan":"Free + Paid","logo":"https://upload.wikimedia.org/wikipedia/commons/9/90/Google_Gemini_logo.svg","category":"AI Chatbots","tags":["google","multimodal"],"embeddable":False,"blurb":"Google’s multimodal AI chat."},  # [web:23]
     {"name":"Grok","link":"https://x.ai/","plan":"Paid","logo":"https://ai-logos-svg.vercel.app/logos/grok.svg","category":"AI Chatbots","tags":["xai","realtime"],"embeddable":False,"blurb":"xAI chatbot with real‑time knowledge."},  # [web:32]
@@ -143,3 +143,4 @@ TOOLS = [
     {"name":"Visme","link":"https://www.visme.co/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/visme.svg","category":"AI Data Visualization","tags":["infographics"],"embeddable":True,"blurb":"Infographics, presentations, charts."},  # [web:35]
     {"name":"Zing Data","link":"https://www.zingdata.com/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/zing.svg","category":"AI Data Visualization","tags":["bi","mobile"],"embeddable":True,"blurb":"Mobile‑first BI with AI."},  # [web:35]
 ]
+
