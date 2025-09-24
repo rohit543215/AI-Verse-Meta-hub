@@ -25,7 +25,7 @@ defaults = {
 }
 for k, v in defaults.items():
     if k not in st.session_state:
-        st.session_state[k] = v  # persists across reruns [web:33]
+        st.session_state[k] = v  # persists across reruns
 
 # Clear filters safely before widgets mount
 if st.session_state.clear_flag:
@@ -35,13 +35,13 @@ if st.session_state.clear_flag:
     st.session_state.current_page = 1
     st.session_state.show_previews = False
     st.session_state.clear_flag = False
-    st.rerun()  # safe pre-widget rerun [web:30]
+    st.rerun()  # safe pre-widget rerun
 
 # ---------------------------
 # Helpers
 # ---------------------------
 def reset_page():
-    st.session_state.current_page = 1  # keep pagination coherent on filter changes [web:27]
+    st.session_state.current_page = 1  # keep pagination coherent on filter changes
 
 def safe_str(x):
     return x if isinstance(x, str) else ""
@@ -65,7 +65,7 @@ def filter_tools(tools):
             if query not in searchable:
                 continue
         filtered.append(tool)
-    return filtered  # stateful filter pattern [web:27]
+    return filtered  # stateful filter pattern
 
 # ---------------------------
 # CSS (theme + components)
@@ -83,137 +83,238 @@ st.markdown(
   --ring: rgba(37,99,235,0.25);
   --border: #E5E7EB;
 }
-html, body, .stApp { background-color: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
-.app-header { text-align: center; margin: 10px 0 22px 0; }
-.app-header h1 { margin: 6px 0; font-size: 2rem; letter-spacing: 0.2px; color: #0F172A; }
-.app-header p { margin: 0; color: var(--muted); font-size: 0.98rem; }
+
+html, body, .stApp { 
+  background-color: var(--bg); 
+  color: var(--text); 
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; 
+}
+
+.app-header { 
+  text-align: center; 
+  margin: 10px 0 22px 0; 
+}
+
+.app-header h1 { 
+  margin: 6px 0; 
+  font-size: 2rem; 
+  letter-spacing: 0.2px; 
+  color: #0F172A; 
+}
+
+.app-header p { 
+  margin: 0; 
+  color: var(--muted); 
+  font-size: 0.98rem; 
+}
 
 .filters-card {
-  position: sticky; top: 0; z-index: 5;
-  background: #FFFFFFF2; border: 1px solid var(--border);
-  padding: 14px; border-radius: 14px;
+  background: #FFFFFFF2; 
+  border: 1px solid var(--border);
+  padding: 14px; 
+  border-radius: 14px;
   box-shadow: 0 10px 30px rgba(17,24,39,0.05);
-  margin-bottom: 18px; backdrop-filter: blur(6px);
+  margin-bottom: 18px; 
+  backdrop-filter: blur(6px);
 }
 
 .tool-card {
   background: var(--card);
-  padding: 16px; border-radius: 14px; border: 1px solid var(--border);
+  padding: 16px; 
+  border-radius: 14px; 
+  border: 1px solid var(--border);
   box-shadow: 0 6px 18px rgba(2,6,23,0.06);
   transition: transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease;
   margin-bottom: 26px;
 }
-.tool-card:hover { transform: translateY(-4px); box-shadow: 0 14px 26px rgba(2,6,23,0.10); border-color: var(--ring); }
-.tool-card h3 { margin: 0; font-size: 1.05rem; color: #0F172A; }
-.tool-card p { margin: 8px 0 6px 0; color: #374151; font-size: 0.92rem; }
 
-.badge { display: inline-flex; align-items:center; gap:6px; background: #EEF2FF; color: #3730A3; padding: 4px 10px; border: 1px solid #E0E7FF; border-radius: 999px; font-size: 0.74rem; font-weight: 700; }
-.badge.plan { background: #ECFDF5; color: #065F46; border-color: #D1FAE5; }
+.tool-card:hover { 
+  transform: translateY(-4px); 
+  box-shadow: 0 14px 26px rgba(2,6,23,0.10); 
+  border-color: var(--ring); 
+}
 
-.tag { display: inline-block; background: #EEF2FF; color: #4338CA; padding: 5px 10px; border-radius: 999px; margin-right: 6px; margin-top: 6px; font-size: 0.76rem; font-weight: 700; border: 1px solid #E0E7FF; }
+.tool-card h3 { 
+  margin: 0; 
+  font-size: 1.05rem; 
+  color: #0F172A; 
+}
 
-.link-btn { display: inline-block; background: linear-gradient(180deg, #2563EB, #1D4ED8); color: #fff !important; padding: 9px 12px; border-radius: 10px; text-decoration: none; font-weight: 700; border: 0; box-shadow: 0 8px 20px rgba(29,78,216,0.25); }
-.link-btn:hover { filter: brightness(1.07); }
+.tool-card p { 
+  margin: 8px 0 6px 0; 
+  color: #374151; 
+  font-size: 0.92rem; 
+}
 
-.soft-btn { display:inline-block; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: #F8FAFC; color: var(--text); font-weight: 700; }
-.soft-btn:hover { border-color: var(--ring); }
+.badge { 
+  display: inline-flex; 
+  align-items:center; 
+  gap:6px; 
+  background: #EEF2FF; 
+  color: #3730A3; 
+  padding: 4px 10px; 
+  border: 1px solid #E0E7FF; 
+  border-radius: 999px; 
+  font-size: 0.74rem; 
+  font-weight: 700; 
+}
+
+.badge.plan { 
+  background: #ECFDF5; 
+  color: #065F46; 
+  border-color: #D1FAE5; 
+}
+
+.tag { 
+  display: inline-block; 
+  background: #EEF2FF; 
+  color: #4338CA; 
+  padding: 5px 10px; 
+  border-radius: 999px; 
+  margin-right: 6px; 
+  margin-top: 6px; 
+  font-size: 0.76rem; 
+  font-weight: 700; 
+  border: 1px solid #E0E7FF; 
+}
+
+.link-btn { 
+  display: inline-block; 
+  background: linear-gradient(180deg, #2563EB, #1D4ED8); 
+  color: #fff !important; 
+  padding: 9px 12px; 
+  border-radius: 10px; 
+  text-decoration: none; 
+  font-weight: 700; 
+  border: 0; 
+  box-shadow: 0 8px 20px rgba(29,78,216,0.25); 
+}
+
+.link-btn:hover { 
+  filter: brightness(1.07); 
+}
+
+.soft-btn { 
+  display:inline-block; 
+  padding: 8px 12px; 
+  border-radius: 10px; 
+  border: 1px solid var(--border); 
+  background: #F8FAFC; 
+  color: var(--text); 
+  font-weight: 700; 
+}
+
+.soft-btn:hover { 
+  border-color: var(--ring); 
+}
 
 .pagination {
-  position: sticky; bottom: 12px; background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(6px); border: 1px solid var(--border); border-radius: 12px;
-  padding: 8px; text-align: center; margin: 18px 0;
-}
-.pagination .page-info { display: inline-block; margin: 0 12px; color: var(--text); font-weight: 700; }
-
-.meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px;}
-.empty-card { height: 0.1px; margin-bottom: 26px; }
-
-/* Left rail: Fixed layout for side-by-side display */
-.rail-container {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(6px); 
+  border: 1px solid var(--border); 
+  border-radius: 12px;
+  padding: 8px; 
+  text-align: center; 
+  margin: 18px 0;
 }
 
-.categories-section {
-  flex: 0 0 180px;
-  min-width: 180px;
+.pagination .page-info { 
+  display: inline-block; 
+  margin: 0 12px; 
+  color: var(--text); 
+  font-weight: 700; 
 }
 
-.info-section {
-  flex: 1;
-  min-width: 0;
+.meta-row { 
+  display:flex; 
+  flex-wrap:wrap; 
+  gap:8px; 
+  align-items:center; 
+  margin-top:4px;
 }
 
-/* Category list styling */
-.categories-title {
-  font-weight: 700;
-  font-size: 1.1rem;
-  margin-bottom: 10px;
-  color: #0F172A;
-}
-
-.category-button {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 8px 12px;
-  margin: 4px 0;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: #F9FAFB;
-  color: #0F172A;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.category-button:hover {
-  background: #EEF2FF;
-  border-color: #E0E7FF;
-}
-
-.category-button.active {
-  background: #EEF2FF;
-  border-color: #E0E7FF;
-  color: #3730A3;
-  font-weight: 700;
-}
-
-/* Picks panel */
 .picks-card {
   background: #F8FAFF;
   border: 1px solid #E0E7FF;
   border-radius: 14px;
   padding: 14px;
   box-shadow: 0 6px 18px rgba(2,6,23,0.05);
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
+
 .picks-title {
   margin: 0 0 10px 0;
   font-size: 1.02rem;
   font-weight: 800;
   background: linear-gradient(90deg, #2563EB 0%, #7C3AED 100%);
-  -webkit-background-clip: text; background-clip: text;
+  -webkit-background-clip: text; 
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.pick-item { margin: 6px 0; padding: 8px 10px; border: 1px dashed #E5E7EB; border-radius: 10px; background: #FFFFFF; }
-.pick-item .k { color:#64748B; font-weight:800; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px;}
-.pick-item .v { color:#0F172A; font-weight:800; }
-.pick-item .note { color:#475569; font-size:0.86rem; display:block; margin-top:4px; }
 
-/* TORO info card */
+.pick-item { 
+  margin: 6px 0; 
+  padding: 8px 10px; 
+  border: 1px dashed #E5E7EB; 
+  border-radius: 10px; 
+  background: #FFFFFF; 
+}
+
+.pick-item .k { 
+  color:#64748B; 
+  font-weight:800; 
+  font-size:0.8rem; 
+  text-transform:uppercase; 
+  letter-spacing:0.5px;
+}
+
+.pick-item .v { 
+  color:#0F172A; 
+  font-weight:800; 
+}
+
+.pick-item .note { 
+  color:#475569; 
+  font-size:0.86rem; 
+  display:block; 
+  margin-top:4px; 
+}
+
 .toro-card {
   background: linear-gradient(180deg, #ECFEFF 0%, #FFFFFF 60%);
   border: 1px solid #BAE6FD;
   border-radius: 14px;
   padding: 14px;
+  margin-top: 14px;
 }
-.toro-title { margin: 0 0 8px 0; font-size: 1.04rem; font-weight: 900; color: #0EA5E9; }
-.toro-bullets { margin: 8px 0 0 0; padding-left: 16px; }
-.toro-bullets li { color:#0F172A; margin: 6px 0; }
-.toro-badge { display:inline-block; padding:4px 10px; border-radius:999px; background:#DBEAFE; color:#1E40AF; font-weight:800; font-size:0.78rem; border:1px solid #BFDBFE; }
+
+.toro-title { 
+  margin: 0 0 8px 0; 
+  font-size: 1.04rem; 
+  font-weight: 900; 
+  color: #0EA5E9; 
+}
+
+.toro-bullets { 
+  margin: 8px 0 0 0; 
+  padding-left: 16px; 
+}
+
+.toro-bullets li { 
+  color:#0F172A; 
+  margin: 6px 0; 
+}
+
+.toro-badge { 
+  display:inline-block; 
+  padding:4px 10px; 
+  border-radius:999px; 
+  background:#DBEAFE; 
+  color:#1E40AF; 
+  font-weight:800; 
+  font-size:0.78rem; 
+  border:1px solid #BFDBFE; 
+}
 </style>
 """,
     unsafe_allow_html=True,
@@ -247,56 +348,35 @@ st.markdown(
 )
 
 # ---------------------------
-# Filters + Left rail and Main
+# Main Layout: Sidebar + Content
 # ---------------------------
-st.markdown('<div class="filters-card">', unsafe_allow_html=True)
 
-# Outer two columns: left rail block + main
-col_left, col_main = st.columns([4.2, 7.8], gap="large")
+# Create two main columns: sidebar and main content
+col_sidebar, col_content = st.columns([3, 8], gap="large")
 
-with col_left:
-    # Create the side-by-side layout using HTML/CSS
-    st.markdown('<div class="rail-container">', unsafe_allow_html=True)
+with col_sidebar:
+    st.markdown('<div class="filters-card">', unsafe_allow_html=True)
     
-    # Categories section (left side)
-    st.markdown('<div class="categories-section">', unsafe_allow_html=True)
-    st.markdown('<div class="categories-title">Categories</div>', unsafe_allow_html=True)
-    
-    # Categories list
+    # Categories Section
+    st.markdown("### Categories")
     cat_options = ["All"] + CATEGORIES
     current_cat = st.session_state.filter_category
     
-    # Create category buttons using HTML
-    category_html = ""
-    for i, c in enumerate(cat_options):
-        active_class = "active" if c == current_cat else ""
-        category_html += f'<div class="category-button {active_class}" onclick="selectCategory(\'{c}\')">{c}</div>'
-    
-    st.markdown(category_html, unsafe_allow_html=True)
-    
-    # Add JavaScript for category selection
-    st.markdown('''
-    <script>
-    function selectCategory(category) {
-        // This will be handled by Streamlit buttons below
-    }
-    </script>
-    ''', unsafe_allow_html=True)
-    
-    # Hidden Streamlit buttons for functionality
-    for c in cat_options:
-        if st.button(f"Select {c}", key=f"cat_btn_{c}", help=f"Switch to {c} category"):
-            if c != current_cat:
-                st.session_state.filter_category = c
+    for category in cat_options:
+        if st.button(
+            f"📁 {category}" if category != "All" else "🗂️ All Categories", 
+            key=f"cat_{category}",
+            use_container_width=True,
+            type="primary" if category == current_cat else "secondary"
+        ):
+            if category != current_cat:
+                st.session_state.filter_category = category
                 st.session_state.current_page = 1
                 st.rerun()
     
-    st.markdown('</div>', unsafe_allow_html=True)  # close categories-section
+    st.markdown('</div>', unsafe_allow_html=True)
     
-    # Info section (right side)
-    st.markdown('<div class="info-section">', unsafe_allow_html=True)
-    
-    # Editor's picks
+    # Editor's Picks Section
     st.markdown(
         """
         <div class="picks-card">
@@ -348,7 +428,7 @@ with col_left:
         unsafe_allow_html=True,
     )
     
-    # TORO info card
+    # TORO Info Section
     st.markdown(
         """
         <div class="toro-card">
@@ -364,15 +444,15 @@ with col_left:
         """,
         unsafe_allow_html=True,
     )
-    
-    st.markdown('</div>', unsafe_allow_html=True)  # close info-section
-    st.markdown('</div>', unsafe_allow_html=True)  # close rail-container
 
-with col_main:
-    # Top row: Search and Pricing only
-    m1, m2 = st.columns([3.8, 2.0], gap="large")
-    with m1:
-        st.markdown("Search")
+with col_content:
+    st.markdown('<div class="filters-card">', unsafe_allow_html=True)
+    
+    # Search and Pricing filters
+    filter_col1, filter_col2 = st.columns([3, 2], gap="medium")
+    
+    with filter_col1:
+        st.markdown("**Search**")
         st.text_input(
             "",
             placeholder="Search by name, tags, or description",
@@ -380,149 +460,95 @@ with col_main:
             on_change=lambda: reset_page(),
             label_visibility="collapsed",
         )
-    with m2:
-        st.markdown("Pricing")
-        plans = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
+    
+    with filter_col2:
+        st.markdown("**Pricing**")
         st.selectbox(
             "",
-            options=plans,
-            index=plans.index(st.session_state.filter_plan) if st.session_state.filter_plan in plans else 0,
+            ["All", "Free", "Freemium", "Paid"],
             key="filter_plan",
             on_change=lambda: reset_page(),
             label_visibility="collapsed",
         )
-
-    # Second row: Embeddable toggle and Clear button
-    tcol1, tcol2, tcol3 = st.columns([2, 6, 2], gap="large")
-    with tcol1:
-        st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")
-    with tcol2:
-        st.write("")
-    with tcol3:
-        if st.button("Clear filters"):
-            st.session_state.clear_flag = True
-            st.rerun()
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-# ---------------------------
-# Data
-# ---------------------------
-filtered_tools = filter_tools(TOOLS)
-total_tools = len(filtered_tools)
-per_page = 12
-total_pages = (total_tools - 1) // per_page + 1 if total_tools > 0 else 1
-if st.session_state.current_page > total_pages:
-    st.session_state.current_page = total_pages
-
-# ---------------------------
-# Top pagination
-# ---------------------------
-if total_tools == 0:
-    st.info("No tools found. Try broadening search or clearing filters.")
-else:
-    st.markdown('<div class="pagination">', unsafe_allow_html=True)
-    pcol1, pcol2, pcol3 = st.columns([1, 2, 1], gap="large")
-    with pcol1:
-        if st.button("⬅ Prev", key="prev_top") and st.session_state.current_page > 1:
-            st.session_state.current_page -= 1
-            st.rerun()
-    with pcol2:
-        st.markdown(
-            f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>',
-            unsafe_allow_html=True,
-        )
-    with pcol3:
-        if st.button("Next ➡", key="next_top") and st.session_state.current_page < total_pages:
-            st.session_state.current_page += 1
-            st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # ---------------------------
-    # Results grid
-    # ---------------------------
-    start = (st.session_state.current_page - 1) * per_page
-    end = min(start + per_page, total_tools)
-    page_tools = filtered_tools[start:end]
-
-    for i in range(0, max(len(page_tools), 3), 3):
-        row_tools = page_tools[i: i + 3]
-        cols = st.columns(3, gap="large")
-        while len(row_tools) < 3:
-            row_tools.append(None)
-        for col, tool in zip(cols, row_tools):
-            with col:
-                if tool is None:
-                    st.markdown('<div class="empty-card"></div>', unsafe_allow_html=True)
-                    continue
-
-                logo = safe_str(tool.get("logo", ""))
-                name = safe_str(tool.get("name", "Unknown"))
-                blurb = safe_str(tool.get("blurb", ""))
-                meta = f"{safe_str(tool.get('category',''))}"
-                plan = safe_str(tool.get("plan", ""))
-                tags = tool.get("tags", [])[:4]
-                link = safe_str(tool.get("link", "#"))
-                emb = bool(tool.get("embeddable", False))
-
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Filter and paginate tools
+    filtered_tools = filter_tools(TOOLS)
+    tools_per_page = 12
+    total_pages = max(1, (len(filtered_tools) + tools_per_page - 1) // tools_per_page)
+    
+    # Ensure current page is valid
+    if st.session_state.current_page > total_pages:
+        st.session_state.current_page = total_pages
+    
+    start_idx = (st.session_state.current_page - 1) * tools_per_page
+    end_idx = start_idx + tools_per_page
+    current_tools = filtered_tools[start_idx:end_idx]
+    
+    # Display results summary
+    st.markdown(f"**Found {len(filtered_tools)} tools** (Page {st.session_state.current_page} of {total_pages})")
+    
+    # Display tools in a grid
+    if current_tools:
+        for tool in current_tools:
+            with st.container():
+                st.markdown('<div class="tool-card">', unsafe_allow_html=True)
+                
+                # Tool header with logo and name
+                tool_col1, tool_col2 = st.columns([6, 2])
+                with tool_col1:
+                    st.markdown(f"### {tool.get('logo', '🔧')} {tool['name']}")
+                    st.markdown(f"*{tool['blurb']}*")
+                
+                with tool_col2:
+                    if st.button(f"Visit {tool['name']}", key=f"visit_{tool['name']}", use_container_width=True):
+                        st.markdown(f"<script>window.open('{tool['url']}', '_blank');</script>", unsafe_allow_html=True)
+                
+                # Tool metadata
+                st.markdown('<div class="meta-row">', unsafe_allow_html=True)
                 st.markdown(
-                    f"""
-                    <div class="tool-card">
-                      <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
-                        <img src="{logo}" alt="logo" style="width:44px; height:44px; object-fit:cover; border-radius:10px; border:1px solid #E5E7EB;" onerror="this.style.display='none'"/>
-                        <div style="flex:1;">
-                          <h3>{name}</h3>
-                          <div class="meta-row">
-                            <span class="badge">🗂 {meta}</span>
-                            <span class="badge plan">💳 {plan}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <p>{blurb}</p>
-                      <div style="margin-top:6px;">{"".join([f'<span class="tag">#{t}</span>' for t in tags])}</div>
-                      <div style="margin-top:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                        <a class="link-btn" href="{link}" target="_blank" rel="noreferrer noopener">🚀 Launch</a>
-                        <a class="soft-btn" href="{link}" target="_blank" rel="nofollow noopener" style="text-decoration:none;">🔗 Visit</a>
-                        {"<span class='badge'>🧩 Embeddable</span>" if emb else ""}
-                      </div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
+                    f'<span class="badge">{tool["category"]}</span> '
+                    f'<span class="badge plan">{tool["plan"]}</span>',
+                    unsafe_allow_html=True
                 )
-
-                # Embeddable preview toggle
-                if emb and st.session_state.show_previews:
-                    components.iframe(link, height=520, scrolling=True)
-
-    # ---------------------------
-    # Bottom pagination
-    # ---------------------------
-    st.markdown('<div class="pagination">', unsafe_allow_html=True)
-    b1, b2, b3 = st.columns([1, 2, 1], gap="large")
-    with b1:
-        if st.button("⬅ Prev (bottom)", key="prev_bottom") and st.session_state.current_page > 1:
-            st.session_state.current_page -= 1
-            st.rerun()
-    with b2:
-        st.markdown(
-            f'<div class="page-info">Page {st.session_state.current_page} of {total_pages}</div>',
-            unsafe_allow_html=True,
-        )
-    with b3:
-        if st.button("Next ➡ (bottom)", key="next_bottom") and st.session_state.current_page < total_pages:
-            st.session_state.current_page += 1
-            st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# ---------------------------
-# Footer CTA + footer
-# ---------------------------
-st.divider()
-st.link_button(
-    "🎓 more tools for student",
-    "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/",
-    type="primary",
-    icon="🧰",
-    use_container_width=True,
-)
-st.caption("✨ Made with ❤️ • TORO - Find the perfect AI tool for every use case")
+                
+                # Tags
+                if tool.get("tags"):
+                    tags_html = " ".join([f'<span class="tag">{tag}</span>' for tag in tool["tags"]])
+                    st.markdown(f'<div style="margin-top: 8px;">{tags_html}</div>', unsafe_allow_html=True)
+                
+                st.markdown('</div>', unsafe_allow_html=True)  # close meta-row
+                st.markdown('</div>', unsafe_allow_html=True)  # close tool-card
+    else:
+        st.info("No tools found matching your criteria. Try adjusting your filters.")
+    
+    # Pagination
+    if total_pages > 1:
+        st.markdown('<div class="pagination">', unsafe_allow_html=True)
+        
+        # Pagination controls
+        pagination_col1, pagination_col2, pagination_col3 = st.columns([1, 2, 1])
+        
+        with pagination_col1:
+            if st.button("← Previous", disabled=(st.session_state.current_page <= 1)):
+                st.session_state.current_page -= 1
+                st.rerun()
+        
+        with pagination_col2:
+            st.markdown(
+                f'<div class="page-info">Page {st.session_state.current_page} of {total_pages}</div>',
+                unsafe_allow_html=True
+            )
+        
+        with pagination_col3:
+            if st.button("Next →", disabled=(st.session_state.current_page >= total_pages)):
+                st.session_state.current_page += 1
+                st.rerun()
+        
+        st.markdown('</div>', unsafe_allow_html=True)  # close pagination
+    
+    # Clear filters button
+    if st.button("🗑️ Clear All Filters", use_container_width=True):
+        st.session_state.clear_flag = True
+        st.rerun()
