@@ -88,6 +88,7 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 .app-header h1 { margin: 6px 0; font-size: 2rem; letter-spacing: 0.2px; color: #0F172A; }
 .app-header p { margin: 0; color: var(--muted); font-size: 0.98rem; }
 
+/* Filter bar */
 .filters-card {
   position: sticky; top: 0; z-index: 5;
   background: #FFFFFFF2; border: 1px solid var(--border);
@@ -96,6 +97,7 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
   margin-bottom: 18px; backdrop-filter: blur(6px);
 }
 
+/* Tool cards */
 .tool-card {
   background: var(--card);
   padding: 16px; border-radius: 14px; border: 1px solid var(--border);
@@ -118,6 +120,7 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 .soft-btn { display:inline-block; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: #F8FAFC; color: var(--text); font-weight: 700; }
 .soft-btn:hover { border-color: var(--ring); }
 
+/* Pagination */
 .pagination {
   position: sticky; bottom: 12px; background: rgba(255,255,255,0.85);
   backdrop-filter: blur(6px); border: 1px solid var(--border); border-radius: 12px;
@@ -125,10 +128,11 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 }
 .pagination .page-info { display: inline-block; margin: 0 12px; color: var(--text); font-weight: 700; }
 
+/* Utility */
 .meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px;}
 .empty-card { height: 0.1px; margin-bottom: 26px; }
 
-/* Picks + TORO cards */
+/* Picks (left of right-rail) */
 .picks-card {
   background: #F8FAFF;
   border: 1px solid #E0E7FF;
@@ -149,17 +153,30 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 .pick-item .v { color:#0F172A; font-weight:800; }
 .pick-item .note { color:#475569; font-size:0.86rem; display:block; margin-top:4px; }
 
-.toro-card {
-  background: linear-gradient(180deg, #ECFEFF 0%, #FFFFFF 60%);
-  border: 1px solid #BAE6FD;
-  border-radius: 14px;
-  padding: 14px;
-  margin-top: 14px;
+/* Enhanced Why TORO (right of picks) */
+.toro-card.big {
+  background: linear-gradient(180deg, #E0F2FE 0%, #FFFFFF 70%);
+  border: 1px solid #93C5FD;
+  border-radius: 16px;
+  padding: 18px 16px;
+  box-shadow: 0 8px 22px rgba(2,6,23,0.06);
 }
-.toro-title { margin: 0 0 8px 0; font-size: 1.04rem; font-weight: 900; color: #0EA5E9; }
-.toro-bullets { margin: 8px 0 0 0; padding-left: 16px; }
-.toro-bullets li { color:#0F172A; margin: 6px 0; }
-.toro-badge { display:inline-block; padding:4px 10px; border-radius:999px; background:#DBEAFE; color:#1E40AF; font-weight:800; font-size:0.78rem; border:1px solid #BFDBFE; }
+.toro-card.big .toro-badge {
+  background:#DBEAFE; color:#1E40AF; border:1px solid #BFDBFE;
+  font-size:0.82rem; font-weight:900; padding:6px 12px; display:inline-block; border-radius:999px;
+}
+.toro-card.big .toro-eyebrow {
+  color:#0369A1; font-weight:900; font-size:0.88rem; letter-spacing: 0.6px; text-transform: uppercase; margin: 8px 0 2px 0;
+}
+.toro-card.big .toro-title {
+  margin: 2px 0 6px 0;
+  font-size: 1.5rem; line-height: 1.2; font-weight: 1000; letter-spacing: 0.1px; color:#0C4A6E;
+}
+.toro-card.big .toro-sub {
+  color:#0F172A; font-size: 1.04rem; line-height: 1.55; margin: 4px 0 10px 0;
+}
+.toro-card.big .toro-bullets { margin: 10px 0 0 0; padding-left: 18px; }
+.toro-card.big .toro-bullets li { color:#0F172A; margin: 10px 0; font-size: 1rem; line-height: 1.55; }
 </style>
 """,
     unsafe_allow_html=True,
@@ -201,8 +218,8 @@ st.markdown('<div class="filters-card">', unsafe_allow_html=True)
 col_left, col_main = st.columns([4.2, 7.8], gap="large")
 
 with col_left:
-    # Two columns inside the left rail: categories (narrow) and picks/info (wide)
-    rail_cat, rail_side = st.columns([1.0, 1.4], gap="medium", vertical_alignment="top")
+    # Two columns inside the left rail: categories (narrow) and right rail (wide)
+    rail_cat, rail_right = st.columns([1.0, 1.8], gap="medium", vertical_alignment="top")
 
     # Left: categories list
     with rail_cat:
@@ -216,74 +233,80 @@ with col_left:
                 st.session_state.current_page = 1
                 st.rerun()
 
-    # Right: Editor’s picks + Why TORO stacked
-    with rail_side:
-        st.markdown(
-            """
-            <div class="picks-card">
-              <h3 class="picks-title">Editor’s picks</h3>
+    # Right: a row with Editor’s picks (left) and Why TORO (right)
+    with rail_right:
+        picks_col, why_col = st.columns([1.05, 1.15], gap="medium", vertical_alignment="top")
 
-              <div class="pick-item">
-                <span class="k">Best general assistant</span><br/>
-                <span class="v">ChatGPT</span>
-                <span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span>
-              </div>
+        with picks_col:
+            st.markdown(
+                """
+                <div class="picks-card">
+                  <h3 class="picks-title">Editor’s picks</h3>
 
-              <div class="pick-item">
-                <span class="k">Best image generation</span><br/>
-                <span class="v">Gemini</span>
-                <span class="note">Strong multimodal grounding with solid text‑image prompting and safety features.</span>
-              </div>
+                  <div class="pick-item">
+                    <span class="k">Best general assistant</span><br/>
+                    <span class="v">ChatGPT</span>
+                    <span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span>
+                  </div>
 
-              <div class="pick-item">
-                <span class="k">Best video generation</span><br/>
-                <span class="v">Runway</span>
-                <span class="note">Reliable editing + generation workflow for creators and marketers.</span>
-              </div>
+                  <div class="pick-item">
+                    <span class="k">Best image generation</span><br/>
+                    <span class="v">Gemini</span>
+                    <span class="note">Strong multimodal grounding with solid text‑image prompting and safety features.</span>
+                  </div>
 
-              <div class="pick-item">
-                <span class="k">Best meeting assistant</span><br/>
-                <span class="v">Otter</span>
-                <span class="note">Live transcription and searchable summaries for teams.</span>
-              </div>
+                  <div class="pick-item">
+                    <span class="k">Best video generation</span><br/>
+                    <span class="v">Runway</span>
+                    <span class="note">Reliable editing + generation workflow for creators and marketers.</span>
+                  </div>
 
-              <div class="pick-item">
-                <span class="k">Best automation</span><br/>
-                <span class="v">Zapier</span>
-                <span class="note">Connect favorite apps and orchestrate AI workflows without code.</span>
-              </div>
+                  <div class="pick-item">
+                    <span class="k">Best meeting assistant</span><br/>
+                    <span class="v">Otter</span>
+                    <span class="note">Live transcription and searchable summaries for teams.</span>
+                  </div>
 
-              <div class="pick-item">
-                <span class="k">Best research</span><br/>
-                <span class="v">Perplexity</span>
-                <span class="note">Answer engine with citations for quick discovery.</span>
-              </div>
+                  <div class="pick-item">
+                    <span class="k">Best automation</span><br/>
+                    <span class="v">Zapier</span>
+                    <span class="note">Connect favorite apps and orchestrate AI workflows without code.</span>
+                  </div>
 
-              <div class="pick-item">
-                <span class="k">Best writing</span><br/>
-                <span class="v">Grammarly</span>
-                <span class="note">Clean rewrites, tone control, and grammar fixes.</span>
-              </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                  <div class="pick-item">
+                    <span class="k">Best research</span><br/>
+                    <span class="v">Perplexity</span>
+                    <span class="note">Answer engine with citations for quick discovery.</span>
+                  </div>
 
-        st.markdown(
-            """
-            <div class="toro-card">
-              <div class="toro-badge">Why TORO?</div>
-              <h3 class="toro-title">A faster way to find AI tools</h3>
-              <ul class="toro-bullets">
-                <li>Curated categories and pricing filters make discovery effortless.</li>
-                <li>Card previews surface logos, blurbs, tags, and quick actions.</li>
-                <li>Inline <em>Embeddable preview</em> to test tools without leaving TORO.</li>
-                <li>Clean pagination keeps browsing smooth at 12 tools per page.</li>
-              </ul>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                  <div class="pick-item">
+                    <span class="k">Best writing</span><br/>
+                    <span class="v">Grammarly</span>
+                    <span class="note">Clean rewrites, tone control, and grammar fixes.</span>
+                  </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with why_col:
+            st.markdown(
+                """
+                <div class="toro-card big">
+                  <div class="toro-badge">Why TORO?</div>
+                  <div class="toro-eyebrow">Faster discovery</div>
+                  <h3 class="toro-title">Find the right AI tool in minutes</h3>
+                  <p class="toro-sub">Browse by category, pricing, tags, and inline previews—all optimized for quick decision‑making.</p>
+                  <ul class="toro-bullets">
+                    <li>Curated categories and pricing filters make discovery effortless.</li>
+                    <li>Card previews surface logos, blurbs, tags, and quick actions.</li>
+                    <li>Inline <em>Embeddable preview</em> to test tools without leaving TORO.</li>
+                    <li>Clean pagination keeps browsing smooth at 12 tools per page.</li>
+                  </ul>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 with col_main:
     # Top row: Search and Pricing only
@@ -362,7 +385,6 @@ else:
     end = min(start + per_page, total_tools)
     page_tools = filtered_tools[start:end]
 
-    # Render 3 columns per row
     for i in range(0, max(len(page_tools), 3), 3):
         row_tools = page_tools[i: i + 3]
         cols = st.columns(3, gap="large", vertical_alignment="top")
@@ -410,27 +432,7 @@ else:
 
                 # Embeddable preview toggle
                 if emb and st.session_state.show_previews:
-                    components.iframe(link, height=520, scrolling=True)  # explicit sizing for predictable layout
-
-    # ---------------------------
-    # Bottom pagination
-    # ---------------------------
-    st.markdown('<div class="pagination">', unsafe_allow_html=True)
-    b1, b2, b3 = st.columns([1, 2, 1], gap="large")
-    with b1:
-        if st.button("⬅ Prev (bottom)", key="prev_bottom") and st.session_state.current_page > 1:
-            st.session_state.current_page -= 1
-            st.rerun()
-    with b2:
-        st.markdown(
-            f'<div class="page-info">Page {st.session_state.current_page} of {total_pages}</div>',
-            unsafe_allow_html=True,
-        )
-    with b3:
-        if st.button("Next ➡ (bottom)", key="next_bottom") and st.session_state.current_page < total_pages:
-            st.session_state.current_page += 1
-            st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
+                    components.iframe(link, height=520, scrolling=True)
 
 # ---------------------------
 # Footer CTA + footer
