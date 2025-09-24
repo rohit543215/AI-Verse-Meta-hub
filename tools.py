@@ -35,7 +35,7 @@ TOOLS = [
     {"name":"Perplexity","link":"https://www.perplexity.ai/","plan":"Free + Paid","logo":"https://upload.wikimedia.org/wikipedia/commons/1/1d/Perplexity_AI_logo.svg","category":"AI Chatbots","tags":["search","answers"],"embeddable":False,"blurb":"Answer engine with citations."},  # [web:22]
 
     # -------------------- AI Presentation --------------------
-    {"name":"Beautiful.ai","link":"https://www.beautiful.ai/","plan":"Paid","logo":"https://ai-logos-svg.vercel.app/logos/beautiful-ai.svg","category":"AI Presentation","tags":["slides","design"],"embeddable":True,"blurb":"Design‑first slide automation."},  # [web:35]
+    {"name":"Beautiful.ai","link":"https://www.beautiful.ai/","plan":"Paid","logo":"https://coledab2b.com/coleda-docker/NewsPictures/1/Beautifulai_new_Logo-08-11-2021-17-08-08-PM.jpg","category":"AI Presentation","tags":["slides","design"],"embeddable":True,"blurb":"Design‑first slide automation."},  # [web:35]
     {"name":"Gamma","link":"https://gamma.app/","plan":"Free + Paid","logo":"https://assets.gamma.app/favicon-192.png","category":"AI Presentation","tags":["docs","decks"],"embeddable":True,"blurb":"Docs, decks, and pages with AI."},  # [web:2]
     {"name":"Pitch","link":"https://pitch.com/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/pitch.svg","category":"AI Presentation","tags":["slides","collaboration"],"embeddable":True,"blurb":"Collaborative presentations."},  # [web:35]
     {"name":"Plus","link":"https://www.plusdocs.com/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/plus.svg","category":"AI Presentation","tags":["snapshots","slides"],"embeddable":True,"blurb":"Live snapshots and AI help for slides."},  # [web:35]
@@ -143,6 +143,7 @@ TOOLS = [
     {"name":"Visme","link":"https://www.visme.co/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/visme.svg","category":"AI Data Visualization","tags":["infographics"],"embeddable":True,"blurb":"Infographics, presentations, charts."},  # [web:35]
     {"name":"Zing Data","link":"https://www.zingdata.com/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/zing.svg","category":"AI Data Visualization","tags":["bi","mobile"],"embeddable":True,"blurb":"Mobile‑first BI with AI."},  # [web:35]
 ]
+
 
 
 
