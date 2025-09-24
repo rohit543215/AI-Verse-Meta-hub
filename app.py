@@ -106,7 +106,6 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 .tool-card:hover { transform: translateY(-4px); box-shadow: 0 14px 26px rgba(2,6,23,0.10); border-color: var(--ring); }
 .tool-card h3 { margin: 0; font-size: 1.05rem; color: #0F172A; }
 .tool-card p { margin: 8px 0 6px 0; color: #374151; font-size: 0.92rem; }
-.tool-meta { color: #6B7280; font-size: 0.83rem; margin-top: 2px; }
 
 .badge { display: inline-flex; align-items:center; gap:6px; background: #EEF2FF; color: #3730A3; padding: 4px 10px; border: 1px solid #E0E7FF; border-radius: 999px; font-size: 0.74rem; font-weight: 700; }
 .badge.plan { background: #ECFDF5; color: #065F46; border-color: #D1FAE5; }
@@ -130,7 +129,7 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 .empty-card { height: 0.1px; margin-bottom: 26px; }
 
 /* Category rail styles */
-.cat-rail { max-height: 360px; overflow-y: auto; padding-right: 4px; }
+.cat-rail { max-height: 540px; overflow-y: auto; padding-right: 4px; }
 .cat-btn {
   display:block; width:100%; text-align:left;
   padding:10px 12px; margin:6px 0;
@@ -145,12 +144,12 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
   border: 1px solid #E0E7FF;
   border-radius: 14px;
   padding: 14px;
-  margin-top: 12px;
+  margin-top: 14px;
   box-shadow: 0 6px 18px rgba(2,6,23,0.05);
 }
 .picks-title {
   margin: 0 0 10px 0;
-  font-size: 0.98rem;
+  font-size: 1.02rem;
   font-weight: 800;
   background: linear-gradient(90deg, #2563EB 0%, #7C3AED 100%);
   -webkit-background-clip: text; background-clip: text;
@@ -167,19 +166,16 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
   border: 1px solid #BAE6FD;
   border-radius: 14px;
   padding: 14px;
-  margin-top: 12px;
+  margin-top: 14px;
 }
-.toro-title { margin: 0 0 8px 0; font-size: 1.02rem; font-weight: 900; color: #0EA5E9; }
+.toro-title { margin: 0 0 8px 0; font-size: 1.04rem; font-weight: 900; color: #0EA5E9; }
 .toro-bullets { margin: 8px 0 0 0; padding-left: 16px; }
 .toro-bullets li { color:#0F172A; margin: 6px 0; }
 .toro-badge { display:inline-block; padding:4px 10px; border-radius:999px; background:#DBEAFE; color:#1E40AF; font-weight:800; font-size:0.78rem; border:1px solid #BFDBFE; }
-
-/* Small accent labels */
-.accent-label { color:#334155; font-weight:800; font-size:0.86rem; margin:8px 0 4px 0;}
 </style>
 """,
     unsafe_allow_html=True,
-)  # Markdown + CSS customization is supported for custom UI; test after upgrades. [web:57][web:58]
+)  # Custom layout/styling via Markdown+CSS; validate after Streamlit updates. [web:57][web:58]
 
 # ---------------------------
 # Header
@@ -209,19 +205,23 @@ st.markdown(
 )
 
 # ---------------------------
-# Filters (with filled left rail)
+# Filters (rail with side content)
 # ---------------------------
 st.markdown('<div class="filters-card">', unsafe_allow_html=True)
-rail, main = st.columns([2.8, 7.2], gap="large")
+
+# Wider rail so picks + TORO card sit beside categories, not below
+rail, main = st.columns([3.2, 6.8], gap="large")  # responsive two-column layout [web:60][web:65]
 
 with rail:
-    # Categories
+    # Single scrollable container holding categories and side content
     st.markdown("Categories")
+    st.markdown('<div class="cat-rail">', unsafe_allow_html=True)
+
     cat_options = ["All"] + CATEGORIES
     current_cat = st.session_state.filter_category
-    st.markdown('<div class="cat-rail">', unsafe_allow_html=True)
     for c in cat_options:
         clicked = st.button(f"{c}", key=f"cat_{c}", use_container_width=True)
+        # style state marker
         st.markdown(
             f"<div class='cat-btn {'active' if c == current_cat else ''}' style='display:none'>{c}</div>",
             unsafe_allow_html=True,
@@ -229,10 +229,9 @@ with rail:
         if clicked and c != current_cat:
             st.session_state.filter_category = c
             st.session_state.current_page = 1
-            st.rerun()  # supported full rerun to reflect state changes [web:30]
-    st.markdown("</div>", unsafe_allow_html=True)
+            st.rerun()  # full rerun to apply filter [web:30]
 
-    # Editor’s picks panel (fill the empty space)
+    # Editor’s picks panel (remains in same rail column)
     st.markdown(
         """
         <div class="picks-card">
@@ -282,9 +281,9 @@ with rail:
         </div>
         """,
         unsafe_allow_html=True,
-    )  # Content styling done via HTML/CSS in Markdown, a common customization pattern. [web:57][web:58]
+    )
 
-    # TORO info card
+    # TORO info card (also inside rail)
     st.markdown(
         """
         <div class="toro-card">
@@ -299,7 +298,9 @@ with rail:
         </div>
         """,
         unsafe_allow_html=True,
-    )  # Simple product value messaging in a gradient card for visual interest. [web:58]
+    )
+
+    st.markdown('</div>', unsafe_allow_html=True)  # close cat-rail
 
 with main:
     # Top row: Search and Pricing only
