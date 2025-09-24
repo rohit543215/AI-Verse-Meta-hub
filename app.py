@@ -68,7 +68,7 @@ def filter_tools(tools):
     return filtered  # stateful filter pattern [web:27]
 
 # ---------------------------
-# CSS (light theme palette)
+# CSS (theme + components)
 # ---------------------------
 st.markdown(
     """
@@ -126,8 +126,6 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 }
 .pagination .page-info { display: inline-block; margin: 0 12px; color: var(--text); font-weight: 700; }
 
-.kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.78rem; padding: 2px 6px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 6px; background: #F3F4F6; color: #374151; }
-
 .meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px;}
 .empty-card { height: 0.1px; margin-bottom: 26px; }
 
@@ -140,10 +138,48 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
   background:#F9FAFB; color:#0F172A; font-weight:700; font-size:0.92rem;
 }
 .cat-btn.active { background:#EEF2FF; border-color:#E0E7FF; color:#3730A3; }
+
+/* Picks panel */
+.picks-card {
+  background: #F8FAFF;
+  border: 1px solid #E0E7FF;
+  border-radius: 14px;
+  padding: 14px;
+  margin-top: 12px;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.05);
+}
+.picks-title {
+  margin: 0 0 10px 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #2563EB 0%, #7C3AED 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.pick-item { margin: 6px 0; padding: 8px 10px; border: 1px dashed #E5E7EB; border-radius: 10px; background: #FFFFFF; }
+.pick-item .k { color:#64748B; font-weight:800; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px;}
+.pick-item .v { color:#0F172A; font-weight:800; }
+.pick-item .note { color:#475569; font-size:0.86rem; display:block; margin-top:4px; }
+
+/* TORO info card */
+.toro-card {
+  background: linear-gradient(180deg, #ECFEFF 0%, #FFFFFF 60%);
+  border: 1px solid #BAE6FD;
+  border-radius: 14px;
+  padding: 14px;
+  margin-top: 12px;
+}
+.toro-title { margin: 0 0 8px 0; font-size: 1.02rem; font-weight: 900; color: #0EA5E9; }
+.toro-bullets { margin: 8px 0 0 0; padding-left: 16px; }
+.toro-bullets li { color:#0F172A; margin: 6px 0; }
+.toro-badge { display:inline-block; padding:4px 10px; border-radius:999px; background:#DBEAFE; color:#1E40AF; font-weight:800; font-size:0.78rem; border:1px solid #BFDBFE; }
+
+/* Small accent labels */
+.accent-label { color:#334155; font-weight:800; font-size:0.86rem; margin:8px 0 4px 0;}
 </style>
 """,
     unsafe_allow_html=True,
-)  # UI theming kept consistent with Streamlit light theme [web:27]
+)  # Markdown + CSS customization is supported for custom UI; test after upgrades. [web:57][web:58]
 
 # ---------------------------
 # Header
@@ -173,20 +209,19 @@ st.markdown(
 )
 
 # ---------------------------
-# Filters (minimal like screenshot)
+# Filters (with filled left rail)
 # ---------------------------
 st.markdown('<div class="filters-card">', unsafe_allow_html=True)
-rail, main = st.columns([2.4, 7.6], gap="large")
+rail, main = st.columns([2.8, 7.2], gap="large")
 
 with rail:
+    # Categories
     st.markdown("Categories")
     cat_options = ["All"] + CATEGORIES
     current_cat = st.session_state.filter_category
     st.markdown('<div class="cat-rail">', unsafe_allow_html=True)
     for c in cat_options:
-        # Render each category as its own button
         clicked = st.button(f"{c}", key=f"cat_{c}", use_container_width=True)
-        # Apply active style by mirroring state into a hidden marker div
         st.markdown(
             f"<div class='cat-btn {'active' if c == current_cat else ''}' style='display:none'>{c}</div>",
             unsafe_allow_html=True,
@@ -194,8 +229,77 @@ with rail:
         if clicked and c != current_cat:
             st.session_state.filter_category = c
             st.session_state.current_page = 1
-            st.rerun()  # immediate refresh to show filtered results [web:30]
+            st.rerun()  # supported full rerun to reflect state changes [web:30]
     st.markdown("</div>", unsafe_allow_html=True)
+
+    # Editor’s picks panel (fill the empty space)
+    st.markdown(
+        """
+        <div class="picks-card">
+          <h3 class="picks-title">Editor’s picks</h3>
+
+          <div class="pick-item">
+            <span class="k">Best general assistant</span><br/>
+            <span class="v">ChatGPT</span>
+            <span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span>
+          </div>
+
+          <div class="pick-item">
+            <span class="k">Best image generation</span><br/>
+            <span class="v">Gemini</span>
+            <span class="note">Strong multimodal grounding with solid text‑image prompting and safety features.</span>
+          </div>
+
+          <div class="pick-item">
+            <span class="k">Best video generation</span><br/>
+            <span class="v">Runway</span>
+            <span class="note">Reliable editing + generation workflow for creators and marketers.</span>
+          </div>
+
+          <div class="pick-item">
+            <span class="k">Best meeting assistant</span><br/>
+            <span class="v">Otter</span>
+            <span class="note">Live transcription and searchable summaries for teams.</span>
+          </div>
+
+          <div class="pick-item">
+            <span class="k">Best automation</span><br/>
+            <span class="v">Zapier</span>
+            <span class="note">Connect favorite apps and orchestrate AI workflows without code.</span>
+          </div>
+
+          <div class="pick-item">
+            <span class="k">Best research</span><br/>
+            <span class="v">Perplexity</span>
+            <span class="note">Answer engine with citations for quick discovery.</span>
+          </div>
+
+          <div class="pick-item">
+            <span class="k">Best writing</span><br/>
+            <span class="v">Grammarly</span>
+            <span class="note">Clean rewrites, tone control, and grammar fixes.</span>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )  # Content styling done via HTML/CSS in Markdown, a common customization pattern. [web:57][web:58]
+
+    # TORO info card
+    st.markdown(
+        """
+        <div class="toro-card">
+          <div class="toro-badge">Why TORO?</div>
+          <h3 class="toro-title">A faster way to find AI tools</h3>
+          <ul class="toro-bullets">
+            <li>Curated categories and pricing filters make discovery effortless.</li>
+            <li>Card previews surface logos, blurbs, tags, and quick actions.</li>
+            <li>Inline <em>Embeddable preview</em> to test tools without leaving TORO.</li>
+            <li>Clean pagination keeps browsing smooth at 12 tools per page.</li>
+          </ul>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )  # Simple product value messaging in a gradient card for visual interest. [web:58]
 
 with main:
     # Top row: Search and Pricing only
@@ -208,7 +312,7 @@ with main:
             key="filter_search",
             on_change=lambda: reset_page(),
             label_visibility="collapsed",
-        )  # search input updates state and resets page [web:27]
+        )  # search input drives filtering and resets page [web:27]
     with m2:
         st.markdown("Pricing")
         plans = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
@@ -224,7 +328,7 @@ with main:
     # Second row: Embeddable toggle and Clear button
     tcol1, tcol2, tcol3 = st.columns([2, 6, 2], gap="large")
     with tcol1:
-        st.toggle("preview", value=st.session_state.show_previews, key="show_previews")  # [web:29]
+        st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")  # iframe toggle [web:29]
     with tcol2:
         st.write("")
     with tcol3:
@@ -237,9 +341,9 @@ st.markdown("</div>", unsafe_allow_html=True)
 # ---------------------------
 # Data
 # ---------------------------
-filtered_tools = filter_tools(TOOLS)  # keep curated order (no sort) [web:27]
+filtered_tools = filter_tools(TOOLS)  # preserve curated order (no sort) [web:27]
 total_tools = len(filtered_tools)
-per_page = 12  # fixed as requested [web:27]
+per_page = 12  # fixed page size [web:27]
 total_pages = (total_tools - 1) // per_page + 1 if total_tools > 0 else 1
 if st.session_state.current_page > total_pages:
     st.session_state.current_page = total_pages  # safety [web:27]
@@ -321,7 +425,7 @@ else:
 
                 # Embeddable preview toggle
                 if emb and st.session_state.show_previews:
-                    components.iframe(link, height=520, scrolling=True)  # iframe preview [web:29]
+                    components.iframe(link, height=520, scrolling=True)  # supported params [web:29]
 
     # ---------------------------
     # Bottom pagination
@@ -355,4 +459,3 @@ st.link_button(
     use_container_width=True,
 )
 st.caption("✨ Made with ❤️ • TORO - Find the perfect AI tool for every use case")
-
