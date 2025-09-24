@@ -180,7 +180,8 @@ with main_col:
             label_visibility="collapsed",
         )
         if st.button("🗑️ Clear filters", use_container_width=True):
-            clear_all_filters()
+            st.session_state.clear_flag = True
+            st.rerun()
 
     # Middle: Pricing + Toggle + Why TORO
     with top_m:
@@ -357,3 +358,4 @@ else:
 st.divider()
 st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
 st.caption("✨ Made with ❤️ • TORO - Find the perfect AI tool for every use case")
+
