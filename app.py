@@ -152,15 +152,47 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 # ---------------------------
 # Header
 # ---------------------------
+# ---------------------------
+# About Section
+# ---------------------------
 st.markdown(
     """
-<div class="app-header">
-  <h1>🤖 Deep Store</h1>
-  <p>Discover high-quality AI tools — filter, preview, and launch fast.</p>
+<style>
+.about-card {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  padding: 18px 22px;
+  border-radius: 14px;
+  margin-bottom: 22px;
+  text-align: center;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.05);
+}
+.about-card h2 {
+  margin: 4px 0 12px 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1E293B;
+}
+.about-card p {
+  margin: 6px 0;
+  font-size: 0.96rem;
+  line-height: 1.55;
+  color: #374151;
+}
+</style>
+
+<div class="about-card">
+  <h2>Welcome to 🤖 Deep Store</h2>
+  <p>Deep Store helps you <strong>discover and explore AI tools</strong> with ease.  
+  Use filters to refine by category, pricing, or search keywords.  
+  Browse tools, check their details, preview them directly (if embeddable),  
+  and launch them in one click.</p>
 </div>
 """,
     unsafe_allow_html=True,
-)  # header [web:79]
+)
+  # header [web:79]
 
 # ---------------------------
 # Filters
@@ -348,4 +380,5 @@ st.link_button(
     use_container_width=True,
 )  # opens external URL in a new tab [web:55]
 st.caption("✨ Made with ❤️ By Girish Joshi • Find the perfect AI tool for every use case")
+
 
