@@ -128,20 +128,58 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 .meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px;}
 .empty-card { height: 0.1px; margin-bottom: 26px; }
 
-/* Left rail: inner two columns side-by-side */
-.rail-wrap { display:flex; gap:14px; }
-.rail-left { flex: 0 0 220px; }
-.rail-right { flex: 1 1 260px; }
-
-/* Category list (scrolls independently) */
-.cat-rail { max-height: 540px; overflow-y: auto; padding-right: 4px; }
-.cat-btn {
-  display:block; width:100%; text-align:left;
-  padding:10px 12px; margin:6px 0;
-  border:1px solid var(--border); border-radius:10px;
-  background:#F9FAFB; color:#0F172A; font-weight:700; font-size:0.92rem;
+/* Left rail: Fixed layout for side-by-side display */
+.rail-container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
 }
-.cat-btn.active { background:#EEF2FF; border-color:#E0E7FF; color:#3730A3; }
+
+.categories-section {
+  flex: 0 0 180px;
+  min-width: 180px;
+}
+
+.info-section {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Category list styling */
+.categories-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: #0F172A;
+}
+
+.category-button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  margin: 4px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #F9FAFB;
+  color: #0F172A;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-button:hover {
+  background: #EEF2FF;
+  border-color: #E0E7FF;
+}
+
+.category-button.active {
+  background: #EEF2FF;
+  border-color: #E0E7FF;
+  color: #3730A3;
+  font-weight: 700;
+}
 
 /* Picks panel */
 .picks-card {
@@ -150,6 +188,7 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
   border-radius: 14px;
   padding: 14px;
   box-shadow: 0 6px 18px rgba(2,6,23,0.05);
+  margin-bottom: 16px;
 }
 .picks-title {
   margin: 0 0 10px 0;
@@ -170,7 +209,6 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
   border: 1px solid #BAE6FD;
   border-radius: 14px;
   padding: 14px;
-  margin-top: 14px;
 }
 .toro-title { margin: 0 0 8px 0; font-size: 1.04rem; font-weight: 900; color: #0EA5E9; }
 .toro-bullets { margin: 8px 0 0 0; padding-left: 16px; }
@@ -179,7 +217,7 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 </style>
 """,
     unsafe_allow_html=True,
-)  # Custom layout/styling via Markdown+CSS; validate after Streamlit updates. [web:57][web:58]
+)
 
 # ---------------------------
 # Header
@@ -214,37 +252,55 @@ st.markdown(
 st.markdown('<div class="filters-card">', unsafe_allow_html=True)
 
 # Outer two columns: left rail block + main
-col_left, col_main = st.columns([4.2, 7.8], gap="large")  # keeps them truly side-by-side [web:73]
+col_left, col_main = st.columns([4.2, 7.8], gap="large")
 
 with col_left:
-    # Build a manual two-column layout INSIDE the left rail using CSS flex
-    st.markdown('<div class="rail-wrap">', unsafe_allow_html=True)
-
-    # Left side of rail: categories (narrow)
-    st.markdown('<div class="rail-left">', unsafe_allow_html=True)
-    st.markdown("Categories")
-    st.markdown('<div class="cat-rail">', unsafe_allow_html=True)
+    # Create the side-by-side layout using HTML/CSS
+    st.markdown('<div class="rail-container">', unsafe_allow_html=True)
+    
+    # Categories section (left side)
+    st.markdown('<div class="categories-section">', unsafe_allow_html=True)
+    st.markdown('<div class="categories-title">Categories</div>', unsafe_allow_html=True)
+    
+    # Categories list
     cat_options = ["All"] + CATEGORIES
     current_cat = st.session_state.filter_category
+    
+    # Create category buttons using HTML
+    category_html = ""
+    for i, c in enumerate(cat_options):
+        active_class = "active" if c == current_cat else ""
+        category_html += f'<div class="category-button {active_class}" onclick="selectCategory(\'{c}\')">{c}</div>'
+    
+    st.markdown(category_html, unsafe_allow_html=True)
+    
+    # Add JavaScript for category selection
+    st.markdown('''
+    <script>
+    function selectCategory(category) {
+        // This will be handled by Streamlit buttons below
+    }
+    </script>
+    ''', unsafe_allow_html=True)
+    
+    # Hidden Streamlit buttons for functionality
     for c in cat_options:
-        clicked = st.button(f"{c}", key=f"cat_{c}", use_container_width=True)
-        st.markdown(
-            f"<div class='cat-btn {'active' if c == current_cat else ''}' style='display:none'>{c}</div>",
-            unsafe_allow_html=True,
-        )
-        if clicked and c != current_cat:
-            st.session_state.filter_category = c
-            st.session_state.current_page = 1
-            st.rerun()  # immediate UI refresh [web:30]
-    st.markdown('</div>', unsafe_allow_html=True)  # close cat-rail
-    st.markdown('</div>', unsafe_allow_html=True)  # close rail-left
-
-    # Right side of rail: picks + TORO info (wide)
-    st.markdown('<div class="rail-right">', unsafe_allow_html=True)
+        if st.button(f"Select {c}", key=f"cat_btn_{c}", help=f"Switch to {c} category"):
+            if c != current_cat:
+                st.session_state.filter_category = c
+                st.session_state.current_page = 1
+                st.rerun()
+    
+    st.markdown('</div>', unsafe_allow_html=True)  # close categories-section
+    
+    # Info section (right side)
+    st.markdown('<div class="info-section">', unsafe_allow_html=True)
+    
+    # Editor's picks
     st.markdown(
         """
         <div class="picks-card">
-          <h3 class="picks-title">Editor’s picks</h3>
+          <h3 class="picks-title">Editor's picks</h3>
 
           <div class="pick-item">
             <span class="k">Best general assistant</span><br/>
@@ -288,7 +344,13 @@ with col_left:
             <span class="note">Clean rewrites, tone control, and grammar fixes.</span>
           </div>
         </div>
-
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    # TORO info card
+    st.markdown(
+        """
         <div class="toro-card">
           <div class="toro-badge">Why TORO?</div>
           <h3 class="toro-title">A faster way to find AI tools</h3>
@@ -302,9 +364,9 @@ with col_left:
         """,
         unsafe_allow_html=True,
     )
-    st.markdown('</div>', unsafe_allow_html=True)  # close rail-right
-
-    st.markdown('</div>', unsafe_allow_html=True)  # close rail-wrap
+    
+    st.markdown('</div>', unsafe_allow_html=True)  # close info-section
+    st.markdown('</div>', unsafe_allow_html=True)  # close rail-container
 
 with col_main:
     # Top row: Search and Pricing only
@@ -317,7 +379,7 @@ with col_main:
             key="filter_search",
             on_change=lambda: reset_page(),
             label_visibility="collapsed",
-        )  # search input drives filtering and resets page [web:27]
+        )
     with m2:
         st.markdown("Pricing")
         plans = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
@@ -328,30 +390,30 @@ with col_main:
             key="filter_plan",
             on_change=lambda: reset_page(),
             label_visibility="collapsed",
-        )  # plan filter [web:27]
+        )
 
     # Second row: Embeddable toggle and Clear button
     tcol1, tcol2, tcol3 = st.columns([2, 6, 2], gap="large")
     with tcol1:
-        st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")  # iframe toggle [web:29]
+        st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")
     with tcol2:
         st.write("")
     with tcol3:
         if st.button("Clear filters"):
             st.session_state.clear_flag = True
-            st.rerun()  # reset + rerun [web:30]
+            st.rerun()
 
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
 # Data
 # ---------------------------
-filtered_tools = filter_tools(TOOLS)  # preserve curated order (no sort) [web:27]
+filtered_tools = filter_tools(TOOLS)
 total_tools = len(filtered_tools)
-per_page = 12  # fixed page size [web:27]
+per_page = 12
 total_pages = (total_tools - 1) // per_page + 1 if total_tools > 0 else 1
 if st.session_state.current_page > total_pages:
-    st.session_state.current_page = total_pages  # safety [web:27]
+    st.session_state.current_page = total_pages
 
 # ---------------------------
 # Top pagination
@@ -364,7 +426,7 @@ else:
     with pcol1:
         if st.button("⬅ Prev", key="prev_top") and st.session_state.current_page > 1:
             st.session_state.current_page -= 1
-            st.rerun()  # immediate update [web:30]
+            st.rerun()
     with pcol2:
         st.markdown(
             f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>',
@@ -373,7 +435,7 @@ else:
     with pcol3:
         if st.button("Next ➡", key="next_top") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
-            st.rerun()  # immediate update [web:30]
+            st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
     # ---------------------------
@@ -430,7 +492,7 @@ else:
 
                 # Embeddable preview toggle
                 if emb and st.session_state.show_previews:
-                    components.iframe(link, height=520, scrolling=True)  # supported params [web:29]
+                    components.iframe(link, height=520, scrolling=True)
 
     # ---------------------------
     # Bottom pagination
@@ -440,7 +502,7 @@ else:
     with b1:
         if st.button("⬅ Prev (bottom)", key="prev_bottom") and st.session_state.current_page > 1:
             st.session_state.current_page -= 1
-            st.rerun()  # update page [web:30]
+            st.rerun()
     with b2:
         st.markdown(
             f'<div class="page-info">Page {st.session_state.current_page} of {total_pages}</div>',
@@ -449,7 +511,7 @@ else:
     with b3:
         if st.button("Next ➡ (bottom)", key="next_bottom") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
-            st.rerun()  # update page [web:30]
+            st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
