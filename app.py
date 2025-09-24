@@ -25,7 +25,7 @@ defaults = {
 }
 for k, v in defaults.items():
     if k not in st.session_state:
-        st.session_state[k] = v  # persists across reruns [web:33]
+        st.session_state[k] = v  # persists across reruns
 
 # Clear filters safely before widgets mount
 if st.session_state.clear_flag:
@@ -35,13 +35,13 @@ if st.session_state.clear_flag:
     st.session_state.current_page = 1
     st.session_state.show_previews = False
     st.session_state.clear_flag = False
-    st.rerun()  # safe pre-widget rerun [web:30]
+    st.rerun()
 
 # ---------------------------
 # Helpers
 # ---------------------------
 def reset_page():
-    st.session_state.current_page = 1  # keep pagination coherent on filter changes [web:27]
+    st.session_state.current_page = 1  # keep pagination coherent on filter changes
 
 def safe_str(x):
     return x if isinstance(x, str) else ""
@@ -65,7 +65,7 @@ def filter_tools(tools):
             if query not in searchable:
                 continue
         filtered.append(tool)
-    return filtered  # stateful filter pattern [web:27]
+    return filtered  # stateful filter pattern
 
 # ---------------------------
 # CSS (theme + components)
@@ -128,22 +128,7 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 .meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px;}
 .empty-card { height: 0.1px; margin-bottom: 26px; }
 
-/* Left rail: inner two columns side-by-side */
-.rail-wrap { display:flex; gap:14px; }
-.rail-left { flex: 0 0 220px; }
-.rail-right { flex: 1 1 260px; }
-
-/* Category list (scrolls independently) */
-.cat-rail { max-height: 540px; overflow-y: auto; padding-right: 4px; }
-.cat-btn {
-  display:block; width:100%; text-align:left;
-  padding:10px 12px; margin:6px 0;
-  border:1px solid var(--border); border-radius:10px;
-  background:#F9FAFB; color:#0F172A; font-weight:700; font-size:0.92rem;
-}
-.cat-btn.active { background:#EEF2FF; border-color:#E0E7FF; color:#3730A3; }
-
-/* Picks panel */
+/* Picks + TORO cards */
 .picks-card {
   background: #F8FAFF;
   border: 1px solid #E0E7FF;
@@ -164,7 +149,6 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 .pick-item .v { color:#0F172A; font-weight:800; }
 .pick-item .note { color:#475569; font-size:0.86rem; display:block; margin-top:4px; }
 
-/* TORO info card */
 .toro-card {
   background: linear-gradient(180deg, #ECFEFF 0%, #FFFFFF 60%);
   border: 1px solid #BAE6FD;
@@ -179,7 +163,7 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 </style>
 """,
     unsafe_allow_html=True,
-)  # Custom layout/styling via Markdown+CSS; validate after Streamlit updates. [web:57][web:58]
+)
 
 # ---------------------------
 # Header
@@ -214,101 +198,96 @@ st.markdown(
 st.markdown('<div class="filters-card">', unsafe_allow_html=True)
 
 # Outer two columns: left rail block + main
-col_left, col_main = st.columns([4.2, 7.8], gap="large")  # keeps them truly side-by-side [web:73]
+col_left, col_main = st.columns([4.2, 7.8], gap="large")
 
 with col_left:
-    # Build a manual two-column layout INSIDE the left rail using CSS flex
-    st.markdown('<div class="rail-wrap">', unsafe_allow_html=True)
+    # Two columns inside the left rail: categories (narrow) and picks/info (wide)
+    rail_cat, rail_side = st.columns([1.0, 1.4], gap="medium", vertical_alignment="top")
 
-    # Left side of rail: categories (narrow)
-    st.markdown('<div class="rail-left">', unsafe_allow_html=True)
-    st.markdown("Categories")
-    st.markdown('<div class="cat-rail">', unsafe_allow_html=True)
-    cat_options = ["All"] + CATEGORIES
-    current_cat = st.session_state.filter_category
-    for c in cat_options:
-        clicked = st.button(f"{c}", key=f"cat_{c}", use_container_width=True)
+    # Left: categories list
+    with rail_cat:
+        st.markdown("Categories")
+        cat_options = ["All"] + CATEGORIES
+        current_cat = st.session_state.filter_category
+        for c in cat_options:
+            clicked = st.button(f"{c}", key=f"cat_{c}", use_container_width=True)
+            if clicked and c != current_cat:
+                st.session_state.filter_category = c
+                st.session_state.current_page = 1
+                st.rerun()
+
+    # Right: Editor’s picks + Why TORO stacked
+    with rail_side:
         st.markdown(
-            f"<div class='cat-btn {'active' if c == current_cat else ''}' style='display:none'>{c}</div>",
+            """
+            <div class="picks-card">
+              <h3 class="picks-title">Editor’s picks</h3>
+
+              <div class="pick-item">
+                <span class="k">Best general assistant</span><br/>
+                <span class="v">ChatGPT</span>
+                <span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span>
+              </div>
+
+              <div class="pick-item">
+                <span class="k">Best image generation</span><br/>
+                <span class="v">Gemini</span>
+                <span class="note">Strong multimodal grounding with solid text‑image prompting and safety features.</span>
+              </div>
+
+              <div class="pick-item">
+                <span class="k">Best video generation</span><br/>
+                <span class="v">Runway</span>
+                <span class="note">Reliable editing + generation workflow for creators and marketers.</span>
+              </div>
+
+              <div class="pick-item">
+                <span class="k">Best meeting assistant</span><br/>
+                <span class="v">Otter</span>
+                <span class="note">Live transcription and searchable summaries for teams.</span>
+              </div>
+
+              <div class="pick-item">
+                <span class="k">Best automation</span><br/>
+                <span class="v">Zapier</span>
+                <span class="note">Connect favorite apps and orchestrate AI workflows without code.</span>
+              </div>
+
+              <div class="pick-item">
+                <span class="k">Best research</span><br/>
+                <span class="v">Perplexity</span>
+                <span class="note">Answer engine with citations for quick discovery.</span>
+              </div>
+
+              <div class="pick-item">
+                <span class="k">Best writing</span><br/>
+                <span class="v">Grammarly</span>
+                <span class="note">Clean rewrites, tone control, and grammar fixes.</span>
+              </div>
+            </div>
+            """,
             unsafe_allow_html=True,
         )
-        if clicked and c != current_cat:
-            st.session_state.filter_category = c
-            st.session_state.current_page = 1
-            st.rerun()  # immediate UI refresh [web:30]
-    st.markdown('</div>', unsafe_allow_html=True)  # close cat-rail
-    st.markdown('</div>', unsafe_allow_html=True)  # close rail-left
 
-    # Right side of rail: picks + TORO info (wide)
-    st.markdown('<div class="rail-right">', unsafe_allow_html=True)
-    st.markdown(
-        """
-        <div class="picks-card">
-          <h3 class="picks-title">Editor’s picks</h3>
-
-          <div class="pick-item">
-            <span class="k">Best general assistant</span><br/>
-            <span class="v">ChatGPT</span>
-            <span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span>
-          </div>
-
-          <div class="pick-item">
-            <span class="k">Best image generation</span><br/>
-            <span class="v">Gemini</span>
-            <span class="note">Strong multimodal grounding with solid text‑image prompting and safety features.</span>
-          </div>
-
-          <div class="pick-item">
-            <span class="k">Best video generation</span><br/>
-            <span class="v">Runway</span>
-            <span class="note">Reliable editing + generation workflow for creators and marketers.</span>
-          </div>
-
-          <div class="pick-item">
-            <span class="k">Best meeting assistant</span><br/>
-            <span class="v">Otter</span>
-            <span class="note">Live transcription and searchable summaries for teams.</span>
-          </div>
-
-          <div class="pick-item">
-            <span class="k">Best automation</span><br/>
-            <span class="v">Zapier</span>
-            <span class="note">Connect favorite apps and orchestrate AI workflows without code.</span>
-          </div>
-
-          <div class="pick-item">
-            <span class="k">Best research</span><br/>
-            <span class="v">Perplexity</span>
-            <span class="note">Answer engine with citations for quick discovery.</span>
-          </div>
-
-          <div class="pick-item">
-            <span class="k">Best writing</span><br/>
-            <span class="v">Grammarly</span>
-            <span class="note">Clean rewrites, tone control, and grammar fixes.</span>
-          </div>
-        </div>
-
-        <div class="toro-card">
-          <div class="toro-badge">Why TORO?</div>
-          <h3 class="toro-title">A faster way to find AI tools</h3>
-          <ul class="toro-bullets">
-            <li>Curated categories and pricing filters make discovery effortless.</li>
-            <li>Card previews surface logos, blurbs, tags, and quick actions.</li>
-            <li>Inline <em>Embeddable preview</em> to test tools without leaving TORO.</li>
-            <li>Clean pagination keeps browsing smooth at 12 tools per page.</li>
-          </ul>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.markdown('</div>', unsafe_allow_html=True)  # close rail-right
-
-    st.markdown('</div>', unsafe_allow_html=True)  # close rail-wrap
+        st.markdown(
+            """
+            <div class="toro-card">
+              <div class="toro-badge">Why TORO?</div>
+              <h3 class="toro-title">A faster way to find AI tools</h3>
+              <ul class="toro-bullets">
+                <li>Curated categories and pricing filters make discovery effortless.</li>
+                <li>Card previews surface logos, blurbs, tags, and quick actions.</li>
+                <li>Inline <em>Embeddable preview</em> to test tools without leaving TORO.</li>
+                <li>Clean pagination keeps browsing smooth at 12 tools per page.</li>
+              </ul>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 with col_main:
     # Top row: Search and Pricing only
-    m1, m2 = st.columns([3.8, 2.0], gap="large")
+    m1, m2 = st.columns([3.8, 2.0], gap="large", vertical_alignment="top")
     with m1:
         st.markdown("Search")
         st.text_input(
@@ -317,7 +296,7 @@ with col_main:
             key="filter_search",
             on_change=lambda: reset_page(),
             label_visibility="collapsed",
-        )  # search input drives filtering and resets page [web:27]
+        )
     with m2:
         st.markdown("Pricing")
         plans = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
@@ -328,30 +307,30 @@ with col_main:
             key="filter_plan",
             on_change=lambda: reset_page(),
             label_visibility="collapsed",
-        )  # plan filter [web:27]
+        )
 
     # Second row: Embeddable toggle and Clear button
-    tcol1, tcol2, tcol3 = st.columns([2, 6, 2], gap="large")
+    tcol1, tcol2, tcol3 = st.columns([2, 6, 2], gap="large", vertical_alignment="top")
     with tcol1:
-        st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")  # iframe toggle [web:29]
+        st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")
     with tcol2:
         st.write("")
     with tcol3:
         if st.button("Clear filters"):
             st.session_state.clear_flag = True
-            st.rerun()  # reset + rerun [web:30]
+            st.rerun()
 
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# Data
+# Data and pagination
 # ---------------------------
-filtered_tools = filter_tools(TOOLS)  # preserve curated order (no sort) [web:27]
+filtered_tools = filter_tools(TOOLS)
 total_tools = len(filtered_tools)
-per_page = 12  # fixed page size [web:27]
+per_page = 12
 total_pages = (total_tools - 1) // per_page + 1 if total_tools > 0 else 1
 if st.session_state.current_page > total_pages:
-    st.session_state.current_page = total_pages  # safety [web:27]
+    st.session_state.current_page = total_pages
 
 # ---------------------------
 # Top pagination
@@ -364,7 +343,7 @@ else:
     with pcol1:
         if st.button("⬅ Prev", key="prev_top") and st.session_state.current_page > 1:
             st.session_state.current_page -= 1
-            st.rerun()  # immediate update [web:30]
+            st.rerun()
     with pcol2:
         st.markdown(
             f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>',
@@ -373,7 +352,7 @@ else:
     with pcol3:
         if st.button("Next ➡", key="next_top") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
-            st.rerun()  # immediate update [web:30]
+            st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
     # ---------------------------
@@ -383,9 +362,10 @@ else:
     end = min(start + per_page, total_tools)
     page_tools = filtered_tools[start:end]
 
+    # Render 3 columns per row
     for i in range(0, max(len(page_tools), 3), 3):
         row_tools = page_tools[i: i + 3]
-        cols = st.columns(3, gap="large")
+        cols = st.columns(3, gap="large", vertical_alignment="top")
         while len(row_tools) < 3:
             row_tools.append(None)
         for col, tool in zip(cols, row_tools):
@@ -430,7 +410,7 @@ else:
 
                 # Embeddable preview toggle
                 if emb and st.session_state.show_previews:
-                    components.iframe(link, height=520, scrolling=True)  # supported params [web:29]
+                    components.iframe(link, height=520, scrolling=True)  # explicit sizing for predictable layout
 
     # ---------------------------
     # Bottom pagination
@@ -440,7 +420,7 @@ else:
     with b1:
         if st.button("⬅ Prev (bottom)", key="prev_bottom") and st.session_state.current_page > 1:
             st.session_state.current_page -= 1
-            st.rerun()  # update page [web:30]
+            st.rerun()
     with b2:
         st.markdown(
             f'<div class="page-info">Page {st.session_state.current_page} of {total_pages}</div>',
@@ -449,7 +429,7 @@ else:
     with b3:
         if st.button("Next ➡ (bottom)", key="next_bottom") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
-            st.rerun()  # update page [web:30]
+            st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
