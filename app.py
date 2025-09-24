@@ -43,14 +43,6 @@ if st.session_state.clear_flag:
 def reset_page():
     st.session_state.current_page = 1
 
-def clear_all_filters():
-    st.session_state.filter_category = "All"
-    st.session_state.filter_plan = "All"
-    st.session_state.filter_search = ""
-    st.session_state.current_page = 1
-    st.session_state.show_previews = False
-    st.rerun()
-
 def safe_str(x):
     return x if isinstance(x, str) else ""
 
@@ -163,13 +155,22 @@ with rail_col:
             if c != current_cat:
                 st.session_state.filter_category = c
                 st.session_state.current_page = 1
+                # Set hash so next render scrolls to results
+                st.markdown(
+                    """
+                    <script>
+                      window.location.hash = "results-anchor";
+                    </script>
+                    """,
+                    unsafe_allow_html=True,
+                )
                 st.rerun()
 
 with main_col:
     # Top controls: 3 columns
     top_l, top_m, top_r = st.columns([3.8, 4.4, 3.8], gap="large", vertical_alignment="top")
 
-    # Left: Search + Clear filters (requested)
+    # Left: Search + Clear filters
     with top_l:
         st.markdown("Search")
         st.text_input(
@@ -271,6 +272,11 @@ with main_col:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
+# Anchor for results jump
+# ---------------------------
+st.markdown('<a id="results-anchor"></a>', unsafe_allow_html=True)
+
+# ---------------------------
 # Data and pagination
 # ---------------------------
 filtered_tools = filter_tools(TOOLS)
@@ -358,4 +364,3 @@ else:
 st.divider()
 st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
 st.caption("✨ Made with ❤️ • TORO - Find the perfect AI tool for every use case")
-
