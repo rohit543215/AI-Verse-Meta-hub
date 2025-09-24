@@ -43,6 +43,14 @@ if st.session_state.clear_flag:
 def reset_page():
     st.session_state.current_page = 1
 
+def clear_all_filters():
+    st.session_state.filter_category = "All"
+    st.session_state.filter_plan = "All"
+    st.session_state.filter_search = ""
+    st.session_state.current_page = 1
+    st.session_state.show_previews = False
+    st.rerun()
+
 def safe_str(x):
     return x if isinstance(x, str) else ""
 
@@ -72,32 +80,15 @@ def filter_tools(tools):
 # ---------------------------
 st.markdown("""
 <style>
-:root {
-  --bg:#FFFFFF; --card:#FFFFFF; --muted:#6B7280; --text:#111827;
-  --accent:#2563EB; --ring:rgba(37,99,235,0.25); --border:#E5E7EB;
-}
+:root { --bg:#FFFFFF; --card:#FFFFFF; --muted:#6B7280; --text:#111827; --accent:#2563EB; --ring:rgba(37,99,235,0.25); --border:#E5E7EB; }
 html, body, .stApp { background:var(--bg); color:var(--text); font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
 .app-header { text-align:center; margin:10px 0 22px; }
 .app-header h1 { margin:6px 0; font-size:2rem; letter-spacing:0.2px; color:#0F172A; }
 .app-header p { margin:0; color:var(--muted); font-size:0.98rem; }
 
-/* Filter bar */
-.filters-card {
-  position: sticky; top: 0; z-index: 5;
-  background:#FFFFFFF2; border:1px solid var(--border);
-  padding:14px; border-radius:14px;
-  box-shadow:0 10px 30px rgba(17,24,39,0.05);
-  margin-bottom:18px; backdrop-filter:blur(6px);
-}
+.filters-card { position:sticky; top:0; z-index:5; background:#FFFFFFF2; border:1px solid var(--border); padding:14px; border-radius:14px; box-shadow:0 10px 30px rgba(17,24,39,0.05); margin-bottom:18px; backdrop-filter:blur(6px); }
 
-/* Tool cards */
-.tool-card {
-  background:var(--card);
-  padding:16px; border-radius:14px; border:1px solid var(--border);
-  box-shadow:0 6px 18px rgba(2,6,23,0.06);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease;
-  margin-bottom:26px;
-}
+.tool-card { background:var(--card); padding:16px; border-radius:14px; border:1px solid var(--border); box-shadow:0 6px 18px rgba(2,6,23,0.06); transition:transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease; margin-bottom:26px; }
 .tool-card:hover { transform:translateY(-4px); box-shadow:0 14px 26px rgba(2,6,23,0.10); border-color:var(--ring); }
 .tool-card h3 { margin:0; font-size:1.05rem; color:#0F172A; }
 .tool-card p { margin:8px 0 6px; color:#374151; font-size:0.92rem; }
@@ -111,33 +102,21 @@ html, body, .stApp { background:var(--bg); color:var(--text); font-family:Inter,
 .link-btn:hover { filter:brightness(1.07); }
 .soft-btn:hover { border-color:var(--ring); }
 
-/* Pagination */
 .pagination { position:sticky; bottom:12px; background:rgba(255,255,255,0.85); backdrop-filter:blur(6px); border:1px solid var(--border); border-radius:12px; padding:8px; text-align:center; margin:18px 0; }
 .pagination .page-info { display:inline-block; margin:0 12px; color:var(--text); font-weight:700; }
 
-/* Utility */
 .meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px; }
 .empty-card { height:0.1px; margin-bottom:26px; }
 
-/* Right sidebar cards (now on the right column) */
-.picks-card {
-  background:#F8FAFF; border:1px solid #E0E7FF; border-radius:14px; padding:14px; box-shadow:0 6px 18px rgba(2,6,23,0.05); margin-bottom:14px;
-}
+.picks-card { background:#F8FAFF; border:1px solid #E0E7FF; border-radius:14px; padding:14px; box-shadow:0 6px 18px rgba(2,6,23,0.05); margin-bottom:14px; }
 .picks-title { margin:0 0 10px; font-size:1.02rem; font-weight:800; background:linear-gradient(90deg,#2563EB 0%,#7C3AED 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
 .pick-item { margin:6px 0; padding:8px 10px; border:1px dashed #E5E7EB; border-radius:10px; background:#FFFFFF; }
 .pick-item .k { color:#64748B; font-weight:800; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; }
 .pick-item .v { color:#0F172A; font-weight:800; }
 .pick-item .note { color:#475569; font-size:0.86rem; display:block; margin-top:4px; }
 
-/* Why TORO block that sits under the middle column */
-.toro-card.big {
-  background: linear-gradient(180deg, #E0F2FE 0%, #FFFFFF 70%);
-  border: 1px solid #93C5FD;
-  border-radius: 16px;
-  padding: 18px 16px;
-  box-shadow: 0 8px 22px rgba(2,6,23,0.06);
-  margin-top: 10px;
-}
+/* Why TORO under middle column */
+.toro-card.big { background:linear-gradient(180deg,#E0F2FE 0%,#FFFFFF 70%); border:1px solid #93C5FD; border-radius:16px; padding:18px 16px; box-shadow:0 8px 22px rgba(2,6,23,0.06); margin-top:10px; }
 .toro-card.big .toro-badge { background:#DBEAFE; color:#1E40AF; border:1px solid #BFDBFE; font-size:0.82rem; font-weight:900; padding:6px 12px; display:inline-block; border-radius:999px; }
 .toro-card.big .toro-eyebrow { color:#0369A1; font-weight:900; font-size:0.9rem; letter-spacing:0.6px; text-transform:uppercase; margin:8px 0 2px; }
 .toro-card.big .toro-title { margin:2px 0 6px; font-size:1.55rem; line-height:1.2; font-weight:1000; letter-spacing:0.1px; color:#0C4A6E; }
@@ -169,7 +148,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------
-# Filters bar (Categories + Main)
+# Filters bar
 # ---------------------------
 st.markdown('<div class="filters-card">', unsafe_allow_html=True)
 
@@ -187,10 +166,10 @@ with rail_col:
                 st.rerun()
 
 with main_col:
-    # Top controls: 3 columns (Search | Middle with Pricing+Toggle+Why TORO | Right Picks)
+    # Top controls: 3 columns
     top_l, top_m, top_r = st.columns([3.8, 4.4, 3.8], gap="large", vertical_alignment="top")
 
-    # Left: Search
+    # Left: Search + Clear filters (requested)
     with top_l:
         st.markdown("Search")
         st.text_input(
@@ -200,8 +179,10 @@ with main_col:
             on_change=reset_page,
             label_visibility="collapsed",
         )
+        if st.button("🗑️ Clear filters", use_container_width=True):
+            clear_all_filters()
 
-    # Middle: Pricing + Toggle, then the Why TORO block directly underneath
+    # Middle: Pricing + Toggle + Why TORO
     with top_m:
         st.markdown("Pricing")
         plans = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
@@ -215,7 +196,6 @@ with main_col:
         )
         st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")
 
-        # Why TORO section placed under the middle controls to use the central empty space
         st.markdown(
             """
             <div class="toro-card big">
@@ -234,7 +214,7 @@ with main_col:
             unsafe_allow_html=True,
         )
 
-    # Right: Editor’s picks (occupies the right column)
+    # Right: Editor’s picks
     with top_r:
         st.markdown(
             """
