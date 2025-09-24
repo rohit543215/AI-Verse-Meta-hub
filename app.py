@@ -21,7 +21,7 @@ defaults = {
     "filter_search": "",
     "current_page": 1,
     "clear_flag": False,
-    "show_previews": False,  # toggle to render iframes
+    "show_previews": False,
 }
 for k, v in defaults.items():
     if k not in st.session_state:
@@ -35,13 +35,13 @@ if st.session_state.clear_flag:
     st.session_state.current_page = 1
     st.session_state.show_previews = False
     st.session_state.clear_flag = False
-    st.rerun()  # safe pre-widget rerun
+    st.rerun()
 
 # ---------------------------
 # Helpers
 # ---------------------------
 def reset_page():
-    st.session_state.current_page = 1  # keep pagination coherent on filter changes
+    st.session_state.current_page = 1
 
 def safe_str(x):
     return x if isinstance(x, str) else ""
@@ -65,7 +65,7 @@ def filter_tools(tools):
             if query not in searchable:
                 continue
         filtered.append(tool)
-    return filtered  # stateful filter pattern
+    return filtered
 
 # ---------------------------
 # CSS (theme + components)
@@ -350,32 +350,30 @@ st.markdown(
 # ---------------------------
 # Main Layout: Sidebar + Content
 # ---------------------------
-
-# Create two main columns: sidebar and main content
 col_sidebar, col_content = st.columns([3, 8], gap="large")
 
 with col_sidebar:
     st.markdown('<div class="filters-card">', unsafe_allow_html=True)
-    
+
     # Categories Section
     st.markdown("### Categories")
     cat_options = ["All"] + CATEGORIES
     current_cat = st.session_state.filter_category
-    
+
     for category in cat_options:
-        if st.button(
-            f"📁 {category}" if category != "All" else "🗂️ All Categories", 
+        clicked = st.button(
+            f"📁 {category}" if category != "All" else "🗂️ All Categories",
             key=f"cat_{category}",
             use_container_width=True,
-            type="primary" if category == current_cat else "secondary"
-        ):
-            if category != current_cat:
-                st.session_state.filter_category = category
-                st.session_state.current_page = 1
-                st.rerun()
-    
+            type="primary" if category == current_cat else "secondary",
+        )
+        if clicked and category != current_cat:
+            st.session_state.filter_category = category
+            st.session_state.current_page = 1
+            st.rerun()
+
     st.markdown('</div>', unsafe_allow_html=True)
-    
+
     # Editor's Picks Section
     st.markdown(
         """
@@ -427,7 +425,7 @@ with col_sidebar:
         """,
         unsafe_allow_html=True,
     )
-    
+
     # TORO Info Section
     st.markdown(
         """
@@ -447,107 +445,109 @@ with col_sidebar:
 
 with col_content:
     st.markdown('<div class="filters-card">', unsafe_allow_html=True)
-    
+
     # Search and Pricing filters
     filter_col1, filter_col2 = st.columns([3, 2], gap="medium")
-    
+
     with filter_col1:
         st.markdown("**Search**")
         st.text_input(
             "",
             placeholder="Search by name, tags, or description",
             key="filter_search",
-            on_change=lambda: reset_page(),
+            on_change=reset_page,
             label_visibility="collapsed",
         )
-    
+
     with filter_col2:
         st.markdown("**Pricing**")
         st.selectbox(
             "",
             ["All", "Free", "Freemium", "Paid"],
             key="filter_plan",
-            on_change=lambda: reset_page(),
+            on_change=reset_page,
             label_visibility="collapsed",
         )
-    
+
     st.markdown('</div>', unsafe_allow_html=True)
-    
+
     # Filter and paginate tools
     filtered_tools = filter_tools(TOOLS)
     tools_per_page = 12
     total_pages = max(1, (len(filtered_tools) + tools_per_page - 1) // tools_per_page)
-    
+
     # Ensure current page is valid
     if st.session_state.current_page > total_pages:
         st.session_state.current_page = total_pages
-    
+
     start_idx = (st.session_state.current_page - 1) * tools_per_page
     end_idx = start_idx + tools_per_page
     current_tools = filtered_tools[start_idx:end_idx]
-    
+
     # Display results summary
     st.markdown(f"**Found {len(filtered_tools)} tools** (Page {st.session_state.current_page} of {total_pages})")
-    
-    # Display tools in a grid
+
+    # Display tools
     if current_tools:
         for tool in current_tools:
             with st.container():
                 st.markdown('<div class="tool-card">', unsafe_allow_html=True)
-                
-                # Tool header with logo and name
+
                 tool_col1, tool_col2 = st.columns([6, 2])
                 with tool_col1:
                     st.markdown(f"### {tool.get('logo', '🔧')} {tool['name']}")
                     st.markdown(f"*{tool['blurb']}*")
-                
+
                 with tool_col2:
-                    if st.button(f"Visit {tool['name']}", key=f"visit_{tool['name']}", use_container_width=True):
-                        st.markdown(f"<script>window.open('{tool['url']}', '_blank');</script>", unsafe_allow_html=True)
-                
+                    # Use the supported link button for reliable new-tab navigation
+                    st.link_button(
+                        f"Visit {tool['name']}",
+                        tool['url'],
+                        type="primary",
+                        use_container_width=True,
+                    )
+
                 # Tool metadata
                 st.markdown('<div class="meta-row">', unsafe_allow_html=True)
                 st.markdown(
                     f'<span class="badge">{tool["category"]}</span> '
                     f'<span class="badge plan">{tool["plan"]}</span>',
-                    unsafe_allow_html=True
+                    unsafe_allow_html=True,
                 )
-                
+
                 # Tags
                 if tool.get("tags"):
                     tags_html = " ".join([f'<span class="tag">{tag}</span>' for tag in tool["tags"]])
                     st.markdown(f'<div style="margin-top: 8px;">{tags_html}</div>', unsafe_allow_html=True)
-                
+
                 st.markdown('</div>', unsafe_allow_html=True)  # close meta-row
                 st.markdown('</div>', unsafe_allow_html=True)  # close tool-card
     else:
         st.info("No tools found matching your criteria. Try adjusting your filters.")
-    
+
     # Pagination
     if total_pages > 1:
         st.markdown('<div class="pagination">', unsafe_allow_html=True)
-        
-        # Pagination controls
         pagination_col1, pagination_col2, pagination_col3 = st.columns([1, 2, 1])
-        
+
         with pagination_col1:
-            if st.button("← Previous", disabled=(st.session_state.current_page <= 1)):
+            if st.button("← Previous", disabled=(st.session_state.current_page <= 1), use_container_width=True):
                 st.session_state.current_page -= 1
                 st.rerun()
-        
+
         with pagination_col2:
             st.markdown(
                 f'<div class="page-info">Page {st.session_state.current_page} of {total_pages}</div>',
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
-        
+
         with pagination_col3:
-            if st.button("Next →", disabled=(st.session_state.current_page >= total_pages)):
+            if st.button("Next →", disabled=(st.session_state.current_page >= total_pages), use_container_width=True):
                 st.session_state.current_page += 1
                 st.rerun()
-        
-        st.markdown('</div>', unsafe_allow_html=True)  # close pagination
-    
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
     # Clear filters button
     if st.button("🗑️ Clear All Filters", use_container_width=True):
         st.session_state.clear_flag = True
