@@ -6,7 +6,7 @@ from tools import TOOLS, CATEGORIES
 # Page config
 # ---------------------------
 st.set_page_config(
-    page_title="Deep Store: For AI Tools",
+    page_title="TORO: AI Tools Directory",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -19,46 +19,32 @@ defaults = {
     "filter_category": "All",
     "filter_plan": "All",
     "filter_search": "",
-    "filter_per_page": 12,
     "current_page": 1,
     "clear_flag": False,
     "show_previews": False,  # toggle to render iframes
-    "sort_by": "Relevance",
 }
 for k, v in defaults.items():
     if k not in st.session_state:
-        st.session_state[k] = v  # persists across reruns [web:79]
+        st.session_state[k] = v  # persists across reruns [web:33]
 
 # Clear filters safely before widgets mount
 if st.session_state.clear_flag:
     st.session_state.filter_category = "All"
     st.session_state.filter_plan = "All"
     st.session_state.filter_search = ""
-    st.session_state.filter_per_page = 12
     st.session_state.current_page = 1
-    st.session_state.sort_by = "Relevance"
     st.session_state.show_previews = False
     st.session_state.clear_flag = False
-    st.rerun()  # safe pre-widget rerun [web:79]
+    st.rerun()  # safe pre-widget rerun [web:30]
 
 # ---------------------------
 # Helpers
 # ---------------------------
 def reset_page():
-    st.session_state.current_page = 1  # keep pagination coherent on filter changes [web:79]
+    st.session_state.current_page = 1  # keep pagination coherent on filter changes [web:27]
 
 def safe_str(x):
     return x if isinstance(x, str) else ""
-
-def sort_tools(tools, by):
-    if by == "Name A→Z":
-        return sorted(tools, key=lambda t: safe_str(t.get("name", "")).lower())
-    if by == "Name Z→A":
-        return sorted(tools, key=lambda t: safe_str(t.get("name", "")).lower(), reverse=True)
-    if by == "Plan (Free first)":
-        order = {"Free": 0, "Free + Paid": 1, "Credits + Paid": 2, "Paid": 3}
-        return sorted(tools, key=lambda t: order.get(t.get("plan", "Paid"), 99))
-    return tools  # Relevance: preserve curated order [web:79]
 
 def filter_tools(tools):
     category = st.session_state.filter_category
@@ -79,7 +65,7 @@ def filter_tools(tools):
             if query not in searchable:
                 continue
         filtered.append(tool)
-    return filtered  # stateful filter pattern [web:79]
+    return filtered  # stateful filter pattern [web:27]
 
 # ---------------------------
 # CSS (light theme palette)
@@ -144,129 +130,119 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 
 .meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px;}
 .empty-card { height: 0.1px; margin-bottom: 26px; }
+
+/* Category rail styles */
+.cat-rail { max-height: 360px; overflow-y: auto; padding-right: 4px; }
+.cat-btn {
+  display:block; width:100%; text-align:left;
+  padding:10px 12px; margin:6px 0;
+  border:1px solid var(--border); border-radius:10px;
+  background:#F9FAFB; color:#0F172A; font-weight:700; font-size:0.92rem;
+}
+.cat-btn.active { background:#EEF2FF; border-color:#E0E7FF; color:#3730A3; }
 </style>
 """,
     unsafe_allow_html=True,
-)  # light colors align with Streamlit light theme [web:79]
+)  # UI theming kept consistent with Streamlit light theme [web:27]
 
 # ---------------------------
 # Header
 # ---------------------------
+st.markdown(
+    """
+<div class="app-header">
+  <h1>🤖 TORO</h1>
+  <p>Discover and explore AI tools by category and pricing. Launch quickly or preview inline when embeddable.</p>
+</div>
+""",
+    unsafe_allow_html=True,
+)
+
 # ---------------------------
 # About Section
 # ---------------------------
 st.markdown(
     """
-<style>
-.about-card {
-  background: #F9FAFB;
-  border: 1px solid #E5E7EB;
-  padding: 18px 22px;
-  border-radius: 14px;
-  margin-bottom: 22px;
-  text-align: center;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  box-shadow: 0 6px 18px rgba(2,6,23,0.05);
-}
-.about-card h2 {
-  margin: 4px 0 12px 0;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #1E293B;
-}
-.about-card p {
-  margin: 6px 0;
-  font-size: 0.96rem;
-  line-height: 1.55;
-  color: #374151;
-}
-</style>
-
 <div class="about-card">
-  <h2>Welcome to 🤖 Deep Store</h2>
-  <p>Deep Store helps you <strong>discover and explore AI tools</strong> with ease.  
-  Use filters to refine by category, pricing, or search keywords.  
-  Browse tools, check their details, preview them directly (if embeddable),  
-  and launch them in one click.</p>
+  <h2>Welcome to 🤖 TORO</h2>
+  <p>TORO helps to <strong>discover and explore AI tools</strong> with ease.
+  Use categories and pricing filters, browse cards, preview embeddable sites, and launch in one click.</p>
 </div>
 """,
     unsafe_allow_html=True,
 )
-  # header [web:79]
 
 # ---------------------------
-# Filters
+# Filters (minimal like screenshot)
 # ---------------------------
 st.markdown('<div class="filters-card">', unsafe_allow_html=True)
-fcol1, fcol2, fcol3, fcol4, fcol5 = st.columns([2.2, 3.8, 2.0, 2.0, 2.0], gap="large")
-with fcol1:
-    st.markdown("Category")
-    st.selectbox(
-        "",
-        options=["All"] + CATEGORIES,
-        index=(["All"] + CATEGORIES).index(st.session_state.filter_category),
-        key="filter_category",
-        on_change=lambda: reset_page(),
-        label_visibility="collapsed",
-    )  # state usage [web:79]
-with fcol2:
-    st.markdown("Search")
-    st.text_input(
-        "",
-        placeholder="Search by name, tags, or description  ⌘/Ctrl+K",
-        key="filter_search",
-        on_change=lambda: reset_page(),
-        label_visibility="collapsed",
-    )  # search pattern [web:79]
-with fcol3:
-    st.markdown("Pricing")
-    plans = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
-    st.selectbox(
-        "",
-        options=plans,
-        index=plans.index(st.session_state.filter_plan) if st.session_state.filter_plan in plans else 0,
-        key="filter_plan",
-        on_change=lambda: reset_page(),
-        label_visibility="collapsed",
-    )  # pricing filter [web:79]
-with fcol4:
-    st.markdown("Sort")
-    st.selectbox(
-        "",
-        options=["Relevance", "Name A→Z", "Name Z→A", "Plan (Free first)"],
-        key="sort_by",
-        on_change=lambda: reset_page(),
-        label_visibility="collapsed",
-    )  # sorting [web:79]
-with fcol5:
-    st.markdown("Per page")
-    st.slider("", 6, 24, step=3, key="filter_per_page", on_change=lambda: reset_page(), label_visibility="collapsed")  # page size [web:79]
+rail, main = st.columns([2.4, 7.6], gap="large")
 
-tcol1, tcol2, tcol3 = st.columns([2, 5, 3], gap="large")
-with tcol1:
-    st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")  # preview gate [web:15]
-with tcol2:
-    st.write("")
-with tcol3:
-    c1, c2 = st.columns([1, 1])
-    with c1:
-        st.caption("Tip: Press")
-        st.markdown('<span class="kbd">Ctrl</span> + <span class="kbd">K</span> to focus search', unsafe_allow_html=True)  # hint [web:79]
-    with c2:
+with rail:
+    st.markdown("Categories")
+    cat_options = ["All"] + CATEGORIES
+    current_cat = st.session_state.filter_category
+    st.markdown('<div class="cat-rail">', unsafe_allow_html=True)
+    for c in cat_options:
+        # Render each category as its own button
+        clicked = st.button(f"{c}", key=f"cat_{c}", use_container_width=True)
+        # Apply active style by mirroring state into a hidden marker div
+        st.markdown(
+            f"<div class='cat-btn {'active' if c == current_cat else ''}' style='display:none'>{c}</div>",
+            unsafe_allow_html=True,
+        )
+        if clicked and c != current_cat:
+            st.session_state.filter_category = c
+            st.session_state.current_page = 1
+            st.rerun()  # immediate refresh to show filtered results [web:30]
+    st.markdown("</div>", unsafe_allow_html=True)
+
+with main:
+    # Top row: Search and Pricing only
+    m1, m2 = st.columns([3.8, 2.0], gap="large")
+    with m1:
+        st.markdown("Search")
+        st.text_input(
+            "",
+            placeholder="Search by name, tags, or description",
+            key="filter_search",
+            on_change=lambda: reset_page(),
+            label_visibility="collapsed",
+        )  # search input updates state and resets page [web:27]
+    with m2:
+        st.markdown("Pricing")
+        plans = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
+        st.selectbox(
+            "",
+            options=plans,
+            index=plans.index(st.session_state.filter_plan) if st.session_state.filter_plan in plans else 0,
+            key="filter_plan",
+            on_change=lambda: reset_page(),
+            label_visibility="collapsed",
+        )  # plan filter [web:27]
+
+    # Second row: Embeddable toggle and Clear button
+    tcol1, tcol2, tcol3 = st.columns([2, 6, 2], gap="large")
+    with tcol1:
+        st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")  # [web:29]
+    with tcol2:
+        st.write("")
+    with tcol3:
         if st.button("Clear filters"):
             st.session_state.clear_flag = True
-            st.rerun()  # reset + rerun [web:79]
+            st.rerun()  # reset + rerun [web:30]
+
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
 # Data
 # ---------------------------
-filtered_tools = sort_tools(filter_tools(TOOLS), st.session_state.sort_by)
+filtered_tools = filter_tools(TOOLS)  # keep curated order (no sort) [web:27]
 total_tools = len(filtered_tools)
-per_page = st.session_state.filter_per_page
+per_page = 12  # fixed as requested [web:27]
 total_pages = (total_tools - 1) // per_page + 1 if total_tools > 0 else 1
 if st.session_state.current_page > total_pages:
-    st.session_state.current_page = total_pages  # safety [web:79]
+    st.session_state.current_page = total_pages  # safety [web:27]
 
 # ---------------------------
 # Top pagination
@@ -279,7 +255,7 @@ else:
     with pcol1:
         if st.button("⬅ Prev", key="prev_top") and st.session_state.current_page > 1:
             st.session_state.current_page -= 1
-            st.rerun()  # immediate update [web:79]
+            st.rerun()  # immediate update [web:30]
     with pcol2:
         st.markdown(
             f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>',
@@ -288,7 +264,7 @@ else:
     with pcol3:
         if st.button("Next ➡", key="next_top") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
-            st.rerun()  # immediate update [web:79]
+            st.rerun()  # immediate update [web:30]
     st.markdown("</div>", unsafe_allow_html=True)
 
     # ---------------------------
@@ -345,8 +321,7 @@ else:
 
                 # Embeddable preview toggle
                 if emb and st.session_state.show_previews:
-                    # Use explicit height and allow scrolling for safer UX in iframes [web:15]
-                    components.iframe(link, height=520, scrolling=True)
+                    components.iframe(link, height=520, scrolling=True)  # iframe preview [web:29]
 
     # ---------------------------
     # Bottom pagination
@@ -356,7 +331,7 @@ else:
     with b1:
         if st.button("⬅ Prev (bottom)", key="prev_bottom") and st.session_state.current_page > 1:
             st.session_state.current_page -= 1
-            st.rerun()  # update page [web:79]
+            st.rerun()  # update page [web:30]
     with b2:
         st.markdown(
             f'<div class="page-info">Page {st.session_state.current_page} of {total_pages}</div>',
@@ -365,7 +340,7 @@ else:
     with b3:
         if st.button("Next ➡ (bottom)", key="next_bottom") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
-            st.rerun()  # update page [web:79]
+            st.rerun()  # update page [web:30]
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
@@ -378,7 +353,5 @@ st.link_button(
     type="primary",
     icon="🧰",
     use_container_width=True,
-)  # opens external URL in a new tab [web:55]
-st.caption("✨ Made with ❤️ By Girish Joshi • Find the perfect AI tool for every use case")
-
-
+)
+st.caption("✨ Made with ❤️ • TORO - Find the perfect AI tool for every use case")
