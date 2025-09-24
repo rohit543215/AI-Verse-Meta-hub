@@ -128,7 +128,12 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
 .meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px;}
 .empty-card { height: 0.1px; margin-bottom: 26px; }
 
-/* Category rail styles */
+/* Left rail: inner two columns side-by-side */
+.rail-wrap { display:flex; gap:14px; }
+.rail-left { flex: 0 0 220px; }
+.rail-right { flex: 1 1 260px; }
+
+/* Category list (scrolls independently) */
 .cat-rail { max-height: 540px; overflow-y: auto; padding-right: 4px; }
 .cat-btn {
   display:block; width:100%; text-align:left;
@@ -144,7 +149,6 @@ html, body, .stApp { background-color: var(--bg); color: var(--text); font-famil
   border: 1px solid #E0E7FF;
   border-radius: 14px;
   padding: 14px;
-  margin-top: 14px;
   box-shadow: 0 6px 18px rgba(2,6,23,0.05);
 }
 .picks-title {
@@ -205,23 +209,25 @@ st.markdown(
 )
 
 # ---------------------------
-# Filters (rail with side content)
+# Filters + Left rail and Main
 # ---------------------------
 st.markdown('<div class="filters-card">', unsafe_allow_html=True)
 
-# Wider rail so picks + TORO card sit beside categories, not below
-rail, main = st.columns([3.2, 6.8], gap="large")  # responsive two-column layout [web:60][web:65]
+# Outer two columns: left rail block + main
+col_left, col_main = st.columns([4.2, 7.8], gap="large")  # keeps them truly side-by-side [web:73]
 
-with rail:
-    # Single scrollable container holding categories and side content
+with col_left:
+    # Build a manual two-column layout INSIDE the left rail using CSS flex
+    st.markdown('<div class="rail-wrap">', unsafe_allow_html=True)
+
+    # Left side of rail: categories (narrow)
+    st.markdown('<div class="rail-left">', unsafe_allow_html=True)
     st.markdown("Categories")
     st.markdown('<div class="cat-rail">', unsafe_allow_html=True)
-
     cat_options = ["All"] + CATEGORIES
     current_cat = st.session_state.filter_category
     for c in cat_options:
         clicked = st.button(f"{c}", key=f"cat_{c}", use_container_width=True)
-        # style state marker
         st.markdown(
             f"<div class='cat-btn {'active' if c == current_cat else ''}' style='display:none'>{c}</div>",
             unsafe_allow_html=True,
@@ -229,9 +235,12 @@ with rail:
         if clicked and c != current_cat:
             st.session_state.filter_category = c
             st.session_state.current_page = 1
-            st.rerun()  # full rerun to apply filter [web:30]
+            st.rerun()  # immediate UI refresh [web:30]
+    st.markdown('</div>', unsafe_allow_html=True)  # close cat-rail
+    st.markdown('</div>', unsafe_allow_html=True)  # close rail-left
 
-    # Editor’s picks panel (remains in same rail column)
+    # Right side of rail: picks + TORO info (wide)
+    st.markdown('<div class="rail-right">', unsafe_allow_html=True)
     st.markdown(
         """
         <div class="picks-card">
@@ -279,13 +288,7 @@ with rail:
             <span class="note">Clean rewrites, tone control, and grammar fixes.</span>
           </div>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
 
-    # TORO info card (also inside rail)
-    st.markdown(
-        """
         <div class="toro-card">
           <div class="toro-badge">Why TORO?</div>
           <h3 class="toro-title">A faster way to find AI tools</h3>
@@ -299,10 +302,11 @@ with rail:
         """,
         unsafe_allow_html=True,
     )
+    st.markdown('</div>', unsafe_allow_html=True)  # close rail-right
 
-    st.markdown('</div>', unsafe_allow_html=True)  # close cat-rail
+    st.markdown('</div>', unsafe_allow_html=True)  # close rail-wrap
 
-with main:
+with col_main:
     # Top row: Search and Pricing only
     m1, m2 = st.columns([3.8, 2.0], gap="large")
     with m1:
