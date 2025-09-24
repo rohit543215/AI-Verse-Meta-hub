@@ -69,6 +69,7 @@ TOOLS = [
     {"name":"Recraft","link":"https://www.recraft.ai/","plan":"Free + Paid","logo":"https://cdn.prod.website-files.com/655727fe69827d9a402de12c/685e2af1b7ec5f32e053f308_recraft-logo.svg","category":"AI Image Generation","tags":["vector","assets"],"embeddable":True,"blurb":"Design assets with AI."},  # [web:35]
     {"name":"Stable Diffusion","link":"https://stability.ai/","plan":"Free + Paid","logo":"https://stablediffusionweb.com/images/logo.png","category":"AI Image Generation","tags":["sdxl","stability"],"embeddable":True,"blurb":"Open image generation ecosystem."},  # [web:35]
 
+
     # -------------------- AI Spreadsheet --------------------
     {"name":"Bricks","link":"https://bricks.so/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/bricks.svg","category":"AI Spreadsheet","tags":["sheets"],"embeddable":True,"blurb":"Spreadsheet AI helpers."},  # [web:35]
     {"name":"Formula Bot","link":"https://www.formulabot.com/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/formulabot.svg","category":"AI Spreadsheet","tags":["excel","sheets"],"embeddable":True,"blurb":"Generate Excel/Sheets formulas."},  # [web:35]
