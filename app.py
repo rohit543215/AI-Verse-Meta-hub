@@ -224,7 +224,7 @@ with main:
     # Second row: Embeddable toggle and Clear button
     tcol1, tcol2, tcol3 = st.columns([2, 6, 2], gap="large")
     with tcol1:
-        st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")  # [web:29]
+        st.toggle("preview", value=st.session_state.show_previews, key="show_previews")  # [web:29]
     with tcol2:
         st.write("")
     with tcol3:
@@ -355,3 +355,4 @@ st.link_button(
     use_container_width=True,
 )
 st.caption("✨ Made with ❤️ • TORO - Find the perfect AI tool for every use case")
+
