@@ -22,6 +22,8 @@ defaults = {
     "current_page": 1,
     "clear_flag": False,
     "show_previews": False,
+    # scroll intent flag
+    "scroll_to_results": False,
 }
 for k, v in defaults.items():
     if k not in st.session_state:
@@ -35,6 +37,8 @@ if st.session_state.clear_flag:
     st.session_state.current_page = 1
     st.session_state.show_previews = False
     st.session_state.clear_flag = False
+    # request scroll after rerun so results anchor is present
+    st.session_state.scroll_to_results = True
     st.rerun()
 
 # ---------------------------
@@ -66,6 +70,25 @@ def filter_tools(tools):
                 continue
         filtered.append(tool)
     return filtered
+
+def trigger_scroll(anchor_id="results-anchor"):
+    # Ensure target exists in DOM, then set the parent hash from a 0-height child component
+    st.markdown(f'<div id="{anchor_id}"></div>', unsafe_allow_html=True)
+    components.html(
+        f"""
+        <script>
+          try {{
+            // Use replaceState pattern to avoid polluting history, then set hash
+            if (window.parent && window.parent.history && window.parent.history.replaceState) {{
+              window.parent.history.replaceState(null, document.title, "#{anchor_id}");
+            }} else {{
+              window.parent.location.hash = "#{anchor_id}";
+            }}
+          }} catch (e) {{}}
+        </script>
+        """,
+        height=0,
+    )
 
 # ---------------------------
 # CSS
@@ -144,7 +167,7 @@ st.markdown("""
 # ---------------------------
 st.markdown('<div class="filters-card">', unsafe_allow_html=True)
 
-rail_col, main_col = st.columns([3.0, 9.0], gap="large", vertical_alignment="top")
+rail_col, main_col = st.columns([3.0, 9.0], gap="large")
 
 with rail_col:
     st.markdown("Categories")
@@ -155,45 +178,49 @@ with rail_col:
             if c != current_cat:
                 st.session_state.filter_category = c
                 st.session_state.current_page = 1
-                # Set hash so next render scrolls to results
-                st.markdown(
-                    """
-                    <script>
-                      window.location.hash = "results-anchor";
-                    </script>
-                    """,
-                    unsafe_allow_html=True,
-                )
+                # request scroll for next render
+                st.session_state.scroll_to_results = True
                 st.rerun()
 
 with main_col:
     # Top controls: 3 columns
-    top_l, top_m, top_r = st.columns([3.8, 4.4, 3.8], gap="large", vertical_alignment="top")
+    top_l, top_m, top_r = st.columns([3.8, 4.4, 3.8], gap="large")
 
     # Left: Search + Clear filters
     with top_l:
         st.markdown("Search")
+
+        def on_search_change():
+            reset_page()
+            st.session_state.scroll_to_results = True
+
         st.text_input(
             "",
             placeholder="Search by name, tags, or description",
             key="filter_search",
-            on_change=reset_page,
+            on_change=on_search_change,
             label_visibility="collapsed",
         )
         if st.button("🗑️ Clear filters", use_container_width=True):
             st.session_state.clear_flag = True
+            st.session_state.scroll_to_results = True
             st.rerun()
 
     # Middle: Pricing + Toggle + Why TORO
     with top_m:
         st.markdown("Pricing")
+
+        def on_plan_change():
+            reset_page()
+            st.session_state.scroll_to_results = True
+
         plans = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
         st.selectbox(
             "",
             options=plans,
             index=plans.index(st.session_state.filter_plan) if st.session_state.filter_plan in plans else 0,
             key="filter_plan",
-            on_change=reset_page,
+            on_change=on_plan_change,
             label_visibility="collapsed",
         )
         st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")
@@ -274,6 +301,7 @@ st.markdown("</div>", unsafe_allow_html=True)
 # ---------------------------
 # Anchor for results jump
 # ---------------------------
+# Native header anchors tend to be more reliable; but keep explicit <a> for compatibility.
 st.markdown('<a id="results-anchor"></a>', unsafe_allow_html=True)
 
 # ---------------------------
@@ -286,6 +314,11 @@ total_pages = (total_tools - 1) // per_page + 1 if total_tools > 0 else 1
 if st.session_state.current_page > total_pages:
     st.session_state.current_page = total_pages
 
+# If a scroll was requested (from category, plan, search, or clear), trigger it now.
+if st.session_state.get("scroll_to_results", False):
+    trigger_scroll("results-anchor")
+    st.session_state.scroll_to_results = False
+
 # ---------------------------
 # Top pagination
 # ---------------------------
@@ -297,12 +330,14 @@ else:
     with p1:
         if st.button("⬅ Prev", key="prev_top") and st.session_state.current_page > 1:
             st.session_state.current_page -= 1
+            st.session_state.scroll_to_results = True
             st.rerun()
     with p2:
         st.markdown(f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>', unsafe_allow_html=True)
     with p3:
         if st.button("Next ➡", key="next_top") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
+            st.session_state.scroll_to_results = True
             st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -315,7 +350,7 @@ else:
 
     for i in range(0, max(len(page_tools), 3), 3):
         row_tools = page_tools[i:i+3]
-        cols = st.columns(3, gap="large", vertical_alignment="top")
+        cols = st.columns(3, gap="large")
         while len(row_tools) < 3:
             row_tools.append(None)
         for col, tool in zip(cols, row_tools):
@@ -363,4 +398,4 @@ else:
 # ---------------------------
 st.divider()
 st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
-st.caption("✨ Made with ❤️ by Girish Joshi• TORO - Find the perfect AI tool for every use case")
+st.caption("✨ Made with ❤️ by Girish Joshi in INDIA• TORO - Find the perfect AI tool for every use case")
