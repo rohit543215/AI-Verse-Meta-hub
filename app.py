@@ -463,8 +463,8 @@ st.markdown("""
 
 /* Why TORO section */
 .toro-card.big {
-    background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
-    border: 2px solid #7dd3fc;
+    background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+    border: 2px solid #60a5fa;
     border-radius: 24px;
     padding: 2rem;
     margin-top: 1rem;
@@ -483,7 +483,7 @@ st.markdown("""
 }
 
 .toro-eyebrow {
-    color: #0369a1;
+    color: #93c5fd;
     font-weight: 900;
     font-size: 0.95rem;
     letter-spacing: 1px;
@@ -494,13 +494,13 @@ st.markdown("""
 .toro-title {
     font-size: 2rem;
     font-weight: 900;
-    color: #0c4a6e;
+    color: #ffffff;
     margin: 0.5rem 0;
     line-height: 1.2;
 }
 
 .toro-sub {
-    color: var(--text-secondary);
+    color: #d1d5db;
     font-size: 1.1rem;
     line-height: 1.6;
     margin: 1rem 0;
@@ -512,7 +512,7 @@ st.markdown("""
 }
 
 .toro-bullets li {
-    color: var(--text-secondary);
+    color: #e5e7eb;
     margin: 0.75rem 0;
     font-size: 1rem;
     line-height: 1.6;
