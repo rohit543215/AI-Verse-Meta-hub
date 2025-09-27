@@ -921,9 +921,8 @@ else:
 
                 # Show embeddable preview if enabled
                 if embeddable and st.session_state.show_previews:
-                    st.markdown('<div style="margin-top:1rem; border-radius:12px; overflow:hidden; box-shadow:var(--shadow-lg);">', unsafe_allow_html=True)
-                    st.components.v1.iframe(link, height=520, scrolling=True)
-                    st.markdown('</div>', unsafe_allow_html=True)
+                    with st.container():
+                        st.components.v1.iframe(link, height=520, scrolling=True)
 
     # ---------------------------
     # Bottom pagination
