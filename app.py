@@ -76,103 +76,512 @@ if st.session_state.clear_flag:
     st.rerun()
 
 # ---------------------------
-# CSS (fix dark buttons + mobile contrast)
+# Enhanced CSS with modern design
 # ---------------------------
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 :root {
-  --bg:#FFFFFF; --card:#FFFFFF; --muted:#6B7280; --text:#111827; --accent:#2563EB;
-  --ring:rgba(37,99,235,0.25); --border:#E5E7EB;
+    /* Light theme colors */
+    --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --card-hover: rgba(255, 255, 255, 1);
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --accent: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --accent-light: rgba(102, 126, 234, 0.1);
+    --border: rgba(226, 232, 240, 0.8);
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+    --ring: rgba(102, 126, 234, 0.4);
 }
 
-/* App base */
-html, body, .stApp {
-  background:var(--bg);
-  color:var(--text);
-  font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+/* Global styles */
+.stApp {
+    background: var(--bg);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Header */
-.app-header { text-align:center; margin:10px 0 22px; }
-.app-header h1 { margin:6px 0; font-size:2rem; letter-spacing:0.2px; color:#0F172A; }
-.app-header p { margin:0; color:var(--muted); font-size:0.98rem; }
+.main .block-container {
+    padding-top: 2rem;
+    max-width: 1400px;
+}
 
-/* Filters bar */
+/* Header styles */
+.app-header {
+    text-align: center;
+    margin: 0 0 3rem 0;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.app-header h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0.5rem 0;
+    text-shadow: none;
+}
+
+.app-header p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* About section */
+.about-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.about-card h2 {
+    color: var(--text-primary);
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+}
+
+.about-card p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Filters section */
 .filters-card {
-  position:sticky; top:0; z-index:5; background:#FFFFFFF2; border:1px solid var(--border);
-  padding:14px; border-radius:14px; box-shadow:0 10px 30px rgba(17,24,39,0.05); margin-bottom:18px; backdrop-filter:blur(6px);
+    position: sticky;
+    top: 1rem;
+    z-index: 100;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
 }
 
-/* Streamlit buttons (fix black look on mobile) */
+/* Streamlit components styling */
 .stButton > button {
-  width:100%;
-  border-radius:10px;
-  border:1px solid var(--border);
-  background:#F8FAFC;
-  color:#0F172A;
-  font-weight:700;
-  padding:10px 12px;
-  transition:all .15s ease-in-out;
-  box-shadow:0 1px 0 rgba(0,0,0,0.02);
+    width: 100%;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
 }
+
+.stButton > button:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+}
+
+.stButton > button:hover:before {
+    left: 100%;
+}
+
 .stButton > button:hover {
-  border-color:#BFDBFE;
-  background:#F1F5F9;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.25);
+    border-color: var(--ring);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
 }
+
 .stButton > button:active {
-  background:#E2E8F0;
+    transform: translateY(0);
 }
-.stButton > button:focus {
-  outline:3px solid var(--ring);
-  outline-offset:2px;
+
+/* Text input styling */
+.stTextInput > div > div > input {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+}
+
+.stTextInput > div > div > input:focus {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+/* Selectbox styling */
+.stSelectbox > div > div > select {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* Toggle styling */
+.stCheckbox > label {
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 /* Tool cards */
 .tool-card {
-  background:var(--card); padding:16px; border-radius:14px; border:1px solid var(--border);
-  box-shadow:0 6px 18px rgba(2,6,23,0.06); transition:transform .18s ease, box-shadow .18s ease, border .18s ease; margin-bottom:26px;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
-.tool-card:hover { transform:translateY(-4px); box-shadow:0 14px 26px rgba(2,6,23,0.10); border-color:var(--ring); }
-.tool-card h3 { margin:0; font-size:1.05rem; color:#0F172A; }
-.tool-card p { margin:8px 0 6px; color:#374151; font-size:0.92rem; }
+
+.tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.tool-card:hover::before {
+    transform: scaleX(1);
+}
+
+.tool-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-hover);
+    background: var(--card-hover);
+    border-color: var(--ring);
+}
+
+.tool-card h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.tool-card p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0.5rem 0 1rem 0;
+}
 
 /* Badges and tags */
-.badge { display:inline-flex; align-items:center; gap:6px; background:#EEF2FF; color:#3730A3; padding:4px 10px; border:1px solid #E0E7FF; border-radius:999px; font-size:0.74rem; font-weight:700; }
-.badge.plan { background:#ECFDF5; color:#065F46; border-color:#D1FAE5; }
-.tag { display:inline-block; background:#EEF2FF; color:#4338CA; padding:5px 10px; border-radius:999px; margin-right:6px; margin-top:6px; font-size:0.76rem; font-weight:700; border:1px solid #E0E7FF; }
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
 
-/* Buttons (links) */
-.link-btn { display:inline-block; background:linear-gradient(180deg,#2563EB,#1D4ED8); color:#fff !important; padding:9px 12px; border-radius:10px; text-decoration:none; font-weight:700; border:0; box-shadow:0 8px 20px rgba(29,78,216,0.25); }
-.soft-btn { display:inline-block; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:#F8FAFC; color:var(--text); font-weight:700; }
-.link-btn:hover { filter:brightness(1.07); }
-.soft-btn:hover { border-color:var(--ring); }
+.badge:nth-of-type(1) {
+    background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%);
+    color: #0277bd;
+    border-color: #81d4fa;
+}
+
+.badge.plan {
+    background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+    color: #2e7d32;
+    border-color: #a5d6a7;
+}
+
+.tag {
+    display: inline-block;
+    background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+    color: #6a1b9a;
+    padding: 0.4rem 0.8rem;
+    border-radius: 50px;
+    margin: 0.25rem 0.25rem 0.25rem 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 2px solid #ce93d8;
+    transition: all 0.3s ease;
+}
+
+.tag:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(106, 27, 154, 0.3);
+}
+
+/* Buttons */
+.link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--accent);
+    color: white !important;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+}
+
+.link-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+    filter: brightness(1.1);
+}
+
+.soft-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--text-primary) !important;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    transition: all 0.3s ease;
+}
+
+.soft-btn:hover {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: rgba(102, 126, 234, 0.4);
+    transform: translateY(-1px);
+}
 
 /* Pagination */
-.pagination { position:sticky; bottom:12px; background:rgba(255,255,255,0.85); backdrop-filter:blur(6px); border:1px solid var(--border); border-radius:12px; padding:8px; text-align:center; margin:18px 0; }
-.pagination .page-info { display:inline-block; margin:0 12px; color:var(--text); font-weight:700; }
-
-/* Misc */
-.meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px; }
-.empty-card { height:0.1px; margin-bottom:26px; }
-
-/* Picks */
-.picks-card { background:#F8FAFF; border:1px solid #E0E7FF; border-radius:14px; padding:14px; box-shadow:0 6px 18px rgba(2,6,23,0.05); margin-bottom:14px; }
-.picks-title { margin:0 0 10px; font-size:1.02rem; font-weight:800; background:linear-gradient(90deg,#2563EB 0%,#7C3AED 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
-
-/* Why TORO */
-.toro-card.big { background:linear-gradient(180deg,#E0F2FE 0%,#FFFFFF 70%); border:1px solid #93C5FD; border-radius:16px; padding:18px 16px; box-shadow:0 8px 22px rgba(2,6,23,0.06); margin-top:10px; }
-.toro-card.big .toro-badge { background:#DBEAFE; color:#1E40AF; border:1px solid #BFDBFE; font-size:0.82rem; font-weight:900; padding:6px 12px; display:inline-block; border-radius:999px; }
-.toro-card.big .toro-eyebrow { color:#0369A1; font-weight:900; font-size:0.9rem; letter-spacing:0.6px; text-transform:uppercase; margin:8px 0 2px; }
-.toro-card.big .toro-title { margin:2px 0 6px; font-size:1.55rem; line-height:1.2; font-weight:1000; letter-spacing:0.1px; color:#0C4A6E; }
-.toro-card.big .toro-sub { color:#0F172A; font-size:1.04rem; line-height:1.6; margin:4px 0 10px; }
-.toro-card.big .toro-bullets { margin:10px 0 0; padding-left:18px; }
-.toro-card.big .toro-bullets li { color:#0F172A; margin:10px 0; font-size:1.02rem; line-height:1.6; }
-
-/* Respect dark theme but keep contrast for buttons */
-[data-theme="dark"] .stButton > button {
-  background:#111827; color:#F9FAFB; border-color:#374151;
+.pagination {
+    position: sticky;
+    bottom: 1rem;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    text-align: center;
+    margin: 2rem 0;
+    box-shadow: var(--shadow);
 }
-[data-theme="dark"] .stButton > button:hover { background:#1F2937; border-color:#60A5FA; }
+
+.page-info {
+    display: inline-block;
+    margin: 0 1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* Editor's picks */
+.picks-card {
+    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+    border: 2px solid #d8b4fe;
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+}
+
+.picks-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0 0 1rem 0;
+}
+
+.pick-item {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.pick-item .k {
+    font-weight: 700;
+    color: #7c3aed;
+    font-size: 0.9rem;
+}
+
+.pick-item .v {
+    font-weight: 800;
+    color: #1a202c;
+    font-size: 1.1rem;
+}
+
+.pick-item .note {
+    color: #4a5568;
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 0.25rem;
+    line-height: 1.4;
+}
+
+/* Why TORO section */
+.toro-card.big {
+    background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+    border: 2px solid #7dd3fc;
+    border-radius: 24px;
+    padding: 2rem;
+    margin-top: 1rem;
+    box-shadow: var(--shadow);
+}
+
+.toro-badge {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 800;
+    padding: 0.5rem 1rem;
+    display: inline-block;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+}
+
+.toro-eyebrow {
+    color: #0369a1;
+    font-weight: 900;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 1rem 0 0.5rem 0;
+}
+
+.toro-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #0c4a6e;
+    margin: 0.5rem 0;
+    line-height: 1.2;
+}
+
+.toro-sub {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 1rem 0;
+}
+
+.toro-bullets {
+    margin: 1rem 0 0 0;
+    padding-left: 1.5rem;
+}
+
+.toro-bullets li {
+    color: var(--text-secondary);
+    margin: 0.75rem 0;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Empty card */
+.empty-card {
+    height: 1px;
+    margin-bottom: 2rem;
+}
+
+/* Logo images */
+img {
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+img:hover {
+    border-color: var(--ring);
+    transform: scale(1.05);
+}
+
+/* Results header */
+h1[data-testid="stHeader"] {
+    background: var(--accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .app-header h1 {
+        font-size: 2.5rem;
+    }
+    
+    .app-header p {
+        font-size: 1rem;
+    }
+    
+    .tool-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .filters-card {
+        padding: 1.5rem;
+    }
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Loading animation */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading {
+    animation: pulse 2s infinite;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -205,7 +614,7 @@ st.markdown('<div class="filters-card">', unsafe_allow_html=True)
 rail_col, main_col = st.columns([3.0, 9.0], gap="large")
 
 with rail_col:
-    st.markdown("Categories")
+    st.markdown("**Categories**")
     cat_options = ["All"] + CATEGORIES
     current_cat = st.session_state.filter_category
     for c in cat_options:
@@ -220,7 +629,7 @@ with main_col:
     top_l, top_m, top_r = st.columns([3.8, 4.4, 3.8], gap="large")
 
     with top_l:
-        st.markdown("Search")
+        st.markdown("**Search**")
         def on_search_change():
             reset_page()
             request_scroll()
@@ -237,7 +646,7 @@ with main_col:
             st.rerun()
 
     with top_m:
-        st.markdown("Pricing")
+        st.markdown("**Pricing**")
         def on_plan_change():
             reset_page()
             request_scroll()
@@ -274,7 +683,7 @@ with main_col:
         st.markdown(
             """
             <div class="picks-card">
-              <h3 class="picks-title">Editor’s picks</h3>
+              <h3 class="picks-title">Editor's picks</h3>
               <div class="pick-item"><span class="k">Best general assistant</span><br/><span class="v">ChatGPT</span><span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span></div>
               <div class="pick-item"><span class="k">Best image generation</span><br/><span class="v">Gemini</span><span class="note">Strong multimodal grounding with solid text‑image prompting and safety features.</span></div>
               <div class="pick-item"><span class="k">Best video generation</span><br/><span class="v">Runway</span><span class="note">Reliable editing + generation workflow for creators and marketers.</span></div>
@@ -309,7 +718,7 @@ if st.session_state.current_page > total_pages:
 # ---------------------------
 if st.session_state.scroll_ticket > st.session_state.last_scrolled_ticket:
     qp = dict(st.query_params)
-    qp["section"] = "results"  # harmless param to “touch” the fragment
+    qp["section"] = "results"  # harmless param to "touch" the fragment
     st.query_params.clear()
     st.query_params.update(qp)
     st.session_state.last_scrolled_ticket = st.session_state.scroll_ticket
@@ -368,22 +777,22 @@ else:
 
                 st.markdown(f"""
                 <div class="tool-card">
-                  <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
-                    <img src="{logo}" alt="logo" style="width:44px; height:44px; object-fit:cover; border-radius:10px; border:1px solid #E5E7EB;" onerror="this.style.display='none'"/>
+                  <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+                    <img src="{logo}" alt="logo" style="width:48px; height:48px; object-fit:cover; border-radius:12px;" onerror="this.style.display='none'"/>
                     <div style="flex:1;">
                       <h3>{name}</h3>
-                      <div class="meta-row">
+                      <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:8px;">
                         <span class="badge">🗂 {meta}</span>
                         <span class="badge plan">💳 {plan}</span>
                       </div>
                     </div>
                   </div>
                   <p>{blurb}</p>
-                  <div style="margin-top:6px;">{"".join([f'<span class="tag">#{t}</span>' for t in tags])}</div>
-                  <div style="margin-top:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                  <div style="margin-top:12px;">{"".join([f'<span class="tag">#{t}</span>' for t in tags])}</div>
+                  <div style="margin-top:16px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
                     <a class="link-btn" href="{link}" target="_blank" rel="noreferrer noopener">🚀 Launch</a>
                     <a class="soft-btn" href="{link}" target="_blank" rel="nofollow noopener" style="text-decoration:none;">🔗 Visit</a>
-                    {"<span class='badge'>🧩 Embeddable</span>" if emb else ""}
+                    {"<span class='badge' style='background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%); color: #92400e; border-color: #f59e0b;'>🧩 Embeddable</span>" if emb else ""}
                   </div>
                 </div>
                 """, unsafe_allow_html=True)
