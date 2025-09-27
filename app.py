@@ -881,40 +881,33 @@ else:
                 embeddable = bool(tool.get("embeddable", False))
 
                 # Render enhanced tool card
+                # Create tool card content
+                logo_img = f'<img src="{logo}" alt="{name} logo" style="width:56px; height:56px; object-fit:cover; border-radius:12px; border:2px solid var(--border-light); box-shadow:var(--shadow-sm);" onerror="this.style.display=\'none\'" />' if logo else ''
+                embeddable_badge = '<span class="badge" style="background:linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%); color:#065f46; border-color:#10b981;">🧩 Embeddable</span>' if embeddable else ''
+                tags_html = "".join([f'<span class="tag">#{tag}</span>' for tag in tags])
+                
                 st.markdown(f"""
                 <div class="tool-card">
                   <div style="display:flex; gap:1rem; align-items:flex-start; margin-bottom:1rem;">
                     <div style="flex-shrink:0;">
-                      <img 
-                        src="{logo}" 
-                        alt="{name} logo" 
-                        style="width:56px; height:56px; object-fit:cover; border-radius:12px; border:2px solid var(--border-light); box-shadow:var(--shadow-sm);" 
-                        onerror="this.style.display='none'"
-                      />
+                      {logo_img}
                     </div>
                     <div style="flex:1; min-width:0;">
                       <h3>{name}</h3>
                       <div class="meta-row">
                         <span class="badge category">📁 {category}</span>
                         <span class="badge plan">💰 {plan}</span>
-                        {f'<span class="badge" style="background:linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%); color:#065f46; border-color:#10b981;">🧩 Embeddable</span>' if embeddable else ''}
+                        {embeddable_badge}
                       </div>
                     </div>
                   </div>
-                  
                   <p>{blurb}</p>
-                  
                   <div style="margin:1rem 0;">
-                    {"".join([f'<span class="tag">#{tag}</span>' for tag in tags])}
+                    {tags_html}
                   </div>
-                  
                   <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-top:1.5rem;">
-                    <a class="link-btn" href="{link}" target="_blank" rel="noreferrer noopener">
-                      🚀 Launch Tool
-                    </a>
-                    <a class="soft-btn" href="{link}" target="_blank" rel="nofollow noopener" style="text-decoration:none;">
-                      🔗 Visit Site
-                    </a>
+                    <a class="link-btn" href="{link}" target="_blank" rel="noreferrer noopener">🚀 Launch Tool</a>
+                    <a class="soft-btn" href="{link}" target="_blank" rel="nofollow noopener" style="text-decoration:none;">🔗 Visit Site</a>
                   </div>
                 </div>
                 """, unsafe_allow_html=True)
