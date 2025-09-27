@@ -1,4 +1,3 @@
-import time
 import streamlit as st
 import streamlit.components.v1 as components
 from tools import TOOLS, CATEGORIES
@@ -23,22 +22,13 @@ defaults = {
     "current_page": 1,
     "clear_flag": False,
     "show_previews": False,
-    "scroll_to_results": False,  # unified scroll intent
+    # scrolling with monotonic tickets
+    "scroll_ticket": 0,
+    "last_scrolled_ticket": -1,
 }
 for k, v in defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
-
-# Clear filters safely before widgets mount
-if st.session_state.clear_flag:
-    st.session_state.filter_category = "All"
-    st.session_state.filter_plan = "All"
-    st.session_state.filter_search = ""
-    st.session_state.current_page = 1
-    st.session_state.show_previews = False
-    st.session_state.clear_flag = False
-    st.session_state.scroll_to_results = True
-    st.rerun()
 
 # ---------------------------
 # Helpers
@@ -70,10 +60,11 @@ def filter_tools(tools):
         filtered.append(tool)
     return filtered
 
+def request_scroll():
+    st.session_state.scroll_ticket += 1
+
 def trigger_scroll(anchor_id="results-anchor"):
-    # Injects a script in a zero-height iframe that scrolls the PARENT document
-    # to the anchor element once it exists; uses smooth behavior and retries briefly.
-    # Using parent.document.getElementById avoids hash and history quirks.
+    # robust parent scroll with retries
     components.html(
         f"""
         <script>
@@ -87,23 +78,31 @@ def trigger_scroll(anchor_id="results-anchor"):
                 const el = doc.getElementById(anchorId);
                 if (el) {{
                   el.scrollIntoView({{behavior: 'smooth', block: 'start', inline: 'nearest'}});
-                }} else if (tries < 20) {{
+                }} else if (tries < 24) {{
                   tries++;
                   setTimeout(go, 25);
                 }}
-              }} catch (e) {{
-                // Swallow cross-origin or timing errors
-              }}
+              }} catch (e) {{ }}
             }}
-            // Defer slightly to let Streamlit finish layout
             setTimeout(go, 10);
           }})();
         </script>
         """,
         height=0,
     )
-    # Also render a small marker so the anchor definitely exists in layout nearby
-    st.markdown(f'<div id="{anchor_id}" style="height:1px;"></div>', unsafe_allow_html=True)
+
+# ---------------------------
+# Clear filters early path
+# ---------------------------
+if st.session_state.clear_flag:
+    st.session_state.filter_category = "All"
+    st.session_state.filter_plan = "All"
+    st.session_state.filter_search = ""
+    st.session_state.current_page = 1
+    st.session_state.show_previews = False
+    st.session_state.clear_flag = False
+    request_scroll()
+    st.rerun()
 
 # ---------------------------
 # CSS
@@ -115,44 +114,22 @@ html, body, .stApp { background:var(--bg); color:var(--text); font-family:Inter,
 .app-header { text-align:center; margin:10px 0 22px; }
 .app-header h1 { margin:6px 0; font-size:2rem; letter-spacing:0.2px; color:#0F172A; }
 .app-header p { margin:0; color:var(--muted); font-size:0.98rem; }
-
 .filters-card { position:sticky; top:0; z-index:5; background:#FFFFFFF2; border:1px solid var(--border); padding:14px; border-radius:14px; box-shadow:0 10px 30px rgba(17,24,39,0.05); margin-bottom:18px; backdrop-filter:blur(6px); }
-
 .tool-card { background:var(--card); padding:16px; border-radius:14px; border:1px solid var(--border); box-shadow:0 6px 18px rgba(2,6,23,0.06); transition:transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease; margin-bottom:26px; }
 .tool-card:hover { transform:translateY(-4px); box-shadow:0 14px 26px rgba(2,6,23,0.10); border-color:var(--ring); }
 .tool-card h3 { margin:0; font-size:1.05rem; color:#0F172A; }
 .tool-card p { margin:8px 0 6px; color:#374151; font-size:0.92rem; }
-
 .badge { display:inline-flex; align-items:center; gap:6px; background:#EEF2FF; color:#3730A3; padding:4px 10px; border:1px solid #E0E7FF; border-radius:999px; font-size:0.74rem; font-weight:700; }
 .badge.plan { background:#ECFDF5; color:#065F46; border-color:#D1FAE5; }
 .tag { display:inline-block; background:#EEF2FF; color:#4338CA; padding:5px 10px; border-radius:999px; margin-right:6px; margin-top:6px; font-size:0.76rem; font-weight:700; border:1px solid #E0E7FF; }
-
 .link-btn { display:inline-block; background:linear-gradient(180deg,#2563EB,#1D4ED8); color:#fff !important; padding:9px 12px; border-radius:10px; text-decoration:none; font-weight:700; border:0; box-shadow:0 8px 20px rgba(29,78,216,0.25); }
 .soft-btn { display:inline-block; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:#F8FAFC; color:#var(--text); font-weight:700; }
-.link-btn:hover { filter:brightness(1.07); }
-.soft-btn:hover { border-color:var(--ring); }
-
 .pagination { position:sticky; bottom:12px; background:rgba(255,255,255,0.85); backdrop-filter:blur(6px); border:1px solid var(--border); border-radius:12px; padding:8px; text-align:center; margin:18px 0; }
 .pagination .page-info { display:inline-block; margin:0 12px; color:var(--text); font-weight:700; }
-
 .meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px; }
 .empty-card { height:0.1px; margin-bottom:26px; }
-
 .picks-card { background:#F8FAFF; border:1px solid #E0E7FF; border-radius:14px; padding:14px; box-shadow:0 6px 18px rgba(2,6,23,0.05); margin-bottom:14px; }
 .picks-title { margin:0 0 10px; font-size:1.02rem; font-weight:800; background:linear-gradient(90deg,#2563EB 0%,#7C3AED 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
-.pick-item { margin:6px 0; padding:8px 10px; border:1px dashed #E5E7EB; border-radius:10px; background:#FFFFFF; }
-.pick-item .k { color:#64748B; font-weight:800; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; }
-.pick-item .v { color:#0F172A; font-weight:800; }
-.pick-item .note { color:#475569; font-size:0.86rem; display:block; margin-top:4px; }
-
-/* Why TORO under middle column */
-.toro-card.big { background:linear-gradient(180deg,#E0F2FE 0%,#FFFFFF 70%); border:1px solid #93C5FD; border-radius:16px; padding:18px 16px; box-shadow:0 8px 22px rgba(2,6,23,0.06); margin-top:10px; }
-.toro-card.big .toro-badge { background:#DBEAFE; color:#1E40AF; border:1px solid #BFDBFE; font-size:0.82rem; font-weight:900; padding:6px 12px; display:inline-block; border-radius:999px; }
-.toro-card.big .toro-eyebrow { color:#0369A1; font-weight:900; font-size:0.9rem; letter-spacing:0.6px; text-transform:uppercase; margin:8px 0 2px; }
-.toro-card.big .toro-title { margin:2px 0 6px; font-size:1.55rem; line-height:1.2; font-weight:1000; letter-spacing:0.1px; color:#0C4A6E; }
-.toro-card.big .toro-sub { color:#0F172A; font-size:1.04rem; line-height:1.6; margin:4px 0 10px; }
-.toro-card.big .toro-bullets { margin:10px 0 0; padding-left:18px; }
-.toro-card.big .toro-bullets li { color:#0F172A; margin:10px 0; font-size:1.02rem; line-height:1.6; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -193,7 +170,7 @@ with rail_col:
             if c != current_cat:
                 st.session_state.filter_category = c
                 st.session_state.current_page = 1
-                st.session_state.scroll_to_results = True
+                request_scroll()
                 st.rerun()
 
 with main_col:
@@ -206,7 +183,7 @@ with main_col:
 
         def on_search_change():
             reset_page()
-            st.session_state.scroll_to_results = True
+            request_scroll()
 
         st.text_input(
             "",
@@ -217,7 +194,7 @@ with main_col:
         )
         if st.button("🗑️ Clear filters", use_container_width=True):
             st.session_state.clear_flag = True
-            st.session_state.scroll_to_results = True
+            request_scroll()
             st.rerun()
 
     # Middle: Pricing + Toggle + Why TORO
@@ -226,7 +203,7 @@ with main_col:
 
         def on_plan_change():
             reset_page()
-            st.session_state.scroll_to_results = True
+            request_scroll()
 
         plans = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
         st.selectbox(
@@ -263,48 +240,13 @@ with main_col:
             """
             <div class="picks-card">
               <h3 class="picks-title">Editor’s picks</h3>
-
-              <div class="pick-item">
-                <span class="k">Best general assistant</span><br/>
-                <span class="v">ChatGPT</span>
-                <span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span>
-              </div>
-
-              <div class="pick-item">
-                <span class="k">Best image generation</span><br/>
-                <span class="v">Gemini</span>
-                <span class="note">Strong multimodal grounding with solid text‑image prompting and safety features.</span>
-              </div>
-
-              <div class="pick-item">
-                <span class="k">Best video generation</span><br/>
-                <span class="v">Runway</span>
-                <span class="note">Reliable editing + generation workflow for creators and marketers.</span>
-              </div>
-
-              <div class="pick-item">
-                <span class="k">Best meeting assistant</span><br/>
-                <span class="v">Otter</span>
-                <span class="note">Live transcription and searchable summaries for teams.</span>
-              </div>
-
-              <div class="pick-item">
-                <span class="k">Best automation</span><br/>
-                <span class="v">Zapier</span>
-                <span class="note">Connect favorite apps and orchestrate AI workflows without code.</span>
-              </div>
-
-              <div class="pick-item">
-                <span class="k">Best research</span><br/>
-                <span class="v">Perplexity</span>
-                <span class="note">Answer engine with citations for quick discovery.</span>
-              </div>
-
-              <div class="pick-item">
-                <span class="k">Best writing</span><br/>
-                <span class="v">Grammarly</span>
-                <span class="note">Clean rewrites, tone control, and grammar fixes.</span>
-              </div>
+              <div class="pick-item"><span class="k">Best general assistant</span><br/><span class="v">ChatGPT</span><span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span></div>
+              <div class="pick-item"><span class="k">Best image generation</span><br/><span class="v">Gemini</span><span class="note">Strong multimodal grounding with solid text‑image prompting and safety features.</span></div>
+              <div class="pick-item"><span class="k">Best video generation</span><br/><span class="v">Runway</span><span class="note">Reliable editing + generation workflow for creators and marketers.</span></div>
+              <div class="pick-item"><span class="k">Best meeting assistant</span><br/><span class="v">Otter</span><span class="note">Live transcription and searchable summaries for teams.</span></div>
+              <div class="pick-item"><span class="k">Best automation</span><br/><span class="v">Zapier</span><span class="note">Connect favorite apps and orchestrate AI workflows without code.</span></div>
+              <div class="pick-item"><span class="k">Best research</span><br/><span class="v">Perplexity</span><span class="note">Answer engine with citations for quick discovery.</span></div>
+              <div class="pick-item"><span class="k">Best writing</span><br/><span class="v">Grammarly</span><span class="note">Clean rewrites, tone control, and grammar fixes.</span></div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -315,7 +257,6 @@ st.markdown("</div>", unsafe_allow_html=True)
 # ---------------------------
 # Anchor for results jump
 # ---------------------------
-# Keep a reliable, explicit anchor element close to the results.
 st.markdown('<div id="results-anchor" style="height:1px;"></div>', unsafe_allow_html=True)
 
 # ---------------------------
@@ -328,10 +269,10 @@ total_pages = (total_tools - 1) // per_page + 1 if total_tools > 0 else 1
 if st.session_state.current_page > total_pages:
     st.session_state.current_page = total_pages
 
-# If a scroll was requested (from category, plan, search, clear, or pagination), trigger it now.
-if st.session_state.get("scroll_to_results", False):
+# Ticketed scroll: fire once per increment, reliably on every interaction
+if st.session_state.scroll_ticket > st.session_state.last_scrolled_ticket:
     trigger_scroll("results-anchor")
-    st.session_state.scroll_to_results = False
+    st.session_state.last_scrolled_ticket = st.session_state.scroll_ticket
 
 # ---------------------------
 # Top pagination
@@ -344,14 +285,14 @@ else:
     with p1:
         if st.button("⬅ Prev", key="prev_top") and st.session_state.current_page > 1:
             st.session_state.current_page -= 1
-            st.session_state.scroll_to_results = True
+            request_scroll()
             st.rerun()
     with p2:
         st.markdown(f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>', unsafe_allow_html=True)
     with p3:
         if st.button("Next ➡", key="next_top") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
-            st.session_state.scroll_to_results = True
+            request_scroll()
             st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
