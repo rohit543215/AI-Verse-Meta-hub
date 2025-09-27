@@ -76,7 +76,7 @@ if st.session_state.clear_flag:
     st.rerun()
 
 # ---------------------------
-# CSS (fix dark buttons + mobile contrast)
+# CSS (fix dark buttons + mobile contrast + scroll behavior)
 # ---------------------------
 st.markdown("""
 <style>
@@ -90,6 +90,7 @@ html, body, .stApp {
   background:var(--bg);
   color:var(--text);
   font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  scroll-behavior: smooth;
 }
 
 /* Header */
@@ -173,6 +174,13 @@ html, body, .stApp {
   background:#111827; color:#F9FAFB; border-color:#374151;
 }
 [data-theme="dark"] .stButton > button:hover { background:#1F2937; border-color:#60A5FA; }
+
+/* Scroll target styling */
+.results-anchor {
+  position: relative;
+  top: -80px;
+  visibility: hidden;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -274,7 +282,7 @@ with main_col:
         st.markdown(
             """
             <div class="picks-card">
-              <h3 class="picks-title">Editor’s picks</h3>
+              <h3 class="picks-title">Editor's picks</h3>
               <div class="pick-item"><span class="k">Best general assistant</span><br/><span class="v">ChatGPT</span><span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span></div>
               <div class="pick-item"><span class="k">Best image generation</span><br/><span class="v">Gemini</span><span class="note">Strong multimodal grounding with solid text‑image prompting and safety features.</span></div>
               <div class="pick-item"><span class="k">Best video generation</span><br/><span class="v">Runway</span><span class="note">Reliable editing + generation workflow for creators and marketers.</span></div>
@@ -290,8 +298,9 @@ with main_col:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# Results anchor (native)
+# Results anchor (improved for scrolling)
 # ---------------------------
+st.markdown('<div class="results-anchor" id="results-section"></div>', unsafe_allow_html=True)
 st.header("Results", anchor="results")
 
 # ---------------------------
@@ -305,13 +314,22 @@ if st.session_state.current_page > total_pages:
     st.session_state.current_page = total_pages
 
 # ---------------------------
-# Trigger scroll via URL fragment (JS-free)
+# Trigger scroll via JavaScript injection
 # ---------------------------
 if st.session_state.scroll_ticket > st.session_state.last_scrolled_ticket:
-    qp = dict(st.query_params)
-    qp["section"] = "results"  # harmless param to “touch” the fragment
-    st.query_params.clear()
-    st.query_params.update(qp)
+    # Use JavaScript to scroll to the results section
+    st.markdown("""
+    <script>
+        setTimeout(function() {
+            const element = document.getElementById('results-section') || 
+                           document.querySelector('[data-testid="stHeader"]') ||
+                           document.querySelector('h1[id*="results"]');
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
+    </script>
+    """, unsafe_allow_html=True)
     st.session_state.last_scrolled_ticket = st.session_state.scroll_ticket
 
 # ---------------------------
