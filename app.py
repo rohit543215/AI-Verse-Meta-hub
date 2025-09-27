@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from tools import TOOLS, CATEGORIES
 
 # ---------------------------
@@ -21,7 +22,7 @@ defaults = {
     "current_page": 1,
     "clear_flag": False,
     "show_previews": False,
-    # scrolling with monotonic tickets (robust across reruns)
+    # scrolling with monotonic tickets
     "scroll_ticket": 0,
     "last_scrolled_ticket": -1,
 }
@@ -32,10 +33,6 @@ for k, v in defaults.items():
 # ---------------------------
 # Helpers
 # ---------------------------
-def request_scroll():
-    # Increment ticket so the app scrolls exactly once per interaction
-    st.session_state.scroll_ticket += 1
-
 def reset_page():
     st.session_state.current_page = 1
 
@@ -63,8 +60,39 @@ def filter_tools(tools):
         filtered.append(tool)
     return filtered
 
+def request_scroll():
+    st.session_state.scroll_ticket += 1
+
+def trigger_scroll(anchor_id="results-anchor"):
+    # robust parent scroll with retries
+    components.html(
+        f"""
+        <script>
+          (function() {{
+            const anchorId = "{anchor_id}";
+            let tries = 0;
+            function go() {{
+              try {{
+                const doc = window.parent && window.parent.document ? window.parent.document : null;
+                if (!doc) return;
+                const el = doc.getElementById(anchorId);
+                if (el) {{
+                  el.scrollIntoView({{behavior: 'smooth', block: 'start', inline: 'nearest'}});
+                }} else if (tries < 24) {{
+                  tries++;
+                  setTimeout(go, 25);
+                }}
+              }} catch (e) {{ }}
+            }}
+            setTimeout(go, 10);
+          }})();
+        </script>
+        """,
+        height=0,
+    )
+
 # ---------------------------
-# Early clear path
+# Clear filters early path
 # ---------------------------
 if st.session_state.clear_flag:
     st.session_state.filter_category = "All"
@@ -86,35 +114,22 @@ html, body, .stApp { background:var(--bg); color:var(--text); font-family:Inter,
 .app-header { text-align:center; margin:10px 0 22px; }
 .app-header h1 { margin:6px 0; font-size:2rem; letter-spacing:0.2px; color:#0F172A; }
 .app-header p { margin:0; color:var(--muted); font-size:0.98rem; }
-
 .filters-card { position:sticky; top:0; z-index:5; background:#FFFFFFF2; border:1px solid var(--border); padding:14px; border-radius:14px; box-shadow:0 10px 30px rgba(17,24,39,0.05); margin-bottom:18px; backdrop-filter:blur(6px); }
-
 .tool-card { background:var(--card); padding:16px; border-radius:14px; border:1px solid var(--border); box-shadow:0 6px 18px rgba(2,6,23,0.06); transition:transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease; margin-bottom:26px; }
 .tool-card:hover { transform:translateY(-4px); box-shadow:0 14px 26px rgba(2,6,23,0.10); border-color:var(--ring); }
 .tool-card h3 { margin:0; font-size:1.05rem; color:#0F172A; }
 .tool-card p { margin:8px 0 6px; color:#374151; font-size:0.92rem; }
-
 .badge { display:inline-flex; align-items:center; gap:6px; background:#EEF2FF; color:#3730A3; padding:4px 10px; border:1px solid #E0E7FF; border-radius:999px; font-size:0.74rem; font-weight:700; }
 .badge.plan { background:#ECFDF5; color:#065F46; border-color:#D1FAE5; }
 .tag { display:inline-block; background:#EEF2FF; color:#4338CA; padding:5px 10px; border-radius:999px; margin-right:6px; margin-top:6px; font-size:0.76rem; font-weight:700; border:1px solid #E0E7FF; }
-
 .link-btn { display:inline-block; background:linear-gradient(180deg,#2563EB,#1D4ED8); color:#fff !important; padding:9px 12px; border-radius:10px; text-decoration:none; font-weight:700; border:0; box-shadow:0 8px 20px rgba(29,78,216,0.25); }
-.soft-btn { display:inline-block; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:#F8FAFC; color:var(--text); font-weight:700; }
-.link-btn:hover { filter:brightness(1.07); }
-.soft-btn:hover { border-color:var(--ring); }
-
+.soft-btn { display:inline-block; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:#F8FAFC; color:#var(--text); font-weight:700; }
 .pagination { position:sticky; bottom:12px; background:rgba(255,255,255,0.85); backdrop-filter:blur(6px); border:1px solid var(--border); border-radius:12px; padding:8px; text-align:center; margin:18px 0; }
 .pagination .page-info { display:inline-block; margin:0 12px; color:var(--text); font-weight:700; }
-
 .meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px; }
 .empty-card { height:0.1px; margin-bottom:26px; }
-
 .picks-card { background:#F8FAFF; border:1px solid #E0E7FF; border-radius:14px; padding:14px; box-shadow:0 6px 18px rgba(2,6,23,0.05); margin-bottom:14px; }
 .picks-title { margin:0 0 10px; font-size:1.02rem; font-weight:800; background:linear-gradient(90deg,#2563EB 0%,#7C3AED 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
-.pick-item { margin:6px 0; padding:8px 10px; border:1px dashed #E5E7EB; border-radius:10px; background:#FFFFFF; }
-.pick-item .k { color:#64748B; font-weight:800; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; }
-.pick-item .v { color:#0F172A; font-weight:800; }
-.pick-item .note { color:#475569; font-size:0.86rem; display:block; margin-top:4px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -144,7 +159,7 @@ st.markdown("""
 # ---------------------------
 st.markdown('<div class="filters-card">', unsafe_allow_html=True)
 
-rail_col, main_col = st.columns([3.0, 9.0], gap="large", vertical_alignment="top")
+rail_col, main_col = st.columns([3.0, 9.0], gap="large")
 
 with rail_col:
     st.markdown("Categories")
@@ -155,20 +170,21 @@ with rail_col:
             if c != current_cat:
                 st.session_state.filter_category = c
                 st.session_state.current_page = 1
-                # request a scroll on next render
                 request_scroll()
                 st.rerun()
 
 with main_col:
     # Top controls: 3 columns
-    top_l, top_m, top_r = st.columns([3.8, 4.4, 3.8], gap="large", vertical_alignment="top")
+    top_l, top_m, top_r = st.columns([3.8, 4.4, 3.8], gap="large")
 
     # Left: Search + Clear filters
     with top_l:
         st.markdown("Search")
+
         def on_search_change():
             reset_page()
             request_scroll()
+
         st.text_input(
             "",
             placeholder="Search by name, tags, or description",
@@ -184,9 +200,11 @@ with main_col:
     # Middle: Pricing + Toggle + Why TORO
     with top_m:
         st.markdown("Pricing")
+
         def on_plan_change():
             reset_page()
             request_scroll()
+
         plans = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
         st.selectbox(
             "",
@@ -222,48 +240,13 @@ with main_col:
             """
             <div class="picks-card">
               <h3 class="picks-title">Editor’s picks</h3>
-
-              <div class="pick-item">
-                <span class="k">Best general assistant</span><br/>
-                <span class="v">ChatGPT</span>
-                <span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span>
-              </div>
-
-              <div class="pick-item">
-                <span class="k">Best image generation</span><br/>
-                <span class="v">Gemini</span>
-                <span class="note">Strong multimodal grounding with solid text‑image prompting and safety features.</span>
-              </div>
-
-              <div class="pick-item">
-                <span class="k">Best video generation</span><br/>
-                <span class="v">Runway</span>
-                <span class="note">Reliable editing + generation workflow for creators and marketers.</span>
-              </div>
-
-              <div class="pick-item">
-                <span class="k">Best meeting assistant</span><br/>
-                <span class="v">Otter</span>
-                <span class="note">Live transcription and searchable summaries for teams.</span>
-              </div>
-
-              <div class="pick-item">
-                <span class="k">Best automation</span><br/>
-                <span class="v">Zapier</span>
-                <span class="note">Connect favorite apps and orchestrate AI workflows without code.</span>
-              </div>
-
-              <div class="pick-item">
-                <span class="k">Best research</span><br/>
-                <span class="v">Perplexity</span>
-                <span class="note">Answer engine with citations for quick discovery.</span>
-              </div>
-
-              <div class="pick-item">
-                <span class="k">Best writing</span><br/>
-                <span class="v">Grammarly</span>
-                <span class="note">Clean rewrites, tone control, and grammar fixes.</span>
-              </div>
+              <div class="pick-item"><span class="k">Best general assistant</span><br/><span class="v">ChatGPT</span><span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span></div>
+              <div class="pick-item"><span class="k">Best image generation</span><br/><span class="v">Gemini</span><span class="note">Strong multimodal grounding with solid text‑image prompting and safety features.</span></div>
+              <div class="pick-item"><span class="k">Best video generation</span><br/><span class="v">Runway</span><span class="note">Reliable editing + generation workflow for creators and marketers.</span></div>
+              <div class="pick-item"><span class="k">Best meeting assistant</span><br/><span class="v">Otter</span><span class="note">Live transcription and searchable summaries for teams.</span></div>
+              <div class="pick-item"><span class="k">Best automation</span><br/><span class="v">Zapier</span><span class="note">Connect favorite apps and orchestrate AI workflows without code.</span></div>
+              <div class="pick-item"><span class="k">Best research</span><br/><span class="v">Perplexity</span><span class="note">Answer engine with citations for quick discovery.</span></div>
+              <div class="pick-item"><span class="k">Best writing</span><br/><span class="v">Grammarly</span><span class="note">Clean rewrites, tone control, and grammar fixes.</span></div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -272,9 +255,9 @@ with main_col:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# Results anchor using native header (provides built-in anchor)
+# Anchor for results jump
 # ---------------------------
-st.header("Results", anchor="results")
+st.markdown('<div id="results-anchor" style="height:1px;"></div>', unsafe_allow_html=True)
 
 # ---------------------------
 # Data and pagination
@@ -285,6 +268,11 @@ per_page = 12
 total_pages = (total_tools - 1) // per_page + 1 if total_tools > 0 else 1
 if st.session_state.current_page > total_pages:
     st.session_state.current_page = total_pages
+
+# Ticketed scroll: fire once per increment, reliably on every interaction
+if st.session_state.scroll_ticket > st.session_state.last_scrolled_ticket:
+    trigger_scroll("results-anchor")
+    st.session_state.last_scrolled_ticket = st.session_state.scroll_ticket
 
 # ---------------------------
 # Top pagination
@@ -300,10 +288,7 @@ else:
             request_scroll()
             st.rerun()
     with p2:
-        st.markdown(
-            f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>',
-            unsafe_allow_html=True,
-        )
+        st.markdown(f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>', unsafe_allow_html=True)
     with p3:
         if st.button("Next ➡", key="next_top") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
@@ -320,7 +305,7 @@ else:
 
     for i in range(0, max(len(page_tools), 3), 3):
         row_tools = page_tools[i:i+3]
-        cols = st.columns(3, gap="large", vertical_alignment="top")
+        cols = st.columns(3, gap="large")
         while len(row_tools) < 3:
             row_tools.append(None)
         for col, tool in zip(cols, row_tools):
@@ -361,17 +346,11 @@ else:
                 """, unsafe_allow_html=True)
 
                 if emb and st.session_state.show_previews:
-                    # Optional: show inline preview if embeddable
-                    st.components.v1.iframe(link, height=520, scrolling=True)
+                    components.iframe(link, height=520, scrolling=True)
 
 # ---------------------------
-# JS-free scroll trigger via URL fragment
+# Footer
 # ---------------------------
-if st.session_state.scroll_ticket > st.session_state.last_scrolled_ticket:
-    # Add/refresh a query param fragment hint; with st.header(anchor="results"),
-    # browsers scroll to the built-in anchor without any custom JS.
-    qp = dict(st.query_params)
-    qp["section"] = "results"
-    st.query_params.clear()
-    st.query_params.update(qp)
-    st.session_state.last_scrolled_ticket = st.session_state.scroll_ticket
+st.divider()
+st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
+st.caption("✨ Made with ❤️ by Girish Joshi in INDIA• TORO - Find the perfect AI tool for every use case")
