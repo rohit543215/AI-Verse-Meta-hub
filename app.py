@@ -1,19 +1,10 @@
 import streamlit as st
-import streamlit.components.v1 as components
 from tools import TOOLS, CATEGORIES
 
-# ---------------------------
-# Page config
-# ---------------------------
-st.set_page_config(
-    page_title="TORO: AI Tools Directory",
-    page_icon="🤖",
-    layout="wide",
-    initial_sidebar_state="collapsed",
-)
+st.set_page_config(page_title="TORO: AI Tools Directory", page_icon="🤖", layout="wide", initial_sidebar_state="collapsed")
 
 # ---------------------------
-# Initialize state early
+# Initialize state
 # ---------------------------
 defaults = {
     "filter_category": "All",
@@ -22,7 +13,7 @@ defaults = {
     "current_page": 1,
     "clear_flag": False,
     "show_previews": False,
-    # scrolling with monotonic tickets
+    # scrolling tickets
     "scroll_ticket": 0,
     "last_scrolled_ticket": -1,
 }
@@ -30,9 +21,9 @@ for k, v in defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
-# ---------------------------
-# Helpers
-# ---------------------------
+def request_scroll():
+    st.session_state.scroll_ticket += 1
+
 def reset_page():
     st.session_state.current_page = 1
 
@@ -43,57 +34,20 @@ def filter_tools(tools):
     category = st.session_state.filter_category
     plan = st.session_state.filter_plan
     query = st.session_state.filter_search.strip().lower()
-    filtered = []
+    out = []
     for tool in tools:
         if category != "All" and tool.get("category", "") != category:
             continue
         if plan != "All" and tool.get("plan", "") != plan:
             continue
         if query:
-            searchable = " ".join([
-                safe_str(tool.get("name", "")),
-                safe_str(tool.get("blurb", "")),
-                " ".join(tool.get("tags", [])),
-            ]).lower()
+            searchable = " ".join([safe_str(tool.get("name","")), safe_str(tool.get("blurb","")), " ".join(tool.get("tags",[]))]).lower()
             if query not in searchable:
                 continue
-        filtered.append(tool)
-    return filtered
+        out.append(tool)
+    return out
 
-def request_scroll():
-    st.session_state.scroll_ticket += 1
-
-def trigger_scroll(anchor_id="results-anchor"):
-    # robust parent scroll with retries
-    components.html(
-        f"""
-        <script>
-          (function() {{
-            const anchorId = "{anchor_id}";
-            let tries = 0;
-            function go() {{
-              try {{
-                const doc = window.parent && window.parent.document ? window.parent.document : null;
-                if (!doc) return;
-                const el = doc.getElementById(anchorId);
-                if (el) {{
-                  el.scrollIntoView({{behavior: 'smooth', block: 'start', inline: 'nearest'}});
-                }} else if (tries < 24) {{
-                  tries++;
-                  setTimeout(go, 25);
-                }}
-              }} catch (e) {{ }}
-            }}
-            setTimeout(go, 10);
-          }})();
-        </script>
-        """,
-        height=0,
-    )
-
-# ---------------------------
-# Clear filters early path
-# ---------------------------
+# Clear filters path
 if st.session_state.clear_flag:
     st.session_state.filter_category = "All"
     st.session_state.filter_plan = "All"
@@ -123,7 +77,7 @@ html, body, .stApp { background:var(--bg); color:var(--text); font-family:Inter,
 .badge.plan { background:#ECFDF5; color:#065F46; border-color:#D1FAE5; }
 .tag { display:inline-block; background:#EEF2FF; color:#4338CA; padding:5px 10px; border-radius:999px; margin-right:6px; margin-top:6px; font-size:0.76rem; font-weight:700; border:1px solid #E0E7FF; }
 .link-btn { display:inline-block; background:linear-gradient(180deg,#2563EB,#1D4ED8); color:#fff !important; padding:9px 12px; border-radius:10px; text-decoration:none; font-weight:700; border:0; box-shadow:0 8px 20px rgba(29,78,216,0.25); }
-.soft-btn { display:inline-block; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:#F8FAFC; color:#var(--text); font-weight:700; }
+.soft-btn { display:inline-block; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:#F8FAFC; color:var(--text); font-weight:700; }
 .pagination { position:sticky; bottom:12px; background:rgba(255,255,255,0.85); backdrop-filter:blur(6px); border:1px solid var(--border); border-radius:12px; padding:8px; text-align:center; margin:18px 0; }
 .pagination .page-info { display:inline-block; margin:0 12px; color:var(--text); font-weight:700; }
 .meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px; }
@@ -134,7 +88,7 @@ html, body, .stApp { background:var(--bg); color:var(--text); font-family:Inter,
 """, unsafe_allow_html=True)
 
 # ---------------------------
-# Header
+# Header and About
 # ---------------------------
 st.markdown("""
 <div class="app-header">
@@ -142,10 +96,6 @@ st.markdown("""
   <p>Discover and explore AI tools by category and pricing. Launch quickly or preview inline when embeddable.</p>
 </div>
 """, unsafe_allow_html=True)
-
-# ---------------------------
-# About
-# ---------------------------
 st.markdown("""
 <div class="about-card">
   <h2>Welcome to 🤖 TORO</h2>
@@ -155,10 +105,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------
-# Filters bar
+# Filters
 # ---------------------------
 st.markdown('<div class="filters-card">', unsafe_allow_html=True)
-
 rail_col, main_col = st.columns([3.0, 9.0], gap="large")
 
 with rail_col:
@@ -174,17 +123,12 @@ with rail_col:
                 st.rerun()
 
 with main_col:
-    # Top controls: 3 columns
     top_l, top_m, top_r = st.columns([3.8, 4.4, 3.8], gap="large")
-
-    # Left: Search + Clear filters
     with top_l:
         st.markdown("Search")
-
         def on_search_change():
             reset_page()
             request_scroll()
-
         st.text_input(
             "",
             placeholder="Search by name, tags, or description",
@@ -196,15 +140,11 @@ with main_col:
             st.session_state.clear_flag = True
             request_scroll()
             st.rerun()
-
-    # Middle: Pricing + Toggle + Why TORO
     with top_m:
         st.markdown("Pricing")
-
         def on_plan_change():
             reset_page()
             request_scroll()
-
         plans = ["All", "Free", "Free + Paid", "Paid", "Credits + Paid"]
         st.selectbox(
             "",
@@ -233,8 +173,6 @@ with main_col:
             """,
             unsafe_allow_html=True,
         )
-
-    # Right: Editor’s picks
     with top_r:
         st.markdown(
             """
@@ -251,11 +189,10 @@ with main_col:
             """,
             unsafe_allow_html=True,
         )
-
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# Anchor for results jump
+# Results anchor (top of results area)
 # ---------------------------
 st.markdown('<div id="results-anchor" style="height:1px;"></div>', unsafe_allow_html=True)
 
@@ -269,13 +206,8 @@ total_pages = (total_tools - 1) // per_page + 1 if total_tools > 0 else 1
 if st.session_state.current_page > total_pages:
     st.session_state.current_page = total_pages
 
-# Ticketed scroll: fire once per increment, reliably on every interaction
-if st.session_state.scroll_ticket > st.session_state.last_scrolled_ticket:
-    trigger_scroll("results-anchor")
-    st.session_state.last_scrolled_ticket = st.session_state.scroll_ticket
-
 # ---------------------------
-# Top pagination
+# Pagination header
 # ---------------------------
 if total_tools == 0:
     st.info("No tools found. Try broadening search or clearing filters.")
@@ -313,7 +245,6 @@ else:
                 if tool is None:
                     st.markdown('<div class="empty-card"></div>', unsafe_allow_html=True)
                     continue
-
                 logo = safe_str(tool.get("logo", ""))
                 name = safe_str(tool.get("name", "Unknown"))
                 blurb = safe_str(tool.get("blurb", ""))
@@ -322,7 +253,6 @@ else:
                 tags = tool.get("tags", [])[:4]
                 link = safe_str(tool.get("link", "#"))
                 emb = bool(tool.get("embeddable", False))
-
                 st.markdown(f"""
                 <div class="tool-card">
                   <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
@@ -345,12 +275,39 @@ else:
                 </div>
                 """, unsafe_allow_html=True)
 
-                if emb and st.session_state.show_previews:
-                    components.iframe(link, height=520, scrolling=True)
-
 # ---------------------------
 # Footer
 # ---------------------------
 st.divider()
 st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
 st.caption("✨ Made with ❤️ by Girish Joshi in INDIA• TORO - Find the perfect AI tool for every use case")
+
+# ---------------------------
+# Scroll injector (Markdown JS, not component)
+# ---------------------------
+if st.session_state.scroll_ticket > st.session_state.last_scrolled_ticket:
+    # Put the script at the very end so layout is ready
+    st.markdown(
+        f"""
+        <script>
+        (function(){{
+          const anchorId = "results-anchor";
+          let tries = 0;
+          function go(){{
+            try {{
+              const el = document.getElementById(anchorId);
+              if (el) {{
+                el.scrollIntoView({{behavior: 'smooth', block: 'start', inline: 'nearest'}});
+              }} else if (tries < 24) {{
+                tries++;
+                setTimeout(go, 25);
+              }}
+            }} catch(e) {{}}
+          }}
+          setTimeout(go, 10);
+        }})();
+        </script>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.session_state.last_scrolled_ticket = st.session_state.scroll_ticket
