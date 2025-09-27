@@ -21,7 +21,6 @@ defaults = {
     "current_page": 1,
     "clear_flag": False,
     "show_previews": False,
-    # robust scrolling tickets
     "scroll_ticket": 0,
     "last_scrolled_ticket": -1,
 }
@@ -76,144 +75,607 @@ if st.session_state.clear_flag:
     st.rerun()
 
 # ---------------------------
-# CSS (fix dark buttons + mobile contrast + scroll behavior)
+# Enhanced CSS with beautiful styling
 # ---------------------------
 st.markdown("""
 <style>
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 :root {
-  --bg:#FFFFFF; --card:#FFFFFF; --muted:#6B7280; --text:#111827; --accent:#2563EB;
-  --ring:rgba(37,99,235,0.25); --border:#E5E7EB;
+  --primary-bg: #FAFBFF;
+  --card-bg: #FFFFFF;
+  --surface-bg: #F8FAFC;
+  --border-light: #E2E8F0;
+  --border-medium: #CBD5E1;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --accent-primary: #3B82F6;
+  --accent-secondary: #8B5CF6;
+  --accent-hover: #2563EB;
+  --success: #10B981;
+  --success-light: #D1FAE5;
+  --warning: #F59E0B;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 20px;
 }
 
-/* App base */
+/* App base styling */
 html, body, .stApp {
-  background:var(--bg);
-  color:var(--text);
-  font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: var(--primary-bg);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   scroll-behavior: smooth;
+  font-feature-settings: 'cv03', 'cv04', 'cv11';
 }
 
-/* Header */
-.app-header { text-align:center; margin:10px 0 22px; }
-.app-header h1 { margin:6px 0; font-size:2rem; letter-spacing:0.2px; color:#0F172A; }
-.app-header p { margin:0; color:var(--muted); font-size:0.98rem; }
+/* Remove default Streamlit padding */
+.block-container {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Header styling */
+.app-header {
+  text-align: center;
+  margin: 0 0 3rem;
+  padding: 2rem 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: var(--border-radius-xl);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  pointer-events: none;
+}
+
+.app-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  background: linear-gradient(45deg, #fff, #e2e8f0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.app-header p {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 400;
+  opacity: 0.95;
+  position: relative;
+  z-index: 1;
+}
+
+/* About section */
+.about-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.about-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+}
+
+.about-card h2 {
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.about-card p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
 
 /* Filters bar */
 .filters-card {
-  position:sticky; top:0; z-index:5; background:#FFFFFFF2; border:1px solid var(--border);
-  padding:14px; border-radius:14px; box-shadow:0 10px 30px rgba(17,24,39,0.05); margin-bottom:18px; backdrop-filter:blur(6px);
+  position: sticky;
+  top: 1rem;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-lg);
 }
 
-/* Streamlit buttons (fix black look on mobile) */
+/* Enhanced button styling */
 .stButton > button {
-  width:100%;
-  border-radius:10px;
-  border:1px solid var(--border);
-  background:#F8FAFC;
-  color:#0F172A;
-  font-weight:700;
-  padding:10px 12px;
-  transition:all .15s ease-in-out;
-  box-shadow:0 1px 0 rgba(0,0,0,0.02);
+  width: 100%;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-light);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
 }
+
 .stButton > button:hover {
-  border-color:#BFDBFE;
-  background:#F1F5F9;
+  border-color: var(--accent-primary);
+  background: var(--surface-bg);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
+
 .stButton > button:active {
-  background:#E2E8F0;
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
+
 .stButton > button:focus {
-  outline:3px solid var(--ring);
-  outline-offset:2px;
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Section headers */
+.section-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
 }
 
 /* Tool cards */
 .tool-card {
-  background:var(--card); padding:16px; border-radius:14px; border:1px solid var(--border);
-  box-shadow:0 6px 18px rgba(2,6,23,0.06); transition:transform .18s ease, box-shadow .18s ease, border .18s ease; margin-bottom:26px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
-.tool-card:hover { transform:translateY(-4px); box-shadow:0 14px 26px rgba(2,6,23,0.10); border-color:var(--ring); }
-.tool-card h3 { margin:0; font-size:1.05rem; color:#0F172A; }
-.tool-card p { margin:8px 0 6px; color:#374151; font-size:0.92rem; }
 
-/* Badges and tags */
-.badge { display:inline-flex; align-items:center; gap:6px; background:#EEF2FF; color:#3730A3; padding:4px 10px; border:1px solid #E0E7FF; border-radius:999px; font-size:0.74rem; font-weight:700; }
-.badge.plan { background:#ECFDF5; color:#065F46; border-color:#D1FAE5; }
-.tag { display:inline-block; background:#EEF2FF; color:#4338CA; padding:5px 10px; border-radius:999px; margin-right:6px; margin-top:6px; font-size:0.76rem; font-weight:700; border:1px solid #E0E7FF; }
-
-/* Buttons (links) */
-.link-btn { display:inline-block; background:linear-gradient(180deg,#2563EB,#1D4ED8); color:#fff !important; padding:9px 12px; border-radius:10px; text-decoration:none; font-weight:700; border:0; box-shadow:0 8px 20px rgba(29,78,216,0.25); }
-.soft-btn { display:inline-block; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:#F8FAFC; color:var(--text); font-weight:700; }
-.link-btn:hover { filter:brightness(1.07); }
-.soft-btn:hover { border-color:var(--ring); }
-
-/* Pagination */
-.pagination { position:sticky; bottom:12px; background:rgba(255,255,255,0.85); backdrop-filter:blur(6px); border:1px solid var(--border); border-radius:12px; padding:8px; text-align:center; margin:18px 0; }
-.pagination .page-info { display:inline-block; margin:0 12px; color:var(--text); font-weight:700; }
-
-/* Misc */
-.meta-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px; }
-.empty-card { height:0.1px; margin-bottom:26px; }
-
-/* Picks */
-.picks-card { background:#F8FAFF; border:1px solid #E0E7FF; border-radius:14px; padding:14px; box-shadow:0 6px 18px rgba(2,6,23,0.05); margin-bottom:14px; }
-.picks-title { margin:0 0 10px; font-size:1.02rem; font-weight:800; background:linear-gradient(90deg,#2563EB 0%,#7C3AED 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
-
-/* Why TORO */
-.toro-card.big { background:linear-gradient(180deg,#E0F2FE 0%,#FFFFFF 70%); border:1px solid #93C5FD; border-radius:16px; padding:18px 16px; box-shadow:0 8px 22px rgba(2,6,23,0.06); margin-top:10px; }
-.toro-card.big .toro-badge { background:#DBEAFE; color:#1E40AF; border:1px solid #BFDBFE; font-size:0.82rem; font-weight:900; padding:6px 12px; display:inline-block; border-radius:999px; }
-.toro-card.big .toro-eyebrow { color:#0369A1; font-weight:900; font-size:0.9rem; letter-spacing:0.6px; text-transform:uppercase; margin:8px 0 2px; }
-.toro-card.big .toro-title { margin:2px 0 6px; font-size:1.55rem; line-height:1.2; font-weight:1000; letter-spacing:0.1px; color:#0C4A6E; }
-.toro-card.big .toro-sub { color:#0F172A; font-size:1.04rem; line-height:1.6; margin:4px 0 10px; }
-.toro-card.big .toro-bullets { margin:10px 0 0; padding-left:18px; }
-.toro-card.big .toro-bullets li { color:#0F172A; margin:10px 0; font-size:1.02rem; line-height:1.6; }
-
-/* Respect dark theme but keep contrast for buttons */
-[data-theme="dark"] .stButton > button {
-  background:#111827; color:#F9FAFB; border-color:#374151;
+.tool-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
 }
-[data-theme="dark"] .stButton > button:hover { background:#1F2937; border-color:#60A5FA; }
+
+.tool-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--border-medium);
+}
+
+.tool-card:hover::before {
+  transform: scaleX(1);
+}
+
+.tool-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tool-card p {
+  margin: 0.75rem 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Enhanced badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: var(--surface-bg);
+  color: var(--text-secondary);
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--border-light);
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.badge.plan {
+  background: var(--success-light);
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.badge.category {
+  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.tag {
+  display: inline-block;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  color: var(--text-secondary);
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  margin: 0.25rem 0.375rem 0.25rem 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--border-light);
+  transition: all 0.2s ease;
+}
+
+.tag:hover {
+  background: var(--accent-primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Enhanced action buttons */
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--gradient-primary);
+  color: white !important;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--border-radius-md);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+}
+
+.link-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  filter: brightness(1.05);
+}
+
+.soft-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-light);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+}
+
+.soft-btn:hover {
+  border-color: var(--accent-primary);
+  background: var(--surface-bg);
+  color: var(--accent-primary);
+  transform: translateY(-1px);
+}
+
+/* Meta row styling */
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+/* Enhanced Editor's Picks */
+.picks-card {
+  background: linear-gradient(135deg, #fdf4ff 0%, #faf5ff 100%);
+  border: 1px solid #e9d5ff;
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.picks-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
+}
+
+.picks-title {
+  margin: 0 0 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+}
+
+.pick-item {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: var(--border-radius-md);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.pick-item:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+}
+
+.pick-item:last-child {
+  margin-bottom: 0;
+}
+
+.pick-item .k {
+  color: var(--accent-secondary);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.pick-item .v {
+  color: var(--text-primary);
+  font-weight: 800;
+  font-size: 1.125rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.pick-item .note {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  display: block;
+}
+
+/* Enhanced Why TORO section */
+.toro-card.big {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #ffffff 100%);
+  border: 1px solid #bae6fd;
+  border-radius: var(--border-radius-lg);
+  padding: 2rem 1.5rem;
+  box-shadow: var(--shadow-lg);
+  margin-top: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.toro-card.big::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0ea5e9 0%, #3b82f6 100%);
+}
+
+.toro-badge {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  display: inline-block;
+  border-radius: 9999px;
+  margin-bottom: 1rem;
+}
+
+.toro-eyebrow {
+  color: #0369a1;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+}
+
+.toro-title {
+  margin: 0 0 1rem;
+  font-size: 1.875rem;
+  line-height: 1.2;
+  font-weight: 800;
+  color: #0c4a6e;
+}
+
+.toro-sub {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+.toro-bullets {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.toro-bullets li {
+  color: var(--text-secondary);
+  margin: 0.75rem 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Enhanced pagination */
+.pagination {
+  position: sticky;
+  bottom: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-lg);
+  padding: 1rem;
+  text-align: center;
+  margin: 2rem 0;
+  box-shadow: var(--shadow-lg);
+}
+
+.page-info {
+  display: inline-block;
+  margin: 0 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1rem;
+}
 
 /* Scroll target styling */
 .results-anchor {
   position: relative;
-  top: -80px;
+  top: -100px;
   visibility: hidden;
+}
+
+/* Empty card placeholder */
+.empty-card {
+  height: 0.1px;
+  margin-bottom: 1.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .app-header h1 {
+    font-size: 2.5rem;
+  }
+  
+  .app-header p {
+    font-size: 1.125rem;
+  }
+  
+  .filters-card {
+    padding: 1rem;
+  }
+  
+  .tool-card {
+    padding: 1.25rem;
+  }
+  
+  .toro-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Dark theme support */
+[data-theme="dark"] {
+  --primary-bg: #0f172a;
+  --card-bg: #1e293b;
+  --surface-bg: #334155;
+  --border-light: #475569;
+  --border-medium: #64748b;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+}
+
+[data-theme="dark"] .stButton > button {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+[data-theme="dark"] .stButton > button:hover {
+  background: var(--surface-bg);
+  border-color: var(--accent-primary);
 }
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------
-# Header
+# Enhanced Header
 # ---------------------------
 st.markdown("""
 <div class="app-header">
   <h1>🤖 TORO</h1>
-  <p>Discover and explore AI tools by category and pricing. Launch quickly or preview inline when embeddable.</p>
+  <p>Discover and explore the best AI tools with intelligent filtering and instant previews</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ---------------------------
-# About
+# Enhanced About section
 # ---------------------------
 st.markdown("""
 <div class="about-card">
-  <h2>Welcome to 🤖 TORO</h2>
-  <p>TORO helps to <strong>discover and explore AI tools</strong> with ease.
-  Use categories and pricing filters, browse cards, preview embeddable sites, and launch in one click.</p>
+  <h2>✨ Welcome to TORO</h2>
+  <p>Your ultimate destination to <strong>discover, explore, and launch AI tools</strong> effortlessly. 
+  Filter by categories and pricing, browse beautiful cards, preview embeddable sites, and launch tools in one click.</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ---------------------------
-# Filters bar
+# Enhanced Filters bar
 # ---------------------------
 st.markdown('<div class="filters-card">', unsafe_allow_html=True)
 
 rail_col, main_col = st.columns([3.0, 9.0], gap="large")
 
 with rail_col:
-    st.markdown("Categories")
+    st.markdown('<div class="section-label">📂 Categories</div>', unsafe_allow_html=True)
     cat_options = ["All"] + CATEGORIES
     current_cat = st.session_state.filter_category
     for c in cat_options:
@@ -228,24 +690,24 @@ with main_col:
     top_l, top_m, top_r = st.columns([3.8, 4.4, 3.8], gap="large")
 
     with top_l:
-        st.markdown("Search")
+        st.markdown('<div class="section-label">🔍 Search</div>', unsafe_allow_html=True)
         def on_search_change():
             reset_page()
             request_scroll()
         st.text_input(
             "",
-            placeholder="Search by name, tags, or description",
+            placeholder="Search by name, tags, or description...",
             key="filter_search",
             on_change=on_search_change,
             label_visibility="collapsed",
         )
-        if st.button("🗑️ Clear filters", use_container_width=True):
+        if st.button("🗑️ Clear all filters", use_container_width=True):
             st.session_state.clear_flag = True
             request_scroll()
             st.rerun()
 
     with top_m:
-        st.markdown("Pricing")
+        st.markdown('<div class="section-label">💳 Pricing</div>', unsafe_allow_html=True)
         def on_plan_change():
             reset_page()
             request_scroll()
@@ -258,20 +720,20 @@ with main_col:
             on_change=on_plan_change,
             label_visibility="collapsed",
         )
-        st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")
+        st.toggle("🖼️ Show embeddable previews", value=st.session_state.show_previews, key="show_previews")
 
         st.markdown(
             """
             <div class="toro-card big">
-              <div class="toro-badge">Why TORO?</div>
-              <div class="toro-eyebrow">Faster discovery</div>
-              <h3 class="toro-title">Find the right AI tool in minutes</h3>
-              <p class="toro-sub">Browse by category, pricing, tags, and inline previews—optimized for quick decision‑making.</p>
+              <div class="toro-badge">✨ Why TORO?</div>
+              <div class="toro-eyebrow">Faster Discovery</div>
+              <h3 class="toro-title">Find the perfect AI tool in minutes</h3>
+              <p class="toro-sub">Browse intelligently with advanced filters, stunning previews, and seamless navigation—designed for lightning-fast decision‑making.</p>
               <ul class="toro-bullets">
-                <li>Curated categories and pricing filters make discovery effortless.</li>
-                <li>Card previews surface logos, blurbs, tags, and quick actions.</li>
-                <li>Inline <em>Embeddable preview</em> to test tools without leaving TORO.</li>
-                <li>Clean pagination keeps browsing smooth at 12 tools per page.</li>
+                <li>🎯 <strong>Smart Filtering:</strong> Category and pricing filters make discovery effortless</li>
+                <li>🎨 <strong>Beautiful Cards:</strong> Rich previews with logos, descriptions, and interactive tags</li>
+                <li>👁️ <strong>Instant Previews:</strong> Test embeddable tools without leaving TORO</li>
+                <li>⚡ <strong>Smooth Navigation:</strong> Clean pagination with 12 tools per page for optimal browsing</li>
               </ul>
             </div>
             """,
@@ -282,14 +744,42 @@ with main_col:
         st.markdown(
             """
             <div class="picks-card">
-              <h3 class="picks-title">Editor's picks</h3>
-              <div class="pick-item"><span class="k">Best general assistant</span><br/><span class="v">ChatGPT</span><span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span></div>
-              <div class="pick-item"><span class="k">Best image generation</span><br/><span class="v">Gemini</span><span class="note">Strong multimodal grounding with solid text‑image prompting and safety features.</span></div>
-              <div class="pick-item"><span class="k">Best video generation</span><br/><span class="v">Runway</span><span class="note">Reliable editing + generation workflow for creators and marketers.</span></div>
-              <div class="pick-item"><span class="k">Best meeting assistant</span><br/><span class="v">Otter</span><span class="note">Live transcription and searchable summaries for teams.</span></div>
-              <div class="pick-item"><span class="k">Best automation</span><br/><span class="v">Zapier</span><span class="note">Connect favorite apps and orchestrate AI workflows without code.</span></div>
-              <div class="pick-item"><span class="k">Best research</span><br/><span class="v">Perplexity</span><span class="note">Answer engine with citations for quick discovery.</span></div>
-              <div class="pick-item"><span class="k">Best writing</span><br/><span class="v">Grammarly</span><span class="note">Clean rewrites, tone control, and grammar fixes.</span></div>
+              <h3 class="picks-title">🏆 Editor's Choice</h3>
+              <div class="pick-item">
+                <span class="k">Best General Assistant</span>
+                <span class="v">ChatGPT</span>
+                <span class="note">Leading conversational AI with broad capabilities for writing, coding, analysis, and creative tasks</span>
+              </div>
+              <div class="pick-item">
+                <span class="k">Best Image Generation</span>
+                <span class="v">Midjourney</span>
+                <span class="note">Premium AI art generator known for stunning, high-quality visual creations and artistic styles</span>
+              </div>
+              <div class="pick-item">
+                <span class="k">Best Video Creation</span>
+                <span class="v">Runway ML</span>
+                <span class="note">Professional video editing and generation platform with cutting-edge AI capabilities</span>
+              </div>
+              <div class="pick-item">
+                <span class="k">Best Meeting Assistant</span>
+                <span class="v">Otter.ai</span>
+                <span class="note">Intelligent transcription service with real-time collaboration and searchable meeting notes</span>
+              </div>
+              <div class="pick-item">
+                <span class="k">Best Automation</span>
+                <span class="v">Zapier</span>
+                <span class="note">Connect 5000+ apps and automate workflows without coding, powered by AI integrations</span>
+              </div>
+              <div class="pick-item">
+                <span class="k">Best Research Tool</span>
+                <span class="v">Perplexity AI</span>
+                <span class="note">AI-powered search engine providing accurate answers with real-time citations and sources</span>
+              </div>
+              <div class="pick-item">
+                <span class="k">Best Writing Assistant</span>
+                <span class="v">Grammarly</span>
+                <span class="note">Advanced writing enhancement with grammar checking, tone suggestions, and style improvements</span>
+              </div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -298,13 +788,13 @@ with main_col:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# Results anchor (improved for scrolling)
+# Results anchor with smooth scrolling
 # ---------------------------
 st.markdown('<div class="results-anchor" id="results-section"></div>', unsafe_allow_html=True)
-st.header("Results", anchor="results")
+st.header("🎯 Results", anchor="results")
 
 # ---------------------------
-# Data and pagination
+# Data and pagination logic
 # ---------------------------
 filtered_tools = filter_tools(TOOLS)
 total_tools = len(filtered_tools)
@@ -314,10 +804,9 @@ if st.session_state.current_page > total_pages:
     st.session_state.current_page = total_pages
 
 # ---------------------------
-# Trigger scroll via JavaScript injection
+# Enhanced scroll trigger with JavaScript
 # ---------------------------
 if st.session_state.scroll_ticket > st.session_state.last_scrolled_ticket:
-    # Use JavaScript to scroll to the results section
     st.markdown("""
     <script>
         setTimeout(function() {
@@ -325,93 +814,175 @@ if st.session_state.scroll_ticket > st.session_state.last_scrolled_ticket:
                            document.querySelector('[data-testid="stHeader"]') ||
                            document.querySelector('h1[id*="results"]');
             if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                element.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start',
+                    inline: 'nearest'
+                });
             }
-        }, 100);
+        }, 150);
     </script>
     """, unsafe_allow_html=True)
     st.session_state.last_scrolled_ticket = st.session_state.scroll_ticket
 
 # ---------------------------
-# Top pagination
+# Enhanced pagination
 # ---------------------------
 if total_tools == 0:
-    st.info("No tools found. Try broadening search or clearing filters.")
+    st.info("🔍 No tools found matching your criteria. Try broadening your search or clearing filters to see more results.")
 else:
     st.markdown('<div class="pagination">', unsafe_allow_html=True)
     p1, p2, p3 = st.columns([1, 2, 1], gap="large")
     with p1:
-        if st.button("⬅ Prev", key="prev_top") and st.session_state.current_page > 1:
+        if st.button("⬅️ Previous", key="prev_top") and st.session_state.current_page > 1:
             st.session_state.current_page -= 1
             request_scroll()
             st.rerun()
     with p2:
         st.markdown(
-            f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>',
+            f'<div class="page-info">📄 Page {st.session_state.current_page} of {total_pages} • {total_tools} tools found</div>',
             unsafe_allow_html=True,
         )
     with p3:
-        if st.button("Next ➡", key="next_top") and st.session_state.current_page < total_pages:
+        if st.button("Next ➡️", key="next_top") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
             request_scroll()
             st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
     # ---------------------------
-    # Results grid
+    # Enhanced results grid
     # ---------------------------
     start = (st.session_state.current_page - 1) * per_page
     end = min(start + per_page, total_tools)
     page_tools = filtered_tools[start:end]
 
+    # Display tools in a beautiful grid layout
     for i in range(0, max(len(page_tools), 3), 3):
         row_tools = page_tools[i:i+3]
         cols = st.columns(3, gap="large")
         while len(row_tools) < 3:
             row_tools.append(None)
+        
         for col, tool in zip(cols, row_tools):
             with col:
                 if tool is None:
                     st.markdown('<div class="empty-card"></div>', unsafe_allow_html=True)
                     continue
 
+                # Extract tool information
                 logo = safe_str(tool.get("logo", ""))
-                name = safe_str(tool.get("name", "Unknown"))
-                blurb = safe_str(tool.get("blurb", ""))
-                meta = safe_str(tool.get('category',''))
-                plan = safe_str(tool.get("plan", ""))
-                tags = tool.get("tags", [])[:4]
+                name = safe_str(tool.get("name", "Unknown Tool"))
+                blurb = safe_str(tool.get("blurb", "No description available"))
+                category = safe_str(tool.get('category', 'Uncategorized'))
+                plan = safe_str(tool.get("plan", "Unknown"))
+                tags = tool.get("tags", [])[:4]  # Limit to 4 tags for clean layout
                 link = safe_str(tool.get("link", "#"))
-                emb = bool(tool.get("embeddable", False))
+                embeddable = bool(tool.get("embeddable", False))
 
+                # Render enhanced tool card
                 st.markdown(f"""
                 <div class="tool-card">
-                  <div style="display:flex; gap:12px; align-items:center; margin-bottom:8px;">
-                    <img src="{logo}" alt="logo" style="width:44px; height:44px; object-fit:cover; border-radius:10px; border:1px solid #E5E7EB;" onerror="this.style.display='none'"/>
-                    <div style="flex:1;">
+                  <div style="display:flex; gap:1rem; align-items:flex-start; margin-bottom:1rem;">
+                    <div style="flex-shrink:0;">
+                      <img 
+                        src="{logo}" 
+                        alt="{name} logo" 
+                        style="width:56px; height:56px; object-fit:cover; border-radius:12px; border:2px solid var(--border-light); box-shadow:var(--shadow-sm);" 
+                        onerror="this.style.display='none'"
+                      />
+                    </div>
+                    <div style="flex:1; min-width:0;">
                       <h3>{name}</h3>
                       <div class="meta-row">
-                        <span class="badge">🗂 {meta}</span>
-                        <span class="badge plan">💳 {plan}</span>
+                        <span class="badge category">📁 {category}</span>
+                        <span class="badge plan">💰 {plan}</span>
+                        {f'<span class="badge" style="background:linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%); color:#065f46; border-color:#10b981;">🧩 Embeddable</span>' if embeddable else ''}
                       </div>
                     </div>
                   </div>
+                  
                   <p>{blurb}</p>
-                  <div style="margin-top:6px;">{"".join([f'<span class="tag">#{t}</span>' for t in tags])}</div>
-                  <div style="margin-top:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                    <a class="link-btn" href="{link}" target="_blank" rel="noreferrer noopener">🚀 Launch</a>
-                    <a class="soft-btn" href="{link}" target="_blank" rel="nofollow noopener" style="text-decoration:none;">🔗 Visit</a>
-                    {"<span class='badge'>🧩 Embeddable</span>" if emb else ""}
+                  
+                  <div style="margin:1rem 0;">
+                    {"".join([f'<span class="tag">#{tag}</span>' for tag in tags])}
+                  </div>
+                  
+                  <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-top:1.5rem;">
+                    <a class="link-btn" href="{link}" target="_blank" rel="noreferrer noopener">
+                      🚀 Launch Tool
+                    </a>
+                    <a class="soft-btn" href="{link}" target="_blank" rel="nofollow noopener" style="text-decoration:none;">
+                      🔗 Visit Site
+                    </a>
                   </div>
                 </div>
                 """, unsafe_allow_html=True)
 
-                if emb and st.session_state.show_previews:
+                # Show embeddable preview if enabled
+                if embeddable and st.session_state.show_previews:
+                    st.markdown('<div style="margin-top:1rem; border-radius:12px; overflow:hidden; box-shadow:var(--shadow-lg);">', unsafe_allow_html=True)
                     st.components.v1.iframe(link, height=520, scrolling=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ---------------------------
+    # Bottom pagination
+    # ---------------------------
+    st.markdown('<div class="pagination">', unsafe_allow_html=True)
+    p1, p2, p3 = st.columns([1, 2, 1], gap="large")
+    with p1:
+        if st.button("⬅️ Previous", key="prev_bottom") and st.session_state.current_page > 1:
+            st.session_state.current_page -= 1
+            request_scroll()
+            st.rerun()
+    with p2:
+        st.markdown(
+            f'<div class="page-info">📄 Page {st.session_state.current_page} of {total_pages} • {total_tools} tools found</div>',
+            unsafe_allow_html=True,
+        )
+    with p3:
+        if st.button("Next ➡️", key="next_bottom") and st.session_state.current_page < total_pages:
+            st.session_state.current_page += 1
+            request_scroll()
+            st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# Footer
+# Enhanced Footer
 # ---------------------------
+st.markdown('<div style="margin-top:4rem;"></div>', unsafe_allow_html=True)
 st.divider()
-st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
-st.caption("✨ Made with ❤️ by Girish Joshi in INDIA • TORO - Find the perfect AI tool for every use case")
+
+# Footer content
+footer_col1, footer_col2 = st.columns([2, 1], gap="large")
+
+with footer_col1:
+    st.markdown("""
+    <div style="padding:1rem 0;">
+        <h4 style="margin:0 0 0.5rem; color:var(--text-primary); font-weight:700;">🎓 More Resources</h4>
+        <p style="margin:0; color:var(--text-secondary); font-size:0.95rem;">
+            Discover additional free tools and resources designed specifically for students and learners.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+with footer_col2:
+    st.link_button(
+        "🧰 Student Tools Collection", 
+        "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", 
+        type="primary", 
+        use_container_width=True
+    )
+
+# Copyright and credits
+st.markdown("""
+<div style="text-align:center; padding:2rem 0 1rem; border-top:1px solid var(--border-light); margin-top:2rem;">
+    <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">
+        ✨ <strong>TORO</strong> - Your AI Tools Discovery Platform<br/>
+        Made with ❤️ by <strong>Girish Joshi</strong> in India 🇮🇳
+    </p>
+    <p style="margin:0.5rem 0 0; color:var(--text-muted); font-size:0.8rem; opacity:0.8;">
+        Find the perfect AI tool for every use case • Updated daily with the latest innovations
+    </p>
+</div>
+""", unsafe_allow_html=True)
