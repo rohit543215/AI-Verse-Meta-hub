@@ -1,3 +1,4 @@
+import time
 import streamlit as st
 import streamlit.components.v1 as components
 from tools import TOOLS, CATEGORIES
@@ -22,8 +23,7 @@ defaults = {
     "current_page": 1,
     "clear_flag": False,
     "show_previews": False,
-    # scroll intent flag
-    "scroll_to_results": False,
+    "scroll_to_results": False,  # unified scroll intent
 }
 for k, v in defaults.items():
     if k not in st.session_state:
@@ -37,7 +37,6 @@ if st.session_state.clear_flag:
     st.session_state.current_page = 1
     st.session_state.show_previews = False
     st.session_state.clear_flag = False
-    # request scroll after rerun so results anchor is present
     st.session_state.scroll_to_results = True
     st.rerun()
 
@@ -72,23 +71,39 @@ def filter_tools(tools):
     return filtered
 
 def trigger_scroll(anchor_id="results-anchor"):
-    # Ensure target exists in DOM, then set the parent hash from a 0-height child component
-    st.markdown(f'<div id="{anchor_id}"></div>', unsafe_allow_html=True)
+    # Injects a script in a zero-height iframe that scrolls the PARENT document
+    # to the anchor element once it exists; uses smooth behavior and retries briefly.
+    # Using parent.document.getElementById avoids hash and history quirks.
     components.html(
         f"""
         <script>
-          try {{
-            // Use replaceState pattern to avoid polluting history, then set hash
-            if (window.parent && window.parent.history && window.parent.history.replaceState) {{
-              window.parent.history.replaceState(null, document.title, "#{anchor_id}");
-            }} else {{
-              window.parent.location.hash = "#{anchor_id}";
+          (function() {{
+            const anchorId = "{anchor_id}";
+            let tries = 0;
+            function go() {{
+              try {{
+                const doc = window.parent && window.parent.document ? window.parent.document : null;
+                if (!doc) return;
+                const el = doc.getElementById(anchorId);
+                if (el) {{
+                  el.scrollIntoView({{behavior: 'smooth', block: 'start', inline: 'nearest'}});
+                }} else if (tries < 20) {{
+                  tries++;
+                  setTimeout(go, 25);
+                }}
+              }} catch (e) {{
+                // Swallow cross-origin or timing errors
+              }}
             }}
-          }} catch (e) {{}}
+            // Defer slightly to let Streamlit finish layout
+            setTimeout(go, 10);
+          }})();
         </script>
         """,
         height=0,
     )
+    # Also render a small marker so the anchor definitely exists in layout nearby
+    st.markdown(f'<div id="{anchor_id}" style="height:1px;"></div>', unsafe_allow_html=True)
 
 # ---------------------------
 # CSS
@@ -113,7 +128,7 @@ html, body, .stApp { background:var(--bg); color:var(--text); font-family:Inter,
 .tag { display:inline-block; background:#EEF2FF; color:#4338CA; padding:5px 10px; border-radius:999px; margin-right:6px; margin-top:6px; font-size:0.76rem; font-weight:700; border:1px solid #E0E7FF; }
 
 .link-btn { display:inline-block; background:linear-gradient(180deg,#2563EB,#1D4ED8); color:#fff !important; padding:9px 12px; border-radius:10px; text-decoration:none; font-weight:700; border:0; box-shadow:0 8px 20px rgba(29,78,216,0.25); }
-.soft-btn { display:inline-block; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:#F8FAFC; color:var(--text); font-weight:700; }
+.soft-btn { display:inline-block; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:#F8FAFC; color:#var(--text); font-weight:700; }
 .link-btn:hover { filter:brightness(1.07); }
 .soft-btn:hover { border-color:var(--ring); }
 
@@ -178,7 +193,6 @@ with rail_col:
             if c != current_cat:
                 st.session_state.filter_category = c
                 st.session_state.current_page = 1
-                # request scroll for next render
                 st.session_state.scroll_to_results = True
                 st.rerun()
 
@@ -301,8 +315,8 @@ st.markdown("</div>", unsafe_allow_html=True)
 # ---------------------------
 # Anchor for results jump
 # ---------------------------
-# Native header anchors tend to be more reliable; but keep explicit <a> for compatibility.
-st.markdown('<a id="results-anchor"></a>', unsafe_allow_html=True)
+# Keep a reliable, explicit anchor element close to the results.
+st.markdown('<div id="results-anchor" style="height:1px;"></div>', unsafe_allow_html=True)
 
 # ---------------------------
 # Data and pagination
@@ -314,7 +328,7 @@ total_pages = (total_tools - 1) // per_page + 1 if total_tools > 0 else 1
 if st.session_state.current_page > total_pages:
     st.session_state.current_page = total_pages
 
-# If a scroll was requested (from category, plan, search, or clear), trigger it now.
+# If a scroll was requested (from category, plan, search, clear, or pagination), trigger it now.
 if st.session_state.get("scroll_to_results", False):
     trigger_scroll("results-anchor")
     st.session_state.scroll_to_results = False
