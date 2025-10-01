@@ -610,7 +610,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------
-# Chatbot Section with caching for fast embedding
+# Chatbot Section optimized with caching
 # ---------------------------
 def load_knowledge():
     knowledge = []
@@ -630,17 +630,19 @@ KNOWLEDGE = load_knowledge()
 def load_model():
     return SentenceTransformer('all-MiniLM-L6-v2')
 
-@st.cache_resource
-def embed_knowledge(knowledge_list, model):
-    return model.encode(knowledge_list, convert_to_tensor=True)
-
 model = load_model()
-knowledge_embeddings = embed_knowledge(KNOWLEDGE, model)
+
+@st.cache_resource
+def embed_knowledge():
+    return model.encode(KNOWLEDGE, convert_to_tensor=True)
+
+knowledge_embeddings = embed_knowledge()
 
 st.markdown("<hr>", unsafe_allow_html=True)
 st.header("Ask TORO Chatbot")
 
 query = st.text_input("Your question")
+
 if st.button("Ask") and query.strip():
     query_emb = model.encode([query], convert_to_tensor=True)
     sims = cosine_similarity(query_emb.cpu().numpy(), knowledge_embeddings.cpu().numpy())[0]
@@ -710,8 +712,7 @@ with main_col:
         st.checkbox("Embeddable preview", value=st.session_state.show_previews, key="show_previews")
 
     with top_r:
-        st.markdown(
-            """
+        st.markdown("""
             <div class="picks-card">
               <h3 class="picks-title">Editor's picks</h3>
               <div class="pick-item"><span class="k">Best general assistant</span><br/><span class="v">ChatGPT</span><span class="note">Great all‑rounder for Q&A, coding help, and writing; broad plugin and ecosystem support.</span></div>
@@ -722,9 +723,7 @@ with main_col:
               <div class="pick-item"><span class="k">Best research</span><br/><span class="v">Perplexity</span><span class="note">Answer engine with citations for quick discovery.</span></div>
               <div class="pick-item"><span class="k">Best writing</span><br/><span class="v">Grammarly</span><span class="note">Clean rewrites, tone control, and grammar fixes.</span></div>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
+            """, unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
