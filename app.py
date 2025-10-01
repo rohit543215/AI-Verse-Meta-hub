@@ -2,9 +2,8 @@ import streamlit as st
 from tools import TOOLS, CATEGORIES
 import os
 from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
+import torch
 import numpy as np
-
 
 # ---------------------------
 # Page config
@@ -677,11 +676,6 @@ st.markdown("""
 # ---------------------------
 # Added Chatbot Section here
 # ---------------------------
-import os
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-
 def load_knowledge():
     knowledge = []
     data_folder = "data"
@@ -709,9 +703,10 @@ st.header("Ask TORO Chatbot")
 query = st.text_input("Your question")
 if st.button("Ask") and query.strip():
     query_emb = model.encode([query], convert_to_tensor=True)
-    similarities = cosine_similarity(query_emb.cpu(), knowledge_embeddings.cpu())[0]
-    best_idx = np.argmax(similarities)
-    best_score = similarities[best_idx]
+    # Use torch cosine similarity for faster response
+    similarities = torch.nn.functional.cosine_similarity(query_emb, knowledge_embeddings)
+    best_idx = torch.argmax(similarities).item()
+    best_score = similarities[best_idx].item()
     if best_score > 0.5:
         response = KNOWLEDGE[best_idx]
     else:
