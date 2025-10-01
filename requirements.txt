@@ -4,4 +4,7 @@ uvicorn
 jinja2
 markdown
 sentence-transformers
+transformers
+scikit-learn
+
 
