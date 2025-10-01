@@ -677,6 +677,11 @@ st.markdown("""
 # ---------------------------
 # Added Chatbot Section here
 # ---------------------------
+import os
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+
 def load_knowledge():
     knowledge = []
     data_folder = "data"
@@ -701,14 +706,8 @@ knowledge_embeddings = model.encode(KNOWLEDGE, convert_to_tensor=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 st.header("Ask TORO Chatbot")
 
-# Initialize chat query in session state
-if "chat_query" not in st.session_state:
-    st.session_state.chat_query = ""
-
-query = st.text_input("Your question", value=st.session_state.chat_query, key="chat_input")
-
-# Check if Enter was pressed (query changed and not empty) or Ask button clicked
-if (st.button("Ask") or (query.strip() and query != st.session_state.chat_query)) and query.strip():
+query = st.text_input("Your question")
+if st.button("Ask") and query.strip():
     query_emb = model.encode([query], convert_to_tensor=True)
     similarities = cosine_similarity(query_emb.cpu(), knowledge_embeddings.cpu())[0]
     best_idx = np.argmax(similarities)
@@ -718,10 +717,6 @@ if (st.button("Ask") or (query.strip() and query != st.session_state.chat_query)
     else:
         response = "I don't know that yet. Try asking about TORO or AI tools."
     st.markdown(f"**Answer:** {response}")
-    
-    # Clear the query after showing results
-    st.session_state.chat_query = ""
-    st.rerun()
 
 # ---------------------------
 # Filters bar
