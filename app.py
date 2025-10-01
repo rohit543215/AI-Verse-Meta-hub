@@ -698,7 +698,7 @@ KNOWLEDGE = load_knowledge()
 
 @st.cache_resource
 def load_model():
-    return SentenceTransformer('all-MiniLM-L6-v2')
+    return SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
 
 model = load_model()
 knowledge_embeddings = model.encode(KNOWLEDGE, convert_to_tensor=True)
@@ -900,3 +900,4 @@ else:
 st.divider()
 st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
 st.caption("✨ Made with ❤️ by Girish Joshi in INDIA • TORO - Find the perfect AI tool for every use case")
+
