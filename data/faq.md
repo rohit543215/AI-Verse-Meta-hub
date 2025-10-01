@@ -310,3 +310,188 @@ A: Subscribe to TORO's newsletters or follow their official communication channe
 
 **Q: How can I suggest improvements for TORO?**  
 A: TORO welcomes user feedback via their contact or feedback forms available on the platform.
+
+# AI Chatbots FAQ - TORO
+
+**Q: ChatGPT**  
+A: ChatGPT is a versatile and widely-used AI chatbot developed by OpenAI. It delivers general-purpose assistance including conversation, coding help, and content creation. ChatGPT offers a free tier with usage limits, as well as paid subscription plans for enhanced access.
+
+**Q: Claude**  
+A: Claude is an AI chatbot by Anthropic designed for safe and accurate reasoning. It offers both free access and paid subscription plans with expanded capabilities.
+
+**Q: DeepSeek**  
+A: DeepSeek provides large language model-driven chatbot features with free and paid plans.
+
+**Q: Gemini**  
+A: Gemini is a multimodal AI chatbot by Google with strength in image generation and general conversation. Gemini is available as both free with usages limits and premium paid plans.
+
+**Q: Grok**  
+A: Grok is a real-time AI chatbot by xAI focusing on live knowledge and is a paid-only service.
+
+**Q: Meta AI**  
+A: Meta AI chatbot provides conversational AI capabilities and is fully free to use.
+
+**Q: MS Copilot**  
+A: Microsoft Copilot integrates AI assistance into Bing and Microsoft apps, accessible via free and paid plans.
+
+**Q: Perplexity**  
+A: Perplexity AI is an answer engine chatbot providing citations and research support, with free and paid options.
+
+**Q: AskCodi**  
+A: AskCodi offers AI-powered coding assistance including code generation and documentation, with free and premium plans.
+
+**Q: GitHub Copilot**  
+A: GitHub Copilot serves as an AI pair programmer, requiring a paid subscription.
+
+**Q: Jasper**  
+A: Jasper is an AI writing assistant tailored for content creation, available on paid plans.
+
+**Q: Grammarly**  
+A: Grammarly offers AI-powered grammar checking and writing assistance, with free basic services and premium subscriptions.
+
+**Q: QuillBot**  
+A: QuillBot helps with paraphrasing and grammar correction, providing free tier and paid plans.
+
+**Q: Rytr**  
+A: Rytr is an AI copywriter offering limited free usage and paid subscription plans.
+
+**Q: Sudowrite**  
+A: Sudowrite is specialized AI creative writing software available as a paid service.
+
+**Q: Writesonic**  
+A: Writesonic provides AI-generated content including marketing copy with free trials and paid plans.
+
+**Q: Replika**  
+A: Replika is an AI companion chatbot, offering free and paid enhancements.
+
+**Q: ChatSonic**  
+A: ChatSonic is a conversational AI platform offering real-time, up-to-date answers, available via subscription.
+
+**Q: Rose**  
+A: Rose AI is designed for conversational tasks, with free access and premium options.
+
+**Q: Cleverbot**  
+A: Cleverbot is a classic conversational AI chatbot, accessible with limited free features and premium versions.
+
+
+**Q: Chatbot.com**  
+A: Chatbot.com offers AI chatbot solutions mainly for business customer support with subscription plans.
+
+**Q: Dialogflow**  
+A: Dialogflow from Google is a cloud-based AI conversation platform with free and paid tiers.
+
+**Q: IBM Watson Assistant**  
+A: IBM Watson Assistant provides enterprise-grade AI chatbot solutions. Pricing varies with usage and plans.
+
+**Q: Landbot**  
+A: Landbot offers conversational AI for lead generation and support, with free and subscription plans.
+
+**Q: ManyChat**  
+A: ManyChat is a chatbot platform for marketing and sales, featuring free and paid versions.
+
+**Q: MobileMonkey**  
+A: MobileMonkey provides chatbot building for marketing with freemium pricing.
+
+**Q: Pandorabots**  
+A: Pandorabots allows building custom AIML chatbots, with free and paid hosting plans.
+
+**Q: Rasa**  
+A: Rasa is an open-source chatbot development framework, free to use with paid enterprise options.
+
+**Q: Tidio**  
+A: Tidio offers live chat and chatbot combined tools with free limited plans and paid tiers.
+
+**Q: Wit.ai**  
+A: Wit.ai is a free NLP service by Facebook for chatbot development.
+
+**Q: Flow XO**  
+A: Flow XO provides chatbot and automation tools with freemium and subscription pricing.
+
+**Q: Freshchat**  
+A: Freshchat is a customer messaging platform with AI chatbots, available with free and paid plans.
+
+**Q: Drift**  
+A: Drift focuses on conversational marketing chatbots, offered through subscription packages.
+
+**Q: Intercom**  
+A: Intercom is a customer communication platform with AI chatbots, pricing varies by plan.
+
+**Q: Ada**  
+A: Ada specializes in automated customer support chatbots, with paid enterprise solutions.
+
+**Q: Bold360**  
+A: Bold360 offers AI chatbots for customer engagement with subscription pricing.
+
+**Q: Botsify**  
+A: Botsify provides chatbot builder tools for businesses, with free trials and paid plans.
+
+**Q: Chatfuel**  
+A: Chatfuel is a Facebook Messenger chatbot platform with free and paid tiers.
+
+**Q: Crisp**  
+A: Crisp offers customer messaging with AI chatbots, including free and premium options.
+
+**Q: Sequel**  
+A: Sequel offers chatbot creation tools primarily for entertainment and customer engagement, with free and premium models.
+
+**Q: SnatchBot**  
+A: SnatchBot is a multi-channel chatbot builder, providing free basic use and paid services.
+
+**Q: Verloop**  
+A: Verloop automates customer support with AI chatbots, offering paid plans.
+
+**Q: Zoho SalesIQ**  
+A: Zoho SalesIQ includes AI chatbot functionalities integrated with Zoho CRM, with free and paid options.
+
+**Q: Kuki AI**  
+A: Kuki AI is a conversational chatbot with free availability and premium content.
+
+**Q: Mitsuku**  
+A: Mitsuku is a multi-award-winning chatbot accessible freely for casual conversation.
+
+**Q: Replika**  
+A: Replika AI offers personal chatbot companionship with free basic access and paid enhancements.
+
+**Q: Cleverbot**  
+A: Cleverbot is a conversational AI platform offering limited free usage and paid subscriptions.
+
+**Q: Woebot**  
+A: Woebot delivers AI mental health chat support, available with free and premium models.
+
+**Q: YouChat**  
+A: YouChat is an AI conversational assistant integrated with search, with free access.
+
+**Q: Jasper Chat**  
+A: Jasper Chat is an AI writing assistant chatbot within Jasper.ai platform, requiring paid subscription.
+
+**Q: Bard**  
+A: Bard is Google's experimental conversational AI with free public access in early availability.
+
+**Q: Perplexity AI**  
+A: Perplexity offers chatbot answer engine with ability to cite sources, providing free and subscription tiers.
+
+**Q: Bing Chat**  
+A: Bing Chat is Microsoft’s AI-powered search chatbot available generally for free.
+
+**Q: HuggingChat**  
+A: HuggingChat is an open-source chatbot by Hugging Face providing free usage.
+
+**Q: AI Dungeon**  
+A: AI Dungeon enables AI-powered interactive storytelling with free and paid plans.
+
+**Q: Character.AI**  
+A: Character.AI allows users to interact with AI-generated characters, available free with optional paid features.
+
+**Q: ChatBot.com**  
+A: ChatBot.com delivers AI chat solutions for sales and support with subscription pricing.
+
+**Q: Driftbot**  
+A: Driftbot is Drift’s AI chatbot platform mainly for marketing and sales, offered via paid plans.
+
+**Q: Vue.ai**  
+A: Vue.ai combines AI chat with retail and ecommerce support, with enterprise-level pricing.
+
+
+
+
+
