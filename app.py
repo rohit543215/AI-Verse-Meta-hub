@@ -5,7 +5,6 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
-
 # ---------------------------
 # Page config
 # ---------------------------
@@ -15,7 +14,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
-
 
 # ---------------------------
 # Initialize state early
@@ -34,21 +32,17 @@ for k, v in defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
-
 # ---------------------------
 # Helpers
 # ---------------------------
 def request_scroll():
     st.session_state.scroll_ticket += 1
 
-
 def reset_page():
     st.session_state.current_page = 1
 
-
 def safe_str(x):
     return x if isinstance(x, str) else ""
-
 
 def filter_tools(tools):
     category = st.session_state.filter_category
@@ -71,7 +65,6 @@ def filter_tools(tools):
         filtered.append(tool)
     return filtered
 
-
 # ---------------------------
 # Early clear path
 # ---------------------------
@@ -85,14 +78,12 @@ if st.session_state.clear_flag:
     request_scroll()
     st.rerun()
 
-
 # ---------------------------
 # Enhanced CSS with modern design
 # ---------------------------
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-
 
 :root {
     /* Light theme colors */
@@ -110,19 +101,16 @@ st.markdown("""
     --ring: rgba(102, 126, 234, 0.4);
 }
 
-
 /* Global styles */
 .stApp {
     background: var(--bg);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-
 .main .block-container {
     padding-top: 2rem;
     max-width: 1400px;
 }
-
 
 /* Header styles */
 .app-header {
@@ -135,7 +123,6 @@ st.markdown("""
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-
 .app-header h1 {
     font-size: 3.5rem;
     font-weight: 900;
@@ -147,7 +134,6 @@ st.markdown("""
     text-shadow: none;
 }
 
-
 .app-header p {
     font-size: 1.2rem;
     color: rgba(255, 255, 255, 0.9);
@@ -155,7 +141,6 @@ st.markdown("""
     margin: 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 
 /* About section */
 .about-card {
@@ -168,7 +153,6 @@ st.markdown("""
     box-shadow: var(--shadow);
 }
 
-
 .about-card h2 {
     color: var(--text-primary);
     font-size: 1.8rem;
@@ -176,14 +160,12 @@ st.markdown("""
     margin: 0 0 1rem 0;
 }
 
-
 .about-card p {
     color: var(--text-secondary);
     font-size: 1.1rem;
     line-height: 1.6;
     margin: 0;
 }
-
 
 /* Filters section */
 .filters-card {
@@ -198,7 +180,6 @@ st.markdown("""
     margin-bottom: 2rem;
     box-shadow: var(--shadow);
 }
-
 
 /* Streamlit components styling */
 .stButton > button {
@@ -216,7 +197,6 @@ st.markdown("""
     overflow: hidden;
 }
 
-
 .stButton > button:before {
     content: '';
     position: absolute;
@@ -228,11 +208,9 @@ st.markdown("""
     transition: left 0.5s;
 }
 
-
 .stButton > button:hover:before {
     left: 100%;
 }
-
 
 .stButton > button:hover {
     transform: translateY(-2px);
@@ -242,11 +220,9 @@ st.markdown("""
     color: white;
 }
 
-
 .stButton > button:active {
     transform: translateY(0);
 }
-
 
 /* Text input styling */
 .stTextInput > div > div > input {
@@ -258,13 +234,11 @@ st.markdown("""
     transition: all 0.3s ease;
 }
 
-
 .stTextInput > div > div > input:focus {
     border-color: var(--ring);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     outline: none;
 }
-
 
 /* Selectbox styling */
 .stSelectbox > div > div > select {
@@ -275,13 +249,11 @@ st.markdown("""
     background: rgba(255, 255, 255, 0.9);
 }
 
-
 /* Toggle styling */
 .stCheckbox > label {
     font-weight: 600;
     color: var(--text-primary);
 }
-
 
 /* Tool cards */
 .tool-card {
@@ -297,7 +269,6 @@ st.markdown("""
     overflow: hidden;
 }
 
-
 .tool-card::before {
     content: '';
     position: absolute;
@@ -310,11 +281,9 @@ st.markdown("""
     transition: transform 0.3s ease;
 }
 
-
 .tool-card:hover::before {
     transform: scaleX(1);
 }
-
 
 .tool-card:hover {
     transform: translateY(-8px) scale(1.02);
@@ -322,7 +291,6 @@ st.markdown("""
     background: var(--card-hover);
     border-color: var(--ring);
 }
-
 
 .tool-card h3 {
     font-size: 1.3rem;
@@ -332,14 +300,12 @@ st.markdown("""
     line-height: 1.3;
 }
 
-
 .tool-card p {
     color: var(--text-secondary);
     font-size: 1rem;
     line-height: 1.6;
     margin: 0.5rem 0 1rem 0;
 }
-
 
 /* Badges and tags */
 .badge {
@@ -354,20 +320,17 @@ st.markdown("""
     transition: all 0.3s ease;
 }
 
-
 .badge:nth-of-type(1) {
     background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%);
     color: #0277bd;
     border-color: #81d4fa;
 }
 
-
 .badge.plan {
     background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
     color: #2e7d32;
     border-color: #a5d6a7;
 }
-
 
 .tag {
     display: inline-block;
@@ -382,12 +345,10 @@ st.markdown("""
     transition: all 0.3s ease;
 }
 
-
 .tag:hover {
     transform: scale(1.05);
     box-shadow: 0 2px 8px rgba(106, 27, 154, 0.3);
 }
-
 
 /* Buttons */
 .link-btn {
@@ -406,13 +367,11 @@ st.markdown("""
     border: none;
 }
 
-
 .link-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
     filter: brightness(1.1);
 }
-
 
 .soft-btn {
     display: inline-flex;
@@ -429,13 +388,11 @@ st.markdown("""
     transition: all 0.3s ease;
 }
 
-
 .soft-btn:hover {
     background: rgba(102, 126, 234, 0.2);
     border-color: rgba(102, 126, 234, 0.4);
     transform: translateY(-1px);
 }
-
 
 /* Pagination */
 .pagination {
@@ -451,7 +408,6 @@ st.markdown("""
     box-shadow: var(--shadow);
 }
 
-
 .page-info {
     display: inline-block;
     margin: 0 1rem;
@@ -459,7 +415,6 @@ st.markdown("""
     font-weight: 600;
     font-size: 1.1rem;
 }
-
 
 /* Editor's picks */
 .picks-card {
@@ -471,7 +426,6 @@ st.markdown("""
     box-shadow: var(--shadow);
 }
 
-
 .picks-title {
     font-size: 1.3rem;
     font-weight: 800;
@@ -482,7 +436,6 @@ st.markdown("""
     margin: 0 0 1rem 0;
 }
 
-
 .pick-item {
     margin-bottom: 1rem;
     padding: 0.75rem;
@@ -491,20 +444,17 @@ st.markdown("""
     border: 1px solid rgba(139, 92, 246, 0.2);
 }
 
-
 .pick-item .k {
     font-weight: 700;
     color: #7c3aed;
     font-size: 0.9rem;
 }
 
-
 .pick-item .v {
     font-weight: 800;
     color: #1a202c;
     font-size: 1.1rem;
 }
-
 
 .pick-item .note {
     color: #4a5568;
@@ -513,7 +463,6 @@ st.markdown("""
     margin-top: 0.25rem;
     line-height: 1.4;
 }
-
 
 /* Why TORO section */
 .toro-card.big {
@@ -524,7 +473,6 @@ st.markdown("""
     margin-top: 1rem;
     box-shadow: var(--shadow);
 }
-
 
 .toro-badge {
     background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
@@ -537,7 +485,6 @@ st.markdown("""
     box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
 }
 
-
 .toro-eyebrow {
     color: #93c5fd;
     font-weight: 900;
@@ -547,7 +494,6 @@ st.markdown("""
     margin: 1rem 0 0.5rem 0;
 }
 
-
 .toro-title {
     font-size: 2rem;
     font-weight: 900;
@@ -556,7 +502,6 @@ st.markdown("""
     line-height: 1.2;
 }
 
-
 .toro-sub {
     color: #d1d5db;
     font-size: 1.1rem;
@@ -564,12 +509,10 @@ st.markdown("""
     margin: 1rem 0;
 }
 
-
 .toro-bullets {
     margin: 1rem 0 0 0;
     padding-left: 1.5rem;
 }
-
 
 .toro-bullets li {
     color: #e5e7eb;
@@ -578,13 +521,11 @@ st.markdown("""
     line-height: 1.6;
 }
 
-
 /* Empty card */
 .empty-card {
     height: 1px;
     margin-bottom: 2rem;
 }
-
 
 /* Logo images */
 img {
@@ -593,12 +534,10 @@ img {
     transition: all 0.3s ease;
 }
 
-
 img:hover {
     border-color: var(--ring);
     transform: scale(1.05);
 }
-
 
 /* Results header */
 h1[data-testid="stHeader"] {
@@ -608,7 +547,6 @@ h1[data-testid="stHeader"] {
     -webkit-text-fill-color: transparent;
     font-weight: 800;
 }
-
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -629,12 +567,10 @@ h1[data-testid="stHeader"] {
     }
 }
 
-
 /* Smooth scrolling */
 html {
     scroll-behavior: smooth;
 }
-
 
 /* Loading animation */
 @keyframes pulse {
@@ -645,7 +581,6 @@ html {
         opacity: 0.5;
     }
 }
-
 
 .loading {
     animation: pulse 2s infinite;
@@ -675,13 +610,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------
-# Added Chatbot Section here
+# Chatbot Section with caching for fast embedding
 # ---------------------------
-import os
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-
 def load_knowledge():
     knowledge = []
     data_folder = "data"
@@ -690,7 +620,7 @@ def load_knowledge():
             if file.endswith(".md"):
                 with open(os.path.join(data_folder, file), encoding="utf-8") as f:
                     text = f.read()
-                    parts = text.split("\n\n")  # Split by paragraphs
+                    parts = text.split("\n\n")
                     knowledge.extend([p.strip() for p in parts if p.strip()])
     return knowledge
 
@@ -700,8 +630,12 @@ KNOWLEDGE = load_knowledge()
 def load_model():
     return SentenceTransformer('all-MiniLM-L6-v2')
 
+@st.cache_resource
+def embed_knowledge(knowledge_list, model):
+    return model.encode(knowledge_list, convert_to_tensor=True)
+
 model = load_model()
-knowledge_embeddings = model.encode(KNOWLEDGE, convert_to_tensor=True)
+knowledge_embeddings = embed_knowledge(KNOWLEDGE, model)
 
 st.markdown("<hr>", unsafe_allow_html=True)
 st.header("Ask TORO Chatbot")
@@ -709,14 +643,16 @@ st.header("Ask TORO Chatbot")
 query = st.text_input("Your question")
 if st.button("Ask") and query.strip():
     query_emb = model.encode([query], convert_to_tensor=True)
-    similarities = cosine_similarity(query_emb.cpu(), knowledge_embeddings.cpu())[0]
-    best_idx = np.argmax(similarities)
-    best_score = similarities[best_idx]
+    sims = cosine_similarity(query_emb.cpu().numpy(), knowledge_embeddings.cpu().numpy())[0]
+    best_index = np.argmax(sims)
+    best_score = sims[best_index]
     if best_score > 0.5:
-        response = KNOWLEDGE[best_idx]
+        answer = KNOWLEDGE[best_index]
     else:
-        response = "I don't know that yet. Try asking about TORO or AI tools."
-    st.markdown(f"**Answer:** {response}")
+        answer = "I don't know that yet. Try asking about TORO or AI tools."
+    st.markdown(f"**Answer:** {answer}")
+else:
+    st.write("Enter a question and press Ask")
 
 # ---------------------------
 # Filters bar
@@ -735,7 +671,7 @@ with rail_col:
                 st.session_state.filter_category = c
                 st.session_state.current_page = 1
                 request_scroll()
-                st.rerun()
+                st.experimental_rerun()
 
 with main_col:
     top_l, top_m, top_r = st.columns([3.8, 4.4, 3.8], gap="large")
@@ -755,7 +691,7 @@ with main_col:
         if st.button("🗑️ Clear filters", use_container_width=True):
             st.session_state.clear_flag = True
             request_scroll()
-            st.rerun()
+            st.experimental_rerun()
 
     with top_m:
         st.markdown("**Pricing**")
@@ -771,7 +707,7 @@ with main_col:
             on_change=on_plan_change,
             label_visibility="collapsed",
         )
-        st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")
+        st.checkbox("Embeddable preview", value=st.session_state.show_previews, key="show_previews")
 
     with top_r:
         st.markdown(
@@ -829,7 +765,7 @@ else:
         if st.button("⬅ Prev", key="prev_top") and st.session_state.current_page > 1:
             st.session_state.current_page -= 1
             request_scroll()
-            st.rerun()
+            st.experimental_rerun()
     with p2:
         st.markdown(
             f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>',
@@ -839,7 +775,7 @@ else:
         if st.button("Next ➡", key="next_top") and st.session_state.current_page < total_pages:
             st.session_state.current_page += 1
             request_scroll()
-            st.rerun()
+            st.experimental_rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
     # ---------------------------
