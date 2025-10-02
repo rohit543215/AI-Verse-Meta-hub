@@ -16,6 +16,7 @@ CATEGORIES = [
     "AI Video Generation",
     "AI Graphic Design",
     "AI Data Visualization",
+    "Free AI API Access",
 ]
 
 # Helper notes:
@@ -186,4 +187,5 @@ TOOLS = [
 
 {"name":"AI/ML API","link":"https://aimlapi.com/","plan":"Free + Paid","logo":"https://aimlapi.com/favicon.ico","category":"Free AI API Access","tags":["aggregator","multi-model","affordable"],"embeddable":True,"blurb":"200+ AI models in one API. Free: $5.99 trial credits, access to all models."},
 ]
+
 
