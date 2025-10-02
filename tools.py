@@ -143,4 +143,47 @@ TOOLS = [
     {"name":"Flourish","link":"https://flourish.studio/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/flourish.svg","category":"AI Data Visualization","tags":["charts"],"embeddable":True,"blurb":"Interactive charts and maps."},  # [web:35]
     {"name":"Visme","link":"https://www.visme.co/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/visme.svg","category":"AI Data Visualization","tags":["infographics"],"embeddable":True,"blurb":"Infographics, presentations, charts."},  # [web:35]
     {"name":"Zing Data","link":"https://www.zingdata.com/","plan":"Free + Paid","logo":"https://ai-logos-svg.vercel.app/logos/zing.svg","category":"AI Data Visualization","tags":["bi","mobile"],"embeddable":True,"blurb":"Mobile‑first BI with AI."},  # [web:35]
+
+
+    # -------------------- Free AI API Access --------------------
+{"name":"Groq","link":"https://groq.com/","plan":"Free + Paid","logo":"https://groq.com/wp-content/uploads/2024/03/PBG-mark1-color.svg","category":"Free AI API Access","tags":["llm","fast-inference","chatbot"],"embeddable":True,"blurb":"Ultra-fast LLM inference. Free: 14,400 requests/day, 30 req/min for Llama models."},
+
+{"name":"OpenRouter","link":"https://openrouter.ai/","plan":"Free + Paid","logo":"https://openrouter.ai/favicon-32x32.png","category":"Free AI API Access","tags":["llm","aggregator","multi-model"],"embeddable":True,"blurb":"Unified API for multiple AI models. Free models available (Llama, Mistral), pay only for premium."},
+
+{"name":"Google Gemini API","link":"https://ai.google.dev/","plan":"Free + Paid","logo":"https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg","category":"Free AI API Access","tags":["llm","multimodal","google"],"embeddable":True,"blurb":"Multimodal AI from Google. Free: 60 requests/min, 1,500 requests/day for Gemini Pro."},
+
+{"name":"Cohere","link":"https://cohere.com/","plan":"Free + Paid","logo":"https://cohere.com/favicon.ico","category":"Free AI API Access","tags":["nlp","embeddings","generation"],"embeddable":True,"blurb":"Production NLP models. Free: 100 API calls/min, 1000 calls/month trial credits."},
+
+{"name":"Mistral AI","link":"https://mistral.ai/","plan":"Free + Paid","logo":"https://mistral.ai/images/logo_hubc88c4ece131b91c7cb753f40e9e1cc5_2589_256x0_resize_q97_h2_lanczos_3.webp","category":"Free AI API Access","tags":["llm","open-source","europe"],"embeddable":True,"blurb":"European open LLMs. Free: €5 trial credits, rate limits vary by model."},
+
+{"name":"Hugging Face Inference API","link":"https://huggingface.co/inference-api","plan":"Free + Paid","logo":"https://huggingface.co/front/assets/huggingface_logo-noborder.svg","category":"Free AI API Access","tags":["models","inference","open-source"],"embeddable":True,"blurb":"Access 350k+ models. Free: Rate-limited inference, 1000 requests/hour for popular models."},
+
+{"name":"Together AI","link":"https://www.together.ai/","plan":"Free + Paid","logo":"https://www.together.ai/favicon.ico","category":"Free AI API Access","tags":["inference","open-models","fast"],"embeddable":True,"blurb":"Fast open-source model inference. Free: $25 trial credits, ~1M tokens for Llama-3."},
+
+{"name":"Replicate","link":"https://replicate.com/","plan":"Free + Paid","logo":"https://replicate.com/favicon.ico","category":"Free AI API Access","tags":["models","image","video"],"embeddable":True,"blurb":"Run AI models via API. Free: $0.01 trial credits, pay-per-use after (very affordable)."},
+
+{"name":"Ollama","link":"https://ollama.ai/","plan":"Free","logo":"https://ollama.ai/public/icon-32x32.png","category":"Free AI API Access","tags":["local","self-hosted","llm"],"embeddable":False,"blurb":"Run LLMs locally. Free: Unlimited, runs on your hardware with OpenAI-compatible API."},
+
+{"name":"LocalAI","link":"https://localai.io/","plan":"Free","logo":"https://localai.io/favicon.ico","category":"Free AI API Access","tags":["local","self-hosted","openai-compatible"],"embeddable":False,"blurb":"Self-hosted OpenAI alternative. Free: Unlimited, supports 50+ model architectures locally."},
+
+{"name":"Anthropic Claude API","link":"https://www.anthropic.com/api","plan":"Trial + Paid","logo":"https://www.anthropic.com/images/icons/favicon-32x32.png","category":"Free AI API Access","tags":["llm","reasoning","safety"],"embeddable":True,"blurb":"Advanced reasoning AI. Free: $5 trial credits (~1M tokens), then pay-as-you-go."},
+
+{"name":"Stability AI","link":"https://platform.stability.ai/","plan":"Trial + Paid","logo":"https://platform.stability.ai/favicon.ico","category":"Free AI API Access","tags":["image","stable-diffusion","generation"],"embeddable":True,"blurb":"Image generation API. Free: 25 trial credits for Stable Diffusion XL generation."},
+
+{"name":"ElevenLabs","link":"https://elevenlabs.io/","plan":"Free + Paid","logo":"https://elevenlabs.io/favicon.ico","category":"Free AI API Access","tags":["voice","tts","audio"],"embeddable":True,"blurb":"AI voice generation. Free: 10,000 characters/month, 3 custom voices."},
+
+{"name":"AssemblyAI","link":"https://www.assemblyai.com/","plan":"Free + Paid","logo":"https://www.assemblyai.com/favicon.ico","category":"Free AI API Access","tags":["speech-to-text","transcription","audio"],"embeddable":True,"blurb":"Speech-to-text API. Free: $50 trial credits, ~300 hours of transcription."},
+
+{"name":"Deepgram","link":"https://deepgram.com/","plan":"Free + Paid","logo":"https://deepgram.com/favicon.ico","category":"Free AI API Access","tags":["speech-to-text","real-time","audio"],"embeddable":True,"blurb":"Real-time speech recognition. Free: $200 credits, 12,000 minutes of audio processing."},
+
+{"name":"Pinecone","link":"https://www.pinecone.io/","plan":"Free + Paid","logo":"https://www.pinecone.io/favicon.ico","category":"Free AI API Access","tags":["vector-db","embeddings","search"],"embeddable":True,"blurb":"Vector database for AI. Free: 100K vectors, 1 pod, 5 indexes (Starter plan)."},
+
+{"name":"Weaviate","link":"https://weaviate.io/","plan":"Free + Paid","logo":"https://weaviate.io/favicon.ico","category":"Free AI API Access","tags":["vector-db","search","open-source"],"embeddable":True,"blurb":"Open-source vector database. Free: Sandbox 14 days, self-hosted unlimited."},
+
+{"name":"Voyage AI","link":"https://www.voyageai.com/","plan":"Free + Paid","logo":"https://www.voyageai.com/favicon.ico","category":"Free AI API Access","tags":["embeddings","search","rag"],"embeddable":True,"blurb":"State-of-the-art embeddings. Free: 50M tokens/month for retrieval/search tasks."},
+
+{"name":"Jina AI","link":"https://jina.ai/","plan":"Free + Paid","logo":"https://jina.ai/favicon.ico","category":"Free AI API Access","tags":["embeddings","search","multimodal"],"embeddable":True,"blurb":"Multimodal embeddings & search. Free: 1M tokens/month for embedding models."},
+
+{"name":"AI/ML API","link":"https://aimlapi.com/","plan":"Free + Paid","logo":"https://aimlapi.com/favicon.ico","category":"Free AI API Access","tags":["aggregator","multi-model","affordable"],"embeddable":True,"blurb":"200+ AI models in one API. Free: $5.99 trial credits, access to all models."},
 ]
+
