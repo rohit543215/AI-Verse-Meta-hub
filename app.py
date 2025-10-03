@@ -516,12 +516,12 @@ st.markdown("""
 
 
 /* Why TORO section */
-.toro-card.big {
+.toro-card {
     background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
     border: 2px solid #60a5fa;
     border-radius: 24px;
     padding: 2rem;
-    margin-top: 1rem;
+    margin-bottom: 1rem;
     box-shadow: var(--shadow);
 }
 
@@ -576,6 +576,66 @@ st.markdown("""
     margin: 0.75rem 0;
     font-size: 1rem;
     line-height: 1.6;
+}
+
+
+/* Chatbot section */
+.chatbot-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 2px solid #86efac;
+    border-radius: 24px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: var(--shadow);
+}
+
+
+.chatbot-title {
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+
+.chatbot-subtitle {
+    color: #166534;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+
+.chatbot-response {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid #86efac;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    box-shadow: 0 4px 15px rgba(22, 163, 74, 0.1);
+}
+
+
+.chatbot-response-label {
+    font-weight: 800;
+    color: #15803d;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+
+.chatbot-response-text {
+    color: #1a202c;
+    font-size: 1rem;
+    line-height: 1.7;
+    margin: 0;
 }
 
 
@@ -675,50 +735,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------
-# Added Chatbot Section here
-# ---------------------------
-import os
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-
-def load_knowledge():
-    knowledge = []
-    data_folder = "data"
-    if os.path.exists(data_folder):
-        for file in os.listdir(data_folder):
-            if file.endswith(".md"):
-                with open(os.path.join(data_folder, file), encoding="utf-8") as f:
-                    text = f.read()
-                    parts = text.split("\n\n")  # Split by paragraphs
-                    knowledge.extend([p.strip() for p in parts if p.strip()])
-    return knowledge
-
-KNOWLEDGE = load_knowledge()
-
-@st.cache_resource
-def load_model():
-    return SentenceTransformer('all-MiniLM-L6-v2')
-
-model = load_model()
-knowledge_embeddings = model.encode(KNOWLEDGE, convert_to_tensor=True)
-
-st.markdown("<hr>", unsafe_allow_html=True)
-st.header("Ask TORO Chatbot")
-
-query = st.text_input("Your question")
-if st.button("Ask") and query.strip():
-    query_emb = model.encode([query], convert_to_tensor=True)
-    similarities = cosine_similarity(query_emb.cpu(), knowledge_embeddings.cpu())[0]
-    best_idx = np.argmax(similarities)
-    best_score = similarities[best_idx]
-    if best_score > 0.5:
-        response = KNOWLEDGE[best_idx]
-    else:
-        response = "I don't know that yet. Try asking about TORO or AI tools."
-    st.markdown(f"**Answer:** {response}")
-
-# ---------------------------
 # Filters bar
 # ---------------------------
 st.markdown('<div class="filters-card">', unsafe_allow_html=True)
@@ -772,6 +788,25 @@ with main_col:
             label_visibility="collapsed",
         )
         st.toggle("Embeddable preview", value=st.session_state.show_previews, key="show_previews")
+        
+        # Why TORO section
+        st.markdown(
+            """
+            <div class="toro-card">
+              <span class="toro-badge">✨ WHY CHOOSE TORO?</span>
+              <p class="toro-eyebrow">THE SMART WAY TO FIND AI TOOLS</p>
+              <h2 class="toro-title">Everything You Need in One Place</h2>
+              <p class="toro-sub">TORO is your comprehensive AI tools directory designed for speed, simplicity, and discovery.</p>
+              <ul class="toro-bullets">
+                <li><strong>🔍 Smart Search:</strong> Find exactly what you need with powerful filters</li>
+                <li><strong>📊 Curated Selection:</strong> Only the best tools make it to TORO</li>
+                <li><strong>⚡ Instant Launch:</strong> No sign-ups, just click and explore</li>
+                <li><strong>💡 Expert Picks:</strong> Get recommendations from AI professionals</li>
+              </ul>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     with top_r:
         st.markdown(
@@ -791,6 +826,56 @@ with main_col:
         )
 
 st.markdown("</div>", unsafe_allow_html=True)
+
+# ---------------------------
+# Chatbot Section (Improved Design)
+# ---------------------------
+def load_knowledge():
+    knowledge = []
+    data_folder = "data"
+    if os.path.exists(data_folder):
+        for file in os.listdir(data_folder):
+            if file.endswith(".md"):
+                with open(os.path.join(data_folder, file), encoding="utf-8") as f:
+                    text = f.read()
+                    parts = text.split("\n\n")  # Split by paragraphs
+                    knowledge.extend([p.strip() for p in parts if p.strip()])
+    return knowledge
+
+KNOWLEDGE = load_knowledge()
+
+@st.cache_resource
+def load_model():
+    return SentenceTransformer('all-MiniLM-L6-v2')
+
+model = load_model()
+knowledge_embeddings = model.encode(KNOWLEDGE, convert_to_tensor=True)
+
+st.markdown("""
+<div class="chatbot-card">
+  <h2 class="chatbot-title">🤖 Ask TORO Chatbot</h2>
+  <p class="chatbot-subtitle">Get instant answers about AI tools, features, and recommendations</p>
+</div>
+""", unsafe_allow_html=True)
+
+query = st.text_input("Your question", placeholder="e.g., What are the best AI tools for content creation?", key="chatbot_query")
+
+if st.button("🚀 Ask TORO", use_container_width=True, type="primary") and query.strip():
+    query_emb = model.encode([query], convert_to_tensor=True)
+    similarities = cosine_similarity(query_emb.cpu(), knowledge_embeddings.cpu())[0]
+    best_idx = np.argmax(similarities)
+    best_score = similarities[best_idx]
+    if best_score > 0.5:
+        response = KNOWLEDGE[best_idx]
+    else:
+        response = "I don't have specific information about that yet. Try asking about TORO features, AI tools, or browse the directory above!"
+    
+    st.markdown(f"""
+    <div class="chatbot-response">
+      <span class="chatbot-response-label">💬 TORO's Answer:</span>
+      <p class="chatbot-response-text">{response}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ---------------------------
 # Results anchor (native)
@@ -832,7 +917,7 @@ else:
             st.rerun()
     with p2:
         st.markdown(
-            f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>',
+            f'<div class="page-info">Page {st.session_state.current_page} of {total _pages} — {total_tools} tools</div>',
             unsafe_allow_html=True,
         )
     with p3:
@@ -894,11 +979,31 @@ else:
                 if emb and st.session_state.show_previews:
                     st.components.v1.iframe(link, height=520, scrolling=True)
 
+    # ---------------------------
+    # Bottom pagination
+    # ---------------------------
+    st.markdown('<div class="pagination">', unsafe_allow_html=True)
+    p1, p2, p3 = st.columns([1, 2, 1], gap="large")
+    with p1:
+        if st.button("⬅ Prev", key="prev_bottom") and st.session_state.current_page > 1:
+            st.session_state.current_page -= 1
+            request_scroll()
+            st.rerun()
+    with p2:
+        st.markdown(
+            f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>',
+            unsafe_allow_html=True,
+        )
+    with p3:
+        if st.button("Next ➡", key="next_bottom") and st.session_state.current_page < total_pages:
+            st.session_state.current_page += 1
+            request_scroll()
+            st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+
 # ---------------------------
 # Footer
 # ---------------------------
 st.divider()
 st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
 st.caption("✨ Made with ❤️ by Girish Joshi in INDIA • TORO - Find the perfect AI tool for every use case")
-
-
