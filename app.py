@@ -917,7 +917,7 @@ else:
             st.rerun()
     with p2:
         st.markdown(
-            f'<div class="page-info">Page {st.session_state.current_page} of {total _pages} — {total_tools} tools</div>',
+            f'<div class="page-info">Page {st.session_state.current_page} of {total_pages} — {total_tools} tools</div>',
             unsafe_allow_html=True,
         )
     with p3:
