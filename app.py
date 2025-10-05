@@ -880,7 +880,8 @@ if st.button("🚀 Ask TORO", use_container_width=True, type="primary") and quer
 # ---------------------------
 # Results anchor (native)
 # ---------------------------
-st.header("Results", anchor="results")
+st.markdown('<div id="results"></div>', unsafe_allow_html=True)
+st.header("Results")
 
 # ---------------------------
 # Data and pagination
@@ -893,13 +894,17 @@ if st.session_state.current_page > total_pages:
     st.session_state.current_page = total_pages
 
 # ---------------------------
-# Trigger scroll via URL fragment (JS-free)
+# Trigger scroll to results section
 # ---------------------------
 if st.session_state.scroll_ticket > st.session_state.last_scrolled_ticket:
-    qp = dict(st.query_params)
-    qp["section"] = "results"  # harmless param to "touch" the fragment
-    st.query_params.clear()
-    st.query_params.update(qp)
+    st.components.v1.html(
+        """
+        <script>
+            window.parent.document.getElementById('results').scrollIntoView({behavior: 'smooth', block: 'start'});
+        </script>
+        """,
+        height=0,
+    )
     st.session_state.last_scrolled_ticket = st.session_state.scroll_ticket
 
 # ---------------------------
