@@ -897,17 +897,31 @@ if st.session_state.current_page > total_pages:
 # Trigger scroll to results section
 # ---------------------------
 if st.session_state.scroll_ticket > st.session_state.last_scrolled_ticket:
-    scroll_script = f"""
+    st.components.v1.html(
+        f"""
         <script>
-            setTimeout(function() {{
-                var resultsElement = window.parent.document.getElementById('results');
-                if (resultsElement) {{
-                    resultsElement.scrollIntoView({{behavior: 'smooth', block: 'start'}});
+            (function() {{
+                var scrollAttempts = 0;
+                var maxAttempts = 20;
+                
+                function tryScroll() {{
+                    scrollAttempts++;
+                    var resultsElement = window.parent.document.getElementById('results');
+                    
+                    if (resultsElement) {{
+                        resultsElement.scrollIntoView({{behavior: 'smooth', block: 'start'}});
+                        console.log('Scrolled to results - Ticket: {st.session_state.scroll_ticket}');
+                    }} else if (scrollAttempts < maxAttempts) {{
+                        setTimeout(tryScroll, 100);
+                    }}
                 }}
-            }}, 100);
+                
+                setTimeout(tryScroll, 200);
+            }})();
         </script>
-    """
-    st.components.v1.html(scroll_script, height=0)
+        """,
+        height=0,
+    )
     st.session_state.last_scrolled_ticket = st.session_state.scroll_ticket
 
 # ---------------------------
