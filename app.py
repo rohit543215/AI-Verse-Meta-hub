@@ -897,14 +897,17 @@ if st.session_state.current_page > total_pages:
 # Trigger scroll to results section
 # ---------------------------
 if st.session_state.scroll_ticket > st.session_state.last_scrolled_ticket:
-    st.components.v1.html(
-        """
+    scroll_script = f"""
         <script>
-            window.parent.document.getElementById('results').scrollIntoView({behavior: 'smooth', block: 'start'});
+            setTimeout(function() {{
+                var resultsElement = window.parent.document.getElementById('results');
+                if (resultsElement) {{
+                    resultsElement.scrollIntoView({{behavior: 'smooth', block: 'start'}});
+                }}
+            }}, 100);
         </script>
-        """,
-        height=0,
-    )
+    """
+    st.components.v1.html(scroll_script, height=0)
     st.session_state.last_scrolled_ticket = st.session_state.scroll_ticket
 
 # ---------------------------
