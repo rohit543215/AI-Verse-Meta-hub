@@ -42,7 +42,7 @@ API_KEY = os.getenv("OPENROUTER_API_KEY")
 if not API_KEY and "OPENROUTER_API_KEY" in st.secrets:
     API_KEY = st.secrets["OPENROUTER_API_KEY"]
 
-MODEL_ID = "alibaba/tongyi-deepresearch-30b-a3b:free"
+MODEL_ID = "deepseek/deepseek-chat-v3.1:free"
 
 
 # ---------------------------
@@ -1114,3 +1114,4 @@ else:
 st.divider()
 st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
 st.caption("✨ Made with ❤️ by Girish Joshi in INDIA • TORO - Find the perfect AI tool for every use case")
+
