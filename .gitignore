@@ -1,1 +1,9 @@
+data/
+.env
+.gitignore    <--- this file (hidden on some systems)
+README.md
+app.py
+requirements.txt
+runtime.txt
+tools.py
 
