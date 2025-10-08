@@ -830,26 +830,71 @@ st.markdown("</div>", unsafe_allow_html=True)
 # ---------------------------
 # Chatbot Section (Improved Design)
 # ---------------------------
-def load_knowledge():
-    knowledge = []
-    data_folder = "data"
-    if os.path.exists(data_folder):
-        for file in os.listdir(data_folder):
-            if file.endswith(".md"):
-                with open(os.path.join(data_folder, file), encoding="utf-8") as f:
-                    text = f.read()
-                    parts = text.split("\n\n")  # Split by paragraphs
-                    knowledge.extend([p.strip() for p in parts if p.strip()])
-    return knowledge
+import requests
+from dotenv import load_dotenv
 
-KNOWLEDGE = load_knowledge()
+# ---- LOAD API KEY SECURELY ----
+load_dotenv()
+API_KEY = os.getenv("OPENROUTER_API_KEY")
+if not API_KEY and "OPENROUTER_API_KEY" in st.secrets:
+    API_KEY = st.secrets["OPENROUTER_API_KEY"]
 
-@st.cache_resource
-def load_model():
-    return SentenceTransformer('all-MiniLM-L6-v2')
+MODEL_ID = "alibaba/tongyi-deepresearch-30b-a3b:free"
 
-model = load_model()
-knowledge_embeddings = model.encode(KNOWLEDGE, convert_to_tensor=True)
+def get_openrouter_response(messages, model=MODEL_ID):
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://localhost",      # Optional for analytics
+        "X-Title": "TORO Chatbot",                # Optional for analytics
+    }
+    payload = {
+        "model": model,
+        "messages": messages,
+        "temperature": 0.7,
+        "max_tokens": 512,
+        "stream": False
+    }
+    response = requests.post(url, headers=headers, json=payload)
+    if response.ok:
+        return response.json()["choices"][0]["message"]["content"]
+    else:
+        return f"Error: {response.status_code} {response.text}"
+
+# --- Chatbot UI ---
+st.markdown("""
+<div class="chatbot-card">
+  <h2 class="chatbot-title">🤖 Ask TORO Chatbot (Powered by Alibaba Tongyi DeepResearch 30B)</h2>
+  <p class="chatbot-subtitle">Get instant answers about AI tools, features, and recommendations.</p>
+</div>
+""", unsafe_allow_html=True)
+
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = [
+        {"role": "system", "content": "You are a helpful assistant for AI tools and directory questions. The user is Girish Joshi, a Python developer interested in AI, ML, Streamlit apps."}
+    ]
+
+for msg in st.session_state.chat_history:
+    if msg["role"] == "user":
+        st.markdown(f"<div style='color:#4361ee; font-weight:700;'>🧑 You: {msg['content']}</div>", unsafe_allow_html=True)
+    if msg["role"] == "assistant":
+        st.markdown(f"<div style='color:#111; background:#dcfce7; border-radius:8px; padding:8px; margin-bottom:8px;'><strong>🤖 Bot:</strong> {msg['content']}</div>", unsafe_allow_html=True)
+
+query = st.text_input("Ask the chatbot (Alibaba Tongyi model):", key="chatbot_api_query")
+if st.button("🚀 Ask TORO", key="ask_btn", use_container_width=True) and query.strip():
+    st.session_state.chat_history.append({"role": "user", "content": query})
+    with st.spinner("Waiting for answer from Alibaba Tongyi..."):
+        answer = get_openrouter_response(st.session_state.chat_history)
+    st.session_state.chat_history.append({"role": "assistant", "content": answer})
+    st.rerun()
+
+if st.button("🧹 Clear Chat", use_container_width=True):
+    st.session_state.chat_history = [
+        {"role": "system", "content": "You are a helpful assistant for AI tools and directory questions. The user is Girish Joshi, a Python developer interested in AI, ML, Streamlit apps."}
+    ]
+    st.rerun()
+
 
 st.markdown("""
 <div class="chatbot-card">
@@ -1029,3 +1074,4 @@ else:
 st.divider()
 st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
 st.caption("✨ Made with ❤️ by Girish Joshi in INDIA • TORO - Find the perfect AI tool for every use case")
+
