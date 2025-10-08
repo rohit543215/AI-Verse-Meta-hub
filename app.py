@@ -1,8 +1,9 @@
 import streamlit as st
-import requests
-from dotenv import load_dotenv
 from tools import TOOLS, CATEGORIES
 import os
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 
 
 # ---------------------------
@@ -32,60 +33,6 @@ defaults = {
 for k, v in defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
-
-
-# ---------------------------
-# Load API Key
-# ---------------------------
-load_dotenv()
-API_KEY = os.getenv("OPENROUTER_API_KEY")
-if not API_KEY and "OPENROUTER_API_KEY" in st.secrets:
-    API_KEY = st.secrets["OPENROUTER_API_KEY"]
-
-MODEL_ID = "deepseek/deepseek-chat-v3.1:free"
-
-
-# ---------------------------
-# TORO AI Hub System Prompt for API
-# ---------------------------
-TORO_SYSTEM_PROMPT = """You are TORO AI Assistant, an expert helper for the TORO AI Tools Directory.
-
-**About TORO:**
-- TORO is a comprehensive AI tools directory that helps users discover and explore AI tools by category and pricing
-- It features smart filtering by category, pricing plans, and keyword search
-- Users can preview embeddable tools directly within the platform
-- Instant launch capabilities - no sign-ups required, just click and explore
-
-**Available Categories:**
-Chatbots, Image Generation, Video Tools, Writing Assistants, Research Tools, Productivity, Design, Marketing, Development, Education, Audio Tools, Data Analysis
-
-**Pricing Plans:**
-- Free: Completely free tools
-- Free + Paid: Freemium model with premium features
-- Paid: Subscription-based tools
-- Credits + Paid: Pay-per-use with credit system
-
-**Editor's Top Picks:**
-- Best General Assistant: ChatGPT - Great all-rounder for Q&A, coding, and writing
-- Best Image Generation: Gemini - Strong multimodal capabilities
-- Best Video Generation: Runway - Reliable editing and generation workflow
-- Best Meeting Assistant: Otter - Live transcription and summaries
-- Best Automation: Zapier - Connect apps without code
-- Best Research: Perplexity - Answer engine with citations
-- Best Writing: Grammarly - Grammar fixes and tone control
-
-**Key Features:**
-- 🔍 Smart Search: Find exactly what you need with powerful filters
-- 📊 Curated Selection: Only the best tools make it to TORO
-- ⚡ Instant Launch: No sign-ups, just click and explore
-- 💡 Expert Picks: Recommendations from AI professionals
-- 🧩 Embeddable Previews: Try tools without leaving TORO
-
-**Your Role:**
-Help users discover the right AI tools for their needs. Provide specific recommendations based on their use case, budget, and requirements. Be friendly, knowledgeable, and concise. Always encourage users to explore the directory to find more tools.
-
-**Creator Info:**
-TORO was created by Girish Joshi, a Python developer from India passionate about AI, ML, and Streamlit applications."""
 
 
 # ---------------------------
@@ -123,36 +70,6 @@ def filter_tools(tools):
                 continue
         filtered.append(tool)
     return filtered
-
-
-def get_openrouter_response(messages, model=MODEL_ID):
-    """Get response from OpenRouter API"""
-    if not API_KEY:
-        return "Error: API key not configured. Please add OPENROUTER_API_KEY to your environment."
-    
-    url = "https://openrouter.ai/api/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://localhost",
-        "X-Title": "TORO Chatbot",
-    }
-    payload = {
-        "model": model,
-        "messages": messages,
-        "temperature": 0.7,
-        "max_tokens": 512,
-        "stream": False
-    }
-    
-    try:
-        response = requests.post(url, headers=headers, json=payload, timeout=30)
-        if response.ok:
-            return response.json()["choices"][0]["message"]["content"]
-        else:
-            return f"Error: {response.status_code} - {response.text}"
-    except Exception as e:
-        return f"Error connecting to API: {str(e)}"
 
 
 # ---------------------------
@@ -695,29 +612,30 @@ st.markdown("""
 }
 
 
-.chat-message {
-    margin: 1rem 0;
-    padding: 1rem;
-    border-radius: 12px;
-    animation: fadeIn 0.3s ease-in;
+.chatbot-response {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid #86efac;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    box-shadow: 0 4px 15px rgba(22, 163, 74, 0.1);
 }
 
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.chatbot-response-label {
+    font-weight: 800;
+    color: #15803d;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    display: block;
 }
 
 
-.user-message {
-    background: rgba(102, 126, 234, 0.1);
-    border-left: 4px solid #667eea;
-}
-
-
-.bot-message {
-    background: rgba(22, 163, 74, 0.1);
-    border-left: 4px solid #16a34a;
+.chatbot-response-text {
+    color: #1a202c;
+    font-size: 1rem;
+    line-height: 1.7;
+    margin: 0;
 }
 
 
@@ -910,8 +828,29 @@ with main_col:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------
-# Chatbot Section
+# Chatbot Section (Improved Design)
 # ---------------------------
+def load_knowledge():
+    knowledge = []
+    data_folder = "data"
+    if os.path.exists(data_folder):
+        for file in os.listdir(data_folder):
+            if file.endswith(".md"):
+                with open(os.path.join(data_folder, file), encoding="utf-8") as f:
+                    text = f.read()
+                    parts = text.split("\n\n")  # Split by paragraphs
+                    knowledge.extend([p.strip() for p in parts if p.strip()])
+    return knowledge
+
+KNOWLEDGE = load_knowledge()
+
+@st.cache_resource
+def load_model():
+    return SentenceTransformer('all-MiniLM-L6-v2')
+
+model = load_model()
+knowledge_embeddings = model.encode(KNOWLEDGE, convert_to_tensor=True)
+
 st.markdown("""
 <div class="chatbot-card">
   <h2 class="chatbot-title">🤖 Ask TORO Chatbot</h2>
@@ -919,48 +858,24 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = [
-        {"role": "system", "content": TORO_SYSTEM_PROMPT}
-    ]
+query = st.text_input("Your question", placeholder="e.g., What are the best AI tools for content creation?", key="chatbot_query")
 
-# Display chat history
-for msg in st.session_state.chat_history:
-    if msg["role"] == "user":
-        st.markdown(f"""
-        <div class="chat-message user-message">
-            <strong>🧑 You:</strong> {msg['content']}
-        </div>
-        """, unsafe_allow_html=True)
-    elif msg["role"] == "assistant":
-        st.markdown(f"""
-        <div class="chat-message bot-message">
-            <strong>🤖 TORO:</strong> {msg['content']}
-        </div>
-        """, unsafe_allow_html=True)
-
-# User input
-query = st.text_input("Ask about AI tools, recommendations, or TORO features:", 
-                      placeholder="e.g., What are the best free AI tools for content creation?", 
-                      key="chatbot_query")
-
-col1, col2 = st.columns([3, 1])
-with col1:
-    if st.button("🚀 Ask TORO", use_container_width=True, type="primary") and query.strip():
-        st.session_state.chat_history.append({"role": "user", "content": query})
-        
-        with st.spinner("🤔 TORO is thinking..."):
-            answer = get_openrouter_response(st.session_state.chat_history)
-        
-        st.session_state.chat_history.append({"role": "assistant", "content": answer})
-        st.rerun()
-
-with col2:
-    if st.button("🧹 Clear Chat", use_container_width=True):
-        st.session_state.chat_history = [
-            {"role": "system", "content": TORO_SYSTEM_PROMPT}
-        ]
-        st.rerun()
+if st.button("🚀 Ask TORO", use_container_width=True, type="primary") and query.strip():
+    query_emb = model.encode([query], convert_to_tensor=True)
+    similarities = cosine_similarity(query_emb.cpu(), knowledge_embeddings.cpu())[0]
+    best_idx = np.argmax(similarities)
+    best_score = similarities[best_idx]
+    if best_score > 0.5:
+        response = KNOWLEDGE[best_idx]
+    else:
+        response = "I don't have specific information about that yet. Try asking about TORO features, AI tools, or browse the directory above!"
+    
+    st.markdown(f"""
+    <div class="chatbot-response">
+      <span class="chatbot-response-label">💬 TORO's Answer:</span>
+      <p class="chatbot-response-text">{response}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ---------------------------
 # Results anchor (native)
@@ -1114,4 +1029,3 @@ else:
 st.divider()
 st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
 st.caption("✨ Made with ❤️ by Girish Joshi in INDIA • TORO - Find the perfect AI tool for every use case")
-
