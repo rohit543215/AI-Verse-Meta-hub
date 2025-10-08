@@ -7,5 +7,8 @@ sentence-transformers
 transformers
 scikit-learn
 torch
+python-dotenv
+requests
+
 
 
