@@ -1,4 +1,6 @@
 import streamlit as st
+import requests
+from dotenv import load_dotenv
 from tools import TOOLS, CATEGORIES
 import os
 from sentence_transformers import SentenceTransformer
@@ -1074,4 +1076,5 @@ else:
 st.divider()
 st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
 st.caption("✨ Made with ❤️ by Girish Joshi in INDIA • TORO - Find the perfect AI tool for every use case")
+
 
