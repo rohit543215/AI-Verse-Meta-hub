@@ -59,33 +59,7 @@ TORO_SYSTEM_PROMPT = """You are TORO AI Assistant, an expert helper for the TORO
 **Available Categories:**
 Chatbots, Image Generation, Video Tools, Writing Assistants, Research Tools, Productivity, Design, Marketing, Development, Education, Audio Tools, Data Analysis
 
-**Pricing Plans:**
-- Free: Completely free tools
-- Free + Paid: Freemium model with premium features
-- Paid: Subscription-based tools
-- Credits + Paid: Pay-per-use with credit system
-
-**Editor's Top Picks:**
-- Best General Assistant: ChatGPT - Great all-rounder for Q&A, coding, and writing
-- Best Image Generation: Gemini - Strong multimodal capabilities
-- Best Video Generation: Runway - Reliable editing and generation workflow
-- Best Meeting Assistant: Otter - Live transcription and summaries
-- Best Automation: Zapier - Connect apps without code
-- Best Research: Perplexity - Answer engine with citations
-- Best Writing: Grammarly - Grammar fixes and tone control
-
-**Key Features:**
-- 🔍 Smart Search: Find exactly what you need with powerful filters
-- 📊 Curated Selection: Only the best tools make it to TORO
-- ⚡ Instant Launch: No sign-ups, just click and explore
-- 💡 Expert Picks: Recommendations from AI professionals
-- 🧩 Embeddable Previews: Try tools without leaving TORO
-
-**Your Role:**
-Help users discover the right AI tools for their needs. Provide specific recommendations based on their use case, budget, and requirements. Be friendly, knowledgeable, and concise. Always encourage users to explore the directory to find more tools.
-
-**Creator Info:**
-TORO was created by Girish Joshi, a Python developer from India passionate about AI, ML, and Streamlit applications."""
+"""
 
 
 # ---------------------------
@@ -1114,3 +1088,4 @@ else:
 st.divider()
 st.link_button("🎓 more tools for student", "https://free-tools-ijpl7qrhvjg4gdhvhnpvae.streamlit.app/", type="primary", icon="🧰", use_container_width=True)
 st.caption("✨ Made with ❤️ by Girish Joshi in INDIA • TORO - Find the perfect AI tool for every use case")
+
